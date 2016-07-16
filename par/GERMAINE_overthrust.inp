@@ -71,7 +71,7 @@ gradient_taper_geometry_(GRADT1,GRADT2,GRADT3,GRADT4) = 2, 5, 490, 500
 # Vertical taper
 apply_vertical_taper_(yes=1)_(SWS_TAPER_GRAD_VERT) = 0
 # Horizontal taper
-apply_horizontal_taper_(yes=1)_(SWS_TAPER_GRAD_HOR) = 1
+apply_horizontal_taper_(yes=1)_(SWS_TAPER_GRAD_HOR) = 0
 exponent_of_depth_scaling_for_preconditioning_(EXP_TAPER_GRAD_HOR) = 0.0
 # Circular taper around all sources (not at receiver positions)
 apply_cylindrical_taper_(yes=1)_(SWS_TAPER_GRAD_SOURCES) = 0
