@@ -1,7 +1,6 @@
 # GERMAINE
 
-2D frequency-domain acoustic FD modelling and full waveform inversion (FWI) code 
-which I developed together with Denise De Nil.
+2D acoustic FDFD modelling and FWI code, which I developed together with Denise De Nil.
 
 The 2D Frequency Domain Finite-Difference (FDFD) Code GERMAINE solves the 2D Helmholtz equation using a 9-point FD stencil with PML absorbing boundary conditions according to 
 
