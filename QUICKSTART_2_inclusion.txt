@@ -1,0 +1,169 @@
+Quickstart to run the 2 inclusion toy example using the acoustic FDFD code GERMAINE in 12 easy steps
+
+References:
+-----------
+
+If you use the 2 inclusion toy model for your own research please cite the following reference in your 
+publications:
+
+Operto S, Virieux J, Sourbier F, 2007
+Documentation of FWT2D.V4.6 program:
+Frequency-domain full-waveform modeling/inversion
+of wide-aperture seismic data for imaging 2D acoustic media
+Technical report No 6 - SEISCOPE project
+
+Minimum requirements:
+---------------------
+CPU with 1 - 8 cores
+5 GB RAM
+~13.5 minutes computation time on a 16 core CPU
+
+C-Compiler: gcc, icc (recommended)
+MPI-library: OpenMPI, Intel-MPI (recommended)
+
+other libraries:
+
+Optimized BLAS/LAPACK library, e.g. OpenBLAS or Intel MKL library 
+
+For LU-decomposition of the impedance matrix and forward/backward substitution UMFPACK (SuiteSparse): 
+
+When running GERMAINE under Ubuntu (Linux Mint) you can simply install the latest version of the 
+SuiteSparse package using
+
+sudo apt-get install libsuitesparse-dev
+
+or build from source available here
+
+http://faculty.cse.tamu.edu/davis/suitesparse.html
+
+If you compile SuiteSparse on the NEC-Cluster @ CAU Kiel together with Intel MKL-library first run 
+
+make config
+
+then add 
+
+BLAS = -L/opt/intel/mkl/lib/intel64 -lmkl_rt
+LAPACK = -L/opt/intel/mkl/lib/intel64 -lmkl_rt 
+
+in 
+
+SuiteSparse_config/SuiteSparse_config.mk
+
+to specify the location of Intel MKL and finally type
+
+make
+
+For seismic data and model visualization:
+-----------------------------------------
+
+Seismic Unix - http://www.cwp.mines.edu/cwpcodes/
+
+and/or
+
+NumPy, SciPy and Matplotlib - https://www.scipy.org/
+
+
+Installation GERMAINE and running the 2 inclusion problem:
+----------------------------------------------------------
+
+1. Clone GERMAINE on your local machine
+
+git clone https://github.com/daniel-koehn/GERMAINE.git
+
+2. In /src adapt the compiler options in the Makefile to your system and compile the GERMAINE code with
+
+make germaine
+
+3. Clone DENISE-Benchmark on your local machine 
+
+git clone https://github.com/daniel-koehn/DENISE-Benchmark
+
+4. Copy model file for the 2 inclusion toy example from DENISE-Benchmark to GERMAINE 
+
+cp DENISE-Benchmark/2_inclusion_toy_example/start/inclusions* GERMAINE/par/start/
+
+5. In GERMAINE/par/GERMAINE_incl2.inp check if the following parameters are set correctly for a forward 
+modelling run
+
+forward_modelling_(yes=0)_FDFWI_(yes=1)_GRID_SEARCH_(yes=2)_(INVMAT) = 0
+MFILE = start/inclusions_true
+
+6. Generate synthetic data for the 2D toy example using a high coverage tomographic acquisition geometry by 
+running GERMAINE on e.g. 16 cores of your CPU from the /par directory:
+
+mpirun -np 16 ../bin/germaine GERMAINE_incl2.inp GERMAINE_workflow_incl2.inp
+
+GERMAINE is parallelized via a very simple shot parallelization. Therefore, the number of MPI processes should 
+not exceed the total number of shots. 
+
+To give an impression how the code performs on your computer, I summarized a few benchmark results for 264 shots 
+running on a different number of cores on one node of our NEC-cluster at the computing centre of CAU Kiel. One 
+node consists of 2 x Intel Xeon E5-2670 CPUs (2.6 GHz) with a total number of 16 cores
+
+Number of cores		Computation time [s]
+1 			223.47
+2 			112.19
+4 			50.98
+8 			26.61
+16 			18.06  
+
+7. For each shot defined in source/source_inc.dat the real and imaginary parts of the pressure wavefield at the 
+receiver positions defined in receiver/receiver_inc.dat each are written to 
+
+seis/incl2_p_shot_[shotno]_stage_[fwi_stage]_nfreq_[freq_groupno].bin
+
+for each frequency (group) defined in the workflow file GERMAINE_workflow_incl2.inp 
+
+If you set SNAP=1 in GERMAINE_incl2.inp the real part of the pressure wavefield for the whole model will be 
+written to 
+
+snap/incl2_shot_[shotno.].p
+
+which can be visualized with Seismic Unix
+
+ximage n1=186 < snap/incl2_shot_1.p
+
+8. In GERMAINE/par/seis generate the directory incl2_true
+
+mkdir incl2_true
+
+9. Move the FDFD data of the true model from /seis to /seis/incl2_true
+
+mv incl2_p_shot_* incl2_true/
+
+10. To run the acoustic FDFD FWI change the following parameters in GERMAINE_incl2.inp
+
+forward_modelling_(yes=0)_FDFWI_(yes=1)_GRID_SEARCH_(yes=2)_(INVMAT) = 1
+MFILE = start/inclusions_init
+SNAP=0
+
+11. Start the 2D acoustic FDFD FWI with 
+
+mpirun -np 16 ../bin/germaine GERMAINE_incl2.inp GERMAINE_workflow_incl2.inp
+
+As defined in GERMAINE_workflow_incl2.inp the FWI is based on a sequential inversion workflow using 
+the 4.0 Hz, 6.3 Hz, 8.6 Hz, 10.9 Hz, 13.1 Hz, 15.4 Hz, 17.7 Hz and 20.0 Hz FD-data, respectively. At each 
+stage a Gaussian-filter is applied to the gradients of the objective function with size FILT_SIZE_GRAD and 
+FILT_SIZE_GRAD1 in x- and y-direction, respectively. The filter size is adapted to the minimum wavelength 
+of the model.  
+
+The Vp models of the current iteration are saved in:
+
+model/modelTest_vp.bin
+
+12. Depending on the clock speed of your CPU and number of cores wait approximately 13.5 minutes (16 core CPU) ...
+
+The intermediate results after the FWI of each stage are saved separatly in  
+
+model/modelTest_vp_stage_1.bin
+model/modelTest_vp_stage_2.bin
+...
+model/modelTest_vp_stage_8.bin
+
+You can visualize the results with Seismic Unix
+
+ximage n1=174 < model/modelTest_vp_stage_8.bin 
+
+or use the Jupyter notebook in the /visu directory.
+
+Congratulations, you just finished a FDFD FWI for a simple toy example using GERMAINE.

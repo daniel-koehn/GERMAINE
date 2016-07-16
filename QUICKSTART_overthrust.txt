@@ -1,0 +1,155 @@
+Quickstart to run the Overthrust example using the acoustic GERMAINE FDFD code in 12 easy steps
+
+References:
+-----------
+
+If you use the Overthrust model for your own research please cite the following reference in your 
+publications:
+
+Aminzadeh, F., J. Brac, and T. Kunz, 1997,
+3-D Salt and Overthrust models,
+Society of Exploration Geophysicists.
+
+Minimum requirements:
+---------------------
+CPU with 1 - 8 cores
+5 GB RAM
+~5.3 hours computation time on an 8 core CPU
+
+C-Compiler: gcc, icc (recommended)
+MPI-library: OpenMPI, Intel-MPI (recommended)
+
+other libraries:
+
+Optimized BLAS/LAPACK library, e.g. OpenBLAS or Intel MKL library 
+
+SuiteSparse: 
+When running GERMAINE under Ubuntu (Linux Mint) you can simply install the latest version of the 
+SuiteSparse package using: 
+
+sudo apt-get install libsuitesparse-dev
+
+or build from source available here:
+
+http://faculty.cse.tamu.edu/davis/suitesparse.html
+
+When compiling SuiteSparse on the NEC-Cluster @ CAU Kiel together with Intel MKL-Library first run 
+
+make config
+
+and then add 
+
+BLAS = -L/opt/intel/mkl/lib/intel64 -lmkl_rt
+LAPACK = -L/opt/intel/mkl/lib/intel64 -lmkl_rt 
+
+in 
+
+SuiteSparse_config/SuiteSparse_config.mk
+
+to specify the location of Intel MKL. Finally type
+
+make
+
+For seismic data and model visualization:
+-----------------------------------------
+
+Seismic Unix - http://www.cwp.mines.edu/cwpcodes/
+
+and/or
+
+NumPy, SciPy and Matplotlib - https://www.scipy.org/
+
+
+Installation GERMAINE and running the 2 inclusion problem:
+----------------------------------------------------------
+
+1. Clone GERMAINE on your local machine
+
+git clone https://github.com/daniel-koehn/GERMAINE.git
+
+2. In /src adapt the compiler options in the Makefile to your system and compile the GERMAINE code with
+
+make germaine
+
+3. Clone DENISE-Benchmark on your local machine 
+
+git clone https://github.com/daniel-koehn/DENISE-Benchmark
+
+4. Copy model file for the 2D Overthrust model from DENISE-Benchmark to GERMAINE 
+
+cp DENISE-Benchmark/Overthrust/start/overthrust* GERMAINE/par/start/
+
+5. In GERMAINE/par/GERMAINE_overthrust.inp check if the following parameters are set correctly for a forward 
+modelling run
+
+forward_modelling_(yes=0)_FDFWI_(yes=1)_GRID_SEARCH_(yes=2)_(INVMAT) = 0
+MFILE = start/overthrust_true
+
+6. Generate synthetic Overthrust data for a fixed spread land seismic acquisition geometry by running GERMAINE 
+on e.g. 8 cores of your CPU from the /par directory:
+
+mpirun -np 8 ../bin/germaine GERMAINE_overthrust.inp GERMAINE_workflow_overthrust.inp
+
+GERMAINE is parallelized via a very simple shot parallelization. Therefore, the number of MPI processes should 
+not exceed the total number of shots. For the given problem 8 cores should be sufficient. 
+
+7. For each shot defined in source/source_OVER.dat the real and imaginary parts of the pressure wavefield at the 
+receiver positions defined in receiver/receiver_OVER.dat each are written to 
+
+seis/overthrust_p_shot_[shotno]_stage_[fwi_stage]_nfreq_[freq_groupno].bin
+
+for each frequency (group) defined in the workflow file GERMAINE_workflow_overthrust.inp 
+
+If you set SNAP=1 in GERMAINE_overthrust.inp the real part of the pressure wavefield for the whole model will be 
+written to 
+
+snap/overthrust_shot_[shotno.].p
+
+which can be visualized with Seismic Unix
+
+ximage n1=186 < snap/overthrust_shot_1.p
+
+8. In GERMAINE/par/seis generate the directory overthrust_true
+
+mkdir overthrust_true
+
+9. Move the FDFD data of the true model from /seis to /seis/overthrust_true
+
+mv overthrust_p_shot_* overthrust_true/
+
+10. To run the acoustic FDFD FWI change the following parameters in GERMAINE_overthrust.inp
+
+forward_modelling_(yes=0)_FDFWI_(yes=1)_GRID_SEARCH_(yes=2)_(INVMAT) = 1
+MFILE = start/overthrust_start_smooth2
+SNAP=0
+
+11. Start the 2D acoustic FDFD FWI with 
+
+mpirun -np 8 ../bin/germaine GERMAINE_overthrust.inp GERMAINE_workflow_overthrust.inp
+
+As defined in GERMAINE_workflow_overthrust.inp the FWI is based on a sequential inversion workflow using 
+the 3.5 Hz, 5.9 Hz, 8.4 Hz, 10.8 Hz, 13.3 Hz, 15.7 Hz, 18.2 Hz and 20.6 Hz FD-data, respectively. At each 
+stage a Gaussian-filter is applied to the gradients of the objective function with size FILT_SIZE_GRAD and 
+FILT_SIZE_GRAD1 in x- and y-direction, respectively. The filter size is adapted to the minimum wavelength 
+of the model.  
+
+The Vp models of the current iteration are saved in:
+
+model/modelTest_vp.bin
+
+12. Depending on the clock speed of your CPU and number of cores wait approximately  5.3 hours ...
+
+The intermediate results after the FWI of each stage are saved separatly in  
+
+model/modelTest_vp_stage_1.bin
+model/modelTest_vp_stage_2.bin
+...
+model/modelTest_vp_stage_8.bin
+
+You can visualize the results with Seismic Unix
+
+ximage n1=174 < model/modelTest_vp_stage_8.bin 
+
+or use the Jupyter notebook in the /visu directory.
+
+Congratulations, you just finished a FDFD FWI for a complex underground model using GERMAINE.
