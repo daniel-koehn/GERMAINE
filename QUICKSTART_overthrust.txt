@@ -14,7 +14,7 @@ Minimum requirements:
 ---------------------
 CPU with 1 - 8 cores
 5 GB RAM
-~5.3 hours computation time on an 8 core CPU
+~17.9 hours computation time on an 8 core CPU
 
 C-Compiler: gcc, icc (recommended)
 MPI-library: OpenMPI, Intel-MPI (recommended)
