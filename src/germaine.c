@@ -91,11 +91,11 @@ if(INVMAT==1){
    fwi_FD_AC(fileinp1);
 }
           
-/* 1D linear gradient model estimation by grid search */
-/* -------------------------------------------------- */
-/*if(INVMAT==2){
-   grid_search(Vp,S,TT,Tmod,Tobs,Tres,srcpos,nshots,recpos,ntr);
-}*/
+/* 2D acoustic FDFD Reverse Time Migration */
+/* --------------------------------------- */
+if(INVMAT==2){
+   RTM_FD_AC(fileinp1);
+}
 
 MPI_Barrier(MPI_COMM_WORLD);
 

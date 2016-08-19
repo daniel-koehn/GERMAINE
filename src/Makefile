@@ -125,6 +125,8 @@ GERMAINE= \
     	receiver.c \
         RHS_source_AC.c \
         RHS_source_AC_adj.c \
+	RTM_FD_AC.c \
+	RTM_AC_out.c \
 	sources.c \
 	solvelin.c \
         sum_grad_MPI.c \

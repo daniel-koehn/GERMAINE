@@ -10,7 +10,7 @@
 float calc_res_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, int ntr, int ishot, int nstage, int nfreq){
 
         /* global variables */
-	extern int LAPLACE, STF_INV;
+	extern int LAPLACE, STF_INV, INVMAT;
 	extern char DATA_DIR[STRING_SIZE];
 
 	/* local variables */
@@ -84,8 +84,13 @@ float calc_res_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, int ntr, int ishot
 	    printf("resi = %e \n",cimag(res));*/
 
 	    if(LAPLACE==0){
-		/* calculate complex data residuals */
-	        res = ((pobsr + pobsi * I) - (wien*((*waveAC).precr[i] + (*waveAC).preci[i] * I)))/cabsf(wien);
+
+		/* calculate complex data residuals ... */
+    		/* ... for FDFD-FWI */
+		if(INVMAT==1){res = ((pobsr + pobsi * I) - (wien*((*waveAC).precr[i] + (*waveAC).preci[i] * I)))/cabsf(wien);}
+
+    		/* ... for FDFD-RTM */
+		if(INVMAT==2){res = pobsr + pobsi * I;}
 
 	    	(*fwiAC).presr[i] = creal(res);
 	    	(*fwiAC).presi[i] = cimag(res);

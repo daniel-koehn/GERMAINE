@@ -1,9 +1,8 @@
 /*------------------------------------------------------------------------
- *  fd.h - include file for viscoelastic FD programs          
- *  last update  03/12/2000 
+ *  fd.h - include file for GERMAINE          
  *
- *  Copyright (c) 1998 T. Bohlen 
- *  See COPYING file for copying and redistribution conditions.
+ *  Daniel Koehn
+ *  Kiel, 19.08.2016
  *  ---------------------------------------------------------------------*/
 
 /* files to include */
@@ -16,7 +15,7 @@
 #include <mpi.h>
 #include <complex.h>
 /* #include <suitesparse/umfpack.h> */
-#include <umfpack.h>
+#include <umfpack.h> 
 
 #define iround(x) ((int)(floor)(x+0.5))
 #define min(x,y) ((x<y)?x:y)    
@@ -184,6 +183,10 @@ int **receiver(FILE *fp, int *ntr, int ishot);
 void RHS_source_AC(struct waveAC *waveAC, float ** srcpos, int ishot);
 
 void RHS_source_AC_adj(struct waveAC *waveAC, struct fwiAC *fwiAC, int ** recpos, int ntr);
+
+void RTM_FD_AC(char *fileinp1);
+
+void RTM_AC_out(float ** Vp);
 
 void smooth_grad(float ** waveconv);
 
