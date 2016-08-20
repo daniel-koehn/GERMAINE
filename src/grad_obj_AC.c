@@ -97,9 +97,9 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 		}
 
 	        if(MYID==0){
-		   printf("\n============================================================================================ \n");
-	  	   printf("\n   *** Evaluate gradient and objective function for shot no. %d - %d on MPI-process %d ***   \n", NSHOT1, NSHOT2-1, MYID);
-		   printf("\n============================================================================================ \n");
+		   printf("\n============================================================================================================== \n");
+	  	   printf("\n   *** Evaluate gradient and objective function for shot no. %d - %d on MPI-process %d (Freq. %d of %d) ***    \n", NSHOT1, NSHOT2-1, MYID, nfreq, NF);
+		   printf("\n============================================================================================================== \n");
 	        }
 
 		/* loop over shots */ 
@@ -186,6 +186,8 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 
 
 	(*waveAC).freq += (*waveAC).dfreq; 
+
+	umfpack_zi_free_numeric (&Numeric);
  
 	} /* end of loop over frequencies */
 
@@ -222,8 +224,6 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 
 	/* free memory */
     	free(Ap); free(Ai); free(Ax); free(Az); free(xr); free(xi);
-
-	umfpack_zi_free_numeric (&Numeric);
 
 return L2;
                 	    
