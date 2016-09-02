@@ -14,7 +14,7 @@
 #include <time.h>
 #include <mpi.h>
 #include <complex.h>
-/* #include <suitesparse/umfpack.h> */
+//#include <suitesparse/umfpack.h>
 #include <umfpack.h> 
 
 #define iround(x) ((int)(floor)(x+0.5))
@@ -205,6 +205,8 @@ void sum_grad_MPI(float ** grad);
 void taper_grad(float ** waveconv, float **srcpos, int nshots, int **recpos, int ntr, int sws);
 
 void taper_grad_hor(float ** grad);
+
+void taper_grad_file(float ** grad);
 
 void taper_grad_shot(float ** waveconv, float **srcpos, int nshots, int **recpos, int ntr, int ishot);
 

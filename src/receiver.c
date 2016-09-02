@@ -33,7 +33,7 @@ int **receiver(FILE *fp, int *ntr, int ishot){
                    sprintf(REC_FILE1,"%s_shot_%i.dat",REC_FILE,ishot);
 		}
 
-                fprintf(fp,"\n Reading receiver positions from file: \n\t%s\n",REC_FILE1);
+                /* fprintf(fp,"\n Reading receiver positions from file: \n\t%s\n",REC_FILE1); */
 		fpr=fopen(REC_FILE1,"r");
      		if (fpr==NULL) err(" Receiver file could not be opened !");
      		*ntr=0;

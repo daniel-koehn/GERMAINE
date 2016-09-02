@@ -141,6 +141,8 @@ float obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, 
 
 
 	(*waveAC).freq += (*waveAC).dfreq; 
+
+	umfpack_zi_free_numeric (&Numeric);
  
 	} /* end of loop over frequencies */
 
@@ -157,8 +159,6 @@ float obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, 
 
 	/* free memory */
     	free(Ap); free(Ai); free(Ax); free(Az); free(xr); free(xi); 
-
-	umfpack_zi_free_numeric (&Numeric);
 
 return L2;
                 	    

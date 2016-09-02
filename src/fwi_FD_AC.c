@@ -340,8 +340,6 @@ void fwi_FD_AC(char *fileinp1){
 	free_matrix(fwiAC.vp_old,1,NY,1,NX);
 	free_matrix(fwiAC.forwardr,1,NY,1,NX);
 	free_matrix(fwiAC.forwardi,1,NY,1,NX);
-	free_vector(fwiAC.presr,1,ntr);
-	free_vector(fwiAC.presi,1,ntr);
 
 	/* free memory for l-BFGS */
 	if(GRAD_METHOD==2){
@@ -369,6 +367,10 @@ void fwi_FD_AC(char *fileinp1){
 	/* free memory for receiver positions */
 	free_seis_AC(&waveAC,ntr); 
 
-	if(READ_REC==0){free_imatrix(acq.recpos,1,3,1,ntr);}
+	if(READ_REC==0){
+	    free_imatrix(acq.recpos,1,3,1,ntr);
+	    free_vector(fwiAC.presr,1,ntr);
+	    free_vector(fwiAC.presi,1,ntr);
+	}
         	    
 }

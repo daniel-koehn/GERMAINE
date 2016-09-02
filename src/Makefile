@@ -133,6 +133,7 @@ GERMAINE= \
         store_mat.c \
 	taper_grad.c \
 	taper_grad_hor.c \
+	taper_grad_file.c \
 	taper_grad_shot.c \
         taper_grad_shot1.c \
 	util.c \

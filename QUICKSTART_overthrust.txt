@@ -94,7 +94,7 @@ GERMAINE is parallelized via a very simple shot parallelization. Therefore, the 
 not exceed the total number of shots. For the given problem 8 cores should be sufficient. 
 
 7. For each shot defined in source/source_OVER.dat the real and imaginary parts of the pressure wavefield at the 
-receiver positions defined in receiver/receiver_OVER.dat each are written to 
+receiver positions defined in receiver/receiver_OVER.dat are written to 
 
 seis/overthrust_p_shot_[shotno]_stage_[fwi_stage]_nfreq_[freq_groupno].bin
 
@@ -137,7 +137,7 @@ The Vp models of the current iteration are saved in:
 
 model/modelTest_vp.bin
 
-12. Depending on the clock speed of your CPU and number of cores wait approximately  5.3 hours ...
+12. Depending on the clock speed of your CPU and number of cores wait approximately  17.9 hours ...
 
 The intermediate results after the FWI of each stage are saved separatly in  
 

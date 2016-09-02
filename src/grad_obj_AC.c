@@ -212,11 +212,12 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 	/* apply Hessian approximation according to Shin et al. (2001) to gradient */
 	apply_hess_AC((*fwiAC).grad,hess);
 
-	/* apply taper to gradient */
-	taper_grad_hor((*fwiAC).grad);
-
-        /* gradient preconditioning */
+        /* smooth gradient */
         precond((*fwiAC).grad,nshots,srcpos,recpos,ntr,iter);
+
+	/* apply different tapers to gradient */
+	taper_grad_hor((*fwiAC).grad);
+	taper_grad_file((*fwiAC).grad);
 
         /* deallocate memory */
         free_matrix(grad_shot,1,NY,1,NX);

@@ -108,7 +108,7 @@ Number of cores		Computation time [s]
 16 			18.06  
 
 7. For each shot defined in source/source_inc.dat the real and imaginary parts of the pressure wavefield at the 
-receiver positions defined in receiver/receiver_inc.dat each are written to 
+receiver positions defined in receiver/receiver_inc.dat are written to 
 
 seis/incl2_p_shot_[shotno]_stage_[fwi_stage]_nfreq_[freq_groupno].bin
 
