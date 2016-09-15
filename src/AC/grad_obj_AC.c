@@ -12,6 +12,7 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 	/* declaration of global variables */
         extern int SEISMO, NX, NY, NSHOT1, NSHOT2, NF, INFO, NONZERO, NXNY;
         extern int SEISMO, MYID, INFO, NF, LAPLACE, N_STREAMER, READ_REC;
+	extern int SPATFILTER, SWS_TAPER_GRAD_HOR, SWS_TAPER_FILE;
         extern float DH, FC_low, FC_high;
 	extern char SNAP_FILE[STRING_SIZE];
 	extern FILE *FP;
@@ -39,7 +40,6 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 
 	/* intiate hessian */
 	hess =  matrix(1,NY,1,NX);
-	init_grad(hess);
 
         /* suppress modelled seismogram output during FWI */
         SEISMO = 0;
@@ -56,13 +56,15 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 	for(nfreq=1;nfreq<=NF;nfreq++){
 
 		/* set squared angular frequency*/
-		if(LAPLACE==0){(*waveAC).omega2 = pow(2.0*M_PI*(*waveAC).freq,2.0);}
-		if(LAPLACE==1){(*waveAC).omega2 = - pow((*waveAC).freq,2.0);}
+		(*waveAC).omega2 = pow(2.0*M_PI*(*waveAC).freq,2.0);
 
 		/* define PML damping profiles */
 		pml_pro(PML_AC,waveAC);
 
 		init_mat_AC(waveAC,matAC);
+
+		/* initialize Hessian */
+		init_grad(hess);
 
 		/* assemble acoustic impedance matrix */
 		init_A_AC_9p_pml(PML_AC,matAC,waveAC);	
@@ -170,7 +172,7 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 		     hess_shin_AC(fwiAC, waveAC, matAC, hess);
 
 		     /* assemble gradient for each shot */
-		     ass_grad_AC(fwiAC, waveAC, matAC, grad_shot, srcpos, nshots, acq.recpos, ntr, ishot);	
+		     ass_grad_AC(fwiAC, waveAC, matAC, grad_shot, srcpos, nshots, acq.recpos, ntr, ishot);
 
 		     /* de-allocate memory */
 		     if(READ_REC==1){
@@ -184,6 +186,16 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 
 		} /* end of loop over shots (forward and adjoint) */  
 
+
+	/* Assemble gradient and Hessian from all MPI processes  */
+	sum_grad_MPI((*fwiAC).grad);
+	sum_grad_MPI(hess);
+
+	/* apply Hessian approximation according to Shin et al. (2001) to gradient */
+	apply_hess_AC((*fwiAC).grad,hess);
+
+	/* smooth gradient */
+	if(SPATFILTER==4){gauss_filt((*fwiAC).grad);}	
 
 	(*waveAC).freq += (*waveAC).dfreq; 
 
@@ -201,23 +213,9 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 
 	/* printf("L2 after MPI_Allreduce = %e  on MYID = %d \n", L2, MYID); */
 	
-	/* sum gradients over all MPI processes */
-        if(MYID==0){
-    	   printf("Assemble gradient and Hessian from all MPI processes ... \n");
-        }
-
-	sum_grad_MPI((*fwiAC).grad);
-	sum_grad_MPI(hess);
-
-	/* apply Hessian approximation according to Shin et al. (2001) to gradient */
-	apply_hess_AC((*fwiAC).grad,hess);
-
-        /* smooth gradient */
-        precond((*fwiAC).grad,nshots,srcpos,recpos,ntr,iter);
-
 	/* apply different tapers to gradient */
-	taper_grad_hor((*fwiAC).grad);
-	taper_grad_file((*fwiAC).grad);
+        if(SWS_TAPER_GRAD_HOR){taper_grad_hor((*fwiAC).grad);}
+        if(SWS_TAPER_FILE){taper_grad_file((*fwiAC).grad);}
 
         /* deallocate memory */
         free_matrix(grad_shot,1,NY,1,NX);

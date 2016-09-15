@@ -65,7 +65,8 @@ struct PML_AC{
    float * sigma_x, * sigma_y; 
 } PML_AC;
 
-/* declaration of functions */
+/* declaration of acoustic functions */
+
 void alloc_fwiAC(struct fwiAC *fwiAC, int ntr);
 
 void alloc_matAC(struct matAC *matAC);
@@ -78,6 +79,42 @@ void apply_hess_AC(float ** grad, float ** hess);
 
 void ass_grad_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct matAC *matAC, float ** grad_shot, float **srcpos,  int nshots, int **recpos, int ntr, int ishot);
 
+float calc_res_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, int ntr, int ishot, int nstage, int nfreq);
+
+void calc_seis_AC(struct waveAC *waveAC, int ** recpos, int ntr);
+
+void free_seis_AC(struct waveAC *waveAC, int ntr);
+
+void forward_AC(char *fileinp1);
+
+void forward_shot_AC(struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC *matAC, float ** srcpos, int nshots, int ** recpos, int ntr, int nstage, int nfreq);
+
+void fwi_FD_AC(char *fileinp1);
+
+float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC *matAC, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage);
+
+void hess_shin_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct matAC *matAC, float ** hess_shot);
+
+void init_A_AC_9p_pml(struct PML_AC *PML_AC, struct matAC *matAC, struct waveAC *waveAC);
+
+void init_mat_AC(struct waveAC *waveAC, struct matAC *matAC);
+
+float obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC *matAC, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage);
+
+float parabolicls_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC *matAC, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage, float alpha, float L2);
+
+void RHS_source_AC(struct waveAC *waveAC, float ** srcpos, int ishot);
+
+void RHS_source_AC_adj(struct waveAC *waveAC, struct fwiAC *fwiAC, int ** recpos, int ntr);
+
+void RTM_FD_AC(char *fileinp1);
+
+void RTM_AC_out(float ** Vp);
+
+void write_seis_AC(struct waveAC *waveAC, int ishot, int ntr, int nstage, int nfreq);
+
+/* declaration of general functions */
+
 float calc_mat_change(float  **  waveconv, float **  pi, float **  pinp1, int iter, float eps_scale, int itest, int nfstart);
 
 void calc_mat_change_wolfe(float  **  Hgrad, float **  vp, float **  vp_old, float eps_scale, int itest);
@@ -86,11 +123,7 @@ void calc_nonzero();
 
 float calc_opt_step(float *  L2t, float * epst, int sws);
 
-float calc_res_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, int ntr, int ishot, int nstage, int nfreq);
-
 void calc_S(float **  Vp, float **  S);
-
-void calc_seis_AC(struct waveAC *waveAC, int ** recpos, int ntr);
 
 void check_descent(float ** waveconv, float ** gradp, int NLBFGS_vec, float * y_LBFGS, float * s_LBFGS, int iter);
 
@@ -106,31 +139,15 @@ float dotp_matrix(float ** A, float ** B, int NX, int NY);
 
 void exchange_grad_MPI(float ** grad);
 
-void free_seis_AC(struct waveAC *waveAC, int ntr);
-
-void forward_AC(char *fileinp1);
-
-void forward_shot_AC(struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC *matAC, float ** srcpos, int nshots, int ** recpos, int ntr, int nstage, int nfreq);
-
-void fwi_FD_AC(char *fileinp1);
-
 void gauss_filt(float ** waveconv);
 
-float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC *matAC, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage);
-
 void grid_search(float ** Vp, float ** S, float ** TT, float * Tmod, float * Tobs, float * Tres,  float ** srcpos, int nshots, int ** recpos, int ntr);
-
-void hess_shin_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct matAC *matAC, float ** hess_shot);
 
 void info_mem(FILE *fp, int NLBFGS_vec, int ntr);
 
 void info(FILE *fp);
 
-void init_A_AC_9p_pml(struct PML_AC *PML_AC, struct matAC *matAC, struct waveAC *waveAC);
-
 void init_grad(float ** A);
-
-void init_mat_AC(struct waveAC *waveAC, struct matAC *matAC);
 
 void init_MPIshot(int nshots);
 
@@ -141,10 +158,6 @@ double LU_decomp(double  **A, double *x, double *b,int n);
 
 float minimum_m(float **mat, int nx, int ny);
 float maximum_m(float **mat, int nx, int ny);
-
-float median2d(float **mat, int ny, int nx);
-
-void median_src(float ** waveconv,float ** taper_coeff, float **srcpos, int nshots, int **recpos, int ntr, int iter, int sws);
 
 void model(float  ** Vp);
 
@@ -160,15 +173,9 @@ float norm_matrix(float **A, int NX, int NY);
 
 void note(FILE *fp);
 
-float obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC *matAC, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage);
-
-float parabolicls_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC *matAC, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage, float alpha, float L2);
-
 void PCG(float ** Hgrad, float ** grad, int iter);
 
 void pml_pro(struct PML_AC *PML_AC, struct waveAC *waveAC);
-
-void precond(float ** grad, int nsrc, float ** srcpos, int ** recpos, int ntr, int iter);
 
 float readdsk(FILE *fp_in, int format);
 
@@ -179,20 +186,6 @@ void read_par_inv(FILE *fp,int nstage,int stagemax);
 void readmod(struct matAC *matAC);
 
 int **receiver(FILE *fp, int *ntr, int ishot);
-
-void RHS_source_AC(struct waveAC *waveAC, float ** srcpos, int ishot);
-
-void RHS_source_AC_adj(struct waveAC *waveAC, struct fwiAC *fwiAC, int ** recpos, int ntr);
-
-void RTM_FD_AC(char *fileinp1);
-
-void RTM_AC_out(float ** Vp);
-
-void smooth_grad(float ** waveconv);
-
-void  smooth2(float ** grad);
-
-void smooth_model(float ** pinp1, float ** unp1, float ** rho, int iter);
 
 float **sources(int *nsrc);
 
@@ -230,8 +223,6 @@ void writemod(char modfile[STRING_SIZE], float ** array, int format);
 void writemod_true(char modfile[STRING_SIZE], float ** array, int format);
 
 void writemod_vec(char modfile[STRING_SIZE], double * array, int format);
-
-void write_seis_AC(struct waveAC *waveAC, int ishot, int ntr, int nstage, int nfreq);
 
 void zero_LBFGS(int NLBFGS, int NLBFGS_vec, float * y_LBFGS, float * s_LBFGS, float * q_LBFGS, float * r_LBFGS, 
                  float * alpha_LBFGS, float * beta_LBFGS, float * rho_LBFGS);
