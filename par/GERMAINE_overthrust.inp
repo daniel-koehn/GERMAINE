@@ -58,13 +58,13 @@ info_of_processing_element_zero_to_stdout_(yes=1/no=0)_(LOG) = 1
 #-----------------------------------------------------------------------
 # GERMAINE inversion parameters
 # ----------------------------------------------------------------------
-number_of_TDFWI_iterations_(ITERMAX) = 50
+number_of_TDFWI_iterations_(ITERMAX) = 100
 invert_STF_using_Wiener_Deco_(yes=1/no=0)_(STF_INV) = 0
 output_of_jacobian_(JACOBIAN) = gradient/gradient
 seismograms_of_measured_data_(DATA_DIR) = seis/overthrust_true/overthrust
 cosine_taper_(yes=1/no=0)_(TAPER) = 0
 taper_length_(in_rec_numbers)_(TAPERLENGTH) = 3
-Regularization_term_for_inverse_Hessian_(EPS_HESS) = 0.01
+Regularization_term_for_inverse_Hessian_(EPS_HESS) = 5e-3
 gradient_taper_geometry_(GRADT1,GRADT2,GRADT3,GRADT4) = 2, 5, 490, 500
 #
 # ----- Definition of gradient taper geometry ----- #
@@ -97,7 +97,7 @@ lower_limit_for_vp/lambda_(VPLOWERLIM) = 300.0
 #
 # ----- Optimization-Method ------ #
 gradient_method_(PCG=1/LBFGS=2/GRADIENT=3)_(GRAD_METHOD) = 2
-save_(NLBFGS)_updates_during_LBFGS_optimization = 50
+save_(NLBFGS)_updates_during_LBFGS_optimization = 5
 #
 #----- Definition of smoothing the models vp and vs ----- #
 apply_spatial_filtering_(1=yes)_(MODEL_FILTER) = 0

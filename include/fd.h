@@ -187,6 +187,8 @@ void readmod(struct matAC *matAC);
 
 int **receiver(FILE *fp, int *ntr, int ishot);
 
+void rot_LBFGS_vec(float * y_LBFGS, float * s_LBFGS, int NLBFGS, int NLBFGS_vec);
+
 float **sources(int *nsrc);
 
 void solvelin(float  **AA, float *bb, float *x, int e, int method);

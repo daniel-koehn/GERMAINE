@@ -187,17 +187,14 @@ void fwi_FD_AC(char *fileinp1){
 		while(iter<=ITERMAX){
 
 			if(GRAD_METHOD==2){
-			  
-			  /* increase pointer to LBFGS-vector*/
-			  if(iter>2){
-			    LBFGS_pointer++;
-			  }
-			  
-			  /* if LBFGS-pointer > NLBFGS -> set LBFGS_pointer=1 */ 
-			  if(LBFGS_pointer>NLBFGS){LBFGS_pointer=1;}
+			  			  
+			    /* if LBFGS-pointer > NLBFGS -> rotate l-BFGS vector */ 
+			    if(LBFGS_pointer>NLBFGS){			    
+			        rot_LBFGS_vec(y_LBFGS, s_LBFGS, NLBFGS, NLBFGS_vec);
+			        LBFGS_pointer = NLBFGS;
+			    }
 
 			}
-
 
 			if (MYID==0){
 			   printf("\n\n\n ------------------------------------------------------------------\n");
@@ -235,8 +232,8 @@ void fwi_FD_AC(char *fileinp1){
 			   }
 
 			   /* ... quasi-Newton l-BFGS method */
-			   if(GRAD_METHOD==2){
-                              MPI_Barrier(MPI_COMM_WORLD);
+			   if(GRAD_METHOD==2){                              
+  			      MPI_Barrier(MPI_COMM_WORLD);
 			      LBFGS(fwiAC.Hgrad,fwiAC.grad,fwiAC.gradm,iter,y_LBFGS,s_LBFGS,rho_LBFGS,alpha_LBFGS,matAC.vp,q_LBFGS,r_LBFGS,beta_LBFGS,LBFGS_pointer,NLBFGS,NLBFGS_vec);
 			   }
 
@@ -284,6 +281,15 @@ void fwi_FD_AC(char *fileinp1){
 			    diff=1e20;
 			    if(iter > 2){
 			       diff=fabs((L2_hist[iter-2]-L2_hist[iter])/L2_hist[iter-2]);
+			    }
+
+			    if(GRAD_METHOD==2){
+			  
+			       /* increase pointer to LBFGS-vector*/
+			       if(iter>1){
+			           LBFGS_pointer++;
+			       }			  			 
+
 			    }
 
 			    /* are convergence criteria satisfied? */	
