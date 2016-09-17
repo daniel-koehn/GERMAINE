@@ -28,6 +28,10 @@ void fwi_FD_AC(char *fileinp1){
 	float * y_LBFGS, * s_LBFGS, * q_LBFGS, * r_LBFGS;
 	int NLBFGS_class, LBFGS_pointer, NLBFGS_vec;
 
+	/* Variables for PCG */
+	float * PCG_old, * PCG_new, * PCG_dir;
+	int PCG_class, PCG_vec;
+
 	/*vector for abort criterion*/
 	float * L2_hist=NULL;
 
@@ -142,6 +146,17 @@ void fwi_FD_AC(char *fileinp1){
 	/* memory allocation for abort criterion*/
 	L2_hist = vector(1,ITERMAX*stagemax);
 
+	/* Variables for PCG method */
+	if(GRAD_METHOD==1){
+
+	  PCG_class = 1;                 /* number of parameter classes */ 
+	  PCG_vec = PCG_class*NX*NY;  	 /* length of one PCG-parameter class */
+	  
+	  PCG_old  =  vector(1,PCG_vec);
+	  PCG_new  =  vector(1,PCG_vec);
+	  PCG_dir  =  vector(1,PCG_vec);
+	 
+	}
 
 	/* Variables for the l-BFGS method */
 	if(GRAD_METHOD==2){
@@ -225,11 +240,25 @@ void fwi_FD_AC(char *fileinp1){
 			   descent(fwiAC.grad,fwiAC.gradm);
 
 			   /* estimate search direction waveconv with ... */
+
 			   /* ... non-linear preconditioned conjugate gradient method */
-			   if((GRAD_METHOD==1)||(GRAD_METHOD==3)){
-                              MPI_Barrier(MPI_COMM_WORLD);
-			      PCG(fwiAC.Hgrad,fwiAC.gradm,iter);
-			   }
+			   if(GRAD_METHOD==1){
+
+			       MPI_Barrier(MPI_COMM_WORLD);	
+	    
+			       /* store current steepest decent direction in PCG_new vector */
+			       store_PCG_AC(PCG_new,fwiAC.gradm);
+
+			       /* apply PCG method */
+			       PCG(PCG_new,PCG_old,PCG_dir,PCG_class);
+
+			       /* extract CG-search directions */
+			       extract_PCG_AC(PCG_dir,fwiAC.Hgrad);
+
+			       /* store old steepest descent direction in PCG_old vector */
+			       store_PCG_AC(PCG_old,fwiAC.gradm);
+
+			}
 
 			   /* ... quasi-Newton l-BFGS method */
 			   if(GRAD_METHOD==2){                              

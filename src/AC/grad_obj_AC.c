@@ -195,7 +195,7 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 	apply_hess_AC((*fwiAC).grad,hess);
 
 	/* smooth gradient */
-	if(SPATFILTER==4){gauss_filt((*fwiAC).grad);}	
+	if(SPATFILTER==1){gauss_filt((*fwiAC).grad,(*waveAC).freq);}	
 
 	(*waveAC).freq += (*waveAC).dfreq; 
 

@@ -83,6 +83,8 @@ float calc_res_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, int ntr, int ishot
 
 void calc_seis_AC(struct waveAC *waveAC, int ** recpos, int ntr);
 
+void extract_PCG_AC(float * PCG_old, float ** waveconv);
+
 void free_seis_AC(struct waveAC *waveAC, int ntr);
 
 void forward_AC(char *fileinp1);
@@ -110,6 +112,8 @@ void RHS_source_AC_adj(struct waveAC *waveAC, struct fwiAC *fwiAC, int ** recpos
 void RTM_FD_AC(char *fileinp1);
 
 void RTM_AC_out(float ** Vp);
+
+void store_PCG_AC(float * PCG_old, float ** waveconv);
 
 void write_seis_AC(struct waveAC *waveAC, int ishot, int ntr, int nstage, int nfreq);
 
@@ -139,7 +143,7 @@ float dotp_matrix(float ** A, float ** B, int NX, int NY);
 
 void exchange_grad_MPI(float ** grad);
 
-void gauss_filt(float ** waveconv);
+void gauss_filt(float ** waveconv, float freq);
 
 void grid_search(float ** Vp, float ** S, float ** TT, float * Tmod, float * Tobs, float * Tres,  float ** srcpos, int nshots, int ** recpos, int ntr);
 
@@ -173,7 +177,7 @@ float norm_matrix(float **A, int NX, int NY);
 
 void note(FILE *fp);
 
-void PCG(float ** Hgrad, float ** grad, int iter);
+void PCG(float * PCG_new, float * PCG_old, float * PCG_dir, int PCG_class);
 
 void pml_pro(struct PML_AC *PML_AC, struct waveAC *waveAC);
 

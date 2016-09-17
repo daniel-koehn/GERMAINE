@@ -79,6 +79,7 @@ GERMAINE+= \
 	ass_grad_AC.c \
 	calc_res_AC.c \
 	calc_seis_AC.c \
+	extract_PCG_AC.c \
         forward_AC.c \
         forward_shot_AC.c \
 	free_seis_AC.c \
@@ -95,6 +96,7 @@ GERMAINE+= \
         RHS_source_AC_adj.c \
 	RTM_FD_AC.c \
 	RTM_AC_out.c \
+	store_PCG_AC.c \
 	write_seis_AC.c
 
 GERMAINE_OBJ = $(GERMAINE:%.c=%.o)

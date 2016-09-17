@@ -69,7 +69,7 @@ float TWLENGTH_PLUS, TWLENGTH_MINUS, GAMMA;
 char PICKS_FILE[STRING_SIZE];
 char MISFIT_LOG_FILE[STRING_SIZE]; 
 
-int GRAD_FILTER, FILT_SIZE_GRAD, FILT_SIZE_GRAD1 ;
+float FILT_SIZE_GRAD, FILT_SIZE_GRAD1, VREF;
 
 /* parameters for energy weighted preconditioning */
 int EPRECOND;
@@ -77,9 +77,6 @@ int EPRECOND;
 /* parameters for FD Hessian calculation */
 int NFREQ;
 float FC_HESS_START, FC_HESS_INC, FC;
-
-/* parameters for wavenumber domain  damping */
-float WD_DAMP, WD_DAMP1;
 
 /* parameters for offset muting */
 float OFFSETC;
@@ -118,3 +115,6 @@ int LAPLACE;
 
 /* source time function inversion via Wiener deconvolution */
 int STF_INV;
+
+/* parameters for PCG optimization */
+int PCG_BETA;

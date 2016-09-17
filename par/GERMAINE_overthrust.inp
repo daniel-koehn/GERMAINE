@@ -93,10 +93,11 @@ increment_between_saved_gradients_(nf_jac) = 1
 #
 # ----- Upper and lower limits for model parameters ----- #
 upper_limit_for_vp/lambda_(VPUPPERLIM) = 6500.0
-lower_limit_for_vp/lambda_(VPLOWERLIM) = 300.0
+lower_limit_for_vp/lambda_(VPLOWERLIM) = 2300.0
 #
 # ----- Optimization-Method ------ #
-gradient_method_(PCG=1/LBFGS=2/GRADIENT=3)_(GRAD_METHOD) = 2
+gradient_method_(PCG=1/LBFGS=2)_(GRAD_METHOD) = 2
+PCG_BETA_(Fletcher_Reeves=1/Polak_Ribiere=2/Hestenes_Stiefel=3/Dai_Yuan=4) = 2
 save_(NLBFGS)_updates_during_LBFGS_optimization = 5
 #
 #----- Definition of smoothing the models vp and vs ----- #
@@ -115,10 +116,6 @@ log_file_for_misfit_evolution_(MISFIT_LOG_FILE) = LOG_TEST.dat
 #
 # ----- Minimum number of iteration per frequency ----- #
 MIN_ITER = 0;
-#
-# ----- Definition of smoothing the Jacobians with 2D-Gaussian ----- #
-apply_spatial_filtering_(yes=1)_(GRAD_FILTER) = 0
-filter_length_in_gridpoints_(FILT_SIZE_GRAD) = 0
 #
 # ----- 1D linear gradient grid search parameters ------------------ #
 Range_of_P_wave_velocity_on_free_surface_(VP0_1,VP0_2,DVP0) = 1500.0, 2501.0, 1.0 

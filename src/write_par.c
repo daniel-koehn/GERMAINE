@@ -23,9 +23,8 @@ void write_par(FILE *fp){
 	extern int NP, MYID;
 	
 	extern int GRADT1, GRADT2, GRADT3, GRADT4, ITERMAX, INVMAT;
-	extern int GRAD_METHOD, NPML, STF_INV;
+	extern int GRAD_METHOD, PCG_BETA,NPML, STF_INV;
 	extern int FILT_SIZE, MODEL_FILTER;
-	extern int FILT_SIZE_GRAD, GRAD_FILTER;
 	
 	extern int SWS_TAPER_GRAD_VERT, SWS_TAPER_GRAD_HOR, SWS_TAPER_GRAD_SOURCES, SWS_TAPER_CIRCULAR_PER_SHOT, SRTSHAPE, FILTSIZE;
 	extern int SWS_TAPER_FILE;
@@ -209,13 +208,14 @@ void write_par(FILE *fp){
 		switch(GRAD_METHOD){
 			case 1:
 				fprintf(fp," GRAD_METHOD=%d: PCG\n",GRAD_METHOD);
+				if(PCG_BETA==1){fprintf(fp," PCG_BETA=%d: Fletcher-Reeves\n",PCG_BETA);}
+				if(PCG_BETA==2){fprintf(fp," PCG_BETA=%d: Polak-Ribiere\n",PCG_BETA);}
+				if(PCG_BETA==3){fprintf(fp," PCG_BETA=%d: Hestenes-Stiefel\n",PCG_BETA);}
+				if(PCG_BETA==4){fprintf(fp," PCG_BETA=%d: Dai-Yuan\n",PCG_BETA);}
 				break;
 			case 2:
 				fprintf(fp," GRAD_METHOD=%d: LBFGS\n",GRAD_METHOD);
 		                fprintf(fp," NLBFGS=%d \n",NLBFGS);
-				break;
-			case 3:
-				fprintf(fp," GRAD_METHOD=%d: \n",GRAD_METHOD);
 				break;
 			default:
 				err(" Sorry, incorrect value for GRAD_METHOD ! \n");

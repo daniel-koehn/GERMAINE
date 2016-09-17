@@ -13,7 +13,7 @@ void LBFGS(float ** Hgrad, float ** grad, float ** gradm, int iter, float * y_LB
 float ** Vp, float * q_LBFGS, float * r_LBFGS, float * beta_LBFGS, int LBFGS_pointer, int NLBFGS, int NLBFGS_vec){
 
         /* global variables */
-	extern int NX, NY, IDX, IDY, SPATFILTER, MYID;
+	extern int NX, NY, IDX, IDY, MYID;
 	extern char JACOBIAN[STRING_SIZE];
 	
         /* local variables */
