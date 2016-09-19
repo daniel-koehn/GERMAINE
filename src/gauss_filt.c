@@ -7,10 +7,10 @@
 
 #include "fd.h"
 
-void gauss_filt(float ** waveconv, float freq){
+void gauss_filt(float ** waveconv){
 
 /* global variables */
-extern float DH, VREF;
+extern float DH, VREF, FC_low;
 extern int FREE_SURF, NX, NY, MYID;
 extern char JACOBIAN[STRING_SIZE];
 extern float FILT_SIZE_GRAD, FILT_SIZE_GRAD1;
@@ -24,7 +24,7 @@ float r, sigmax, sigmay, sx, sy, sum=0.0;
 float vref, lam, frac_lam_x, frac_lam_y, xlam, ylam;
 
 /* calculate wavelength of reference velocity */
-lam = VREF / freq;
+lam = VREF / FC_low;
 
 /* define filter size as fraction of reference velocity wavelength */
 frac_lam_x = FILT_SIZE_GRAD * lam;

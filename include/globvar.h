@@ -108,6 +108,7 @@ float FC_low, FC_high;
 int NF;
 
 /* parameters for Hessian approximation according to Shin et al. (2001) */
+int HESSIAN;
 float MAX_HESS, EPS_HESS;
 
 /* parameters for Laplace modelling/FWI */

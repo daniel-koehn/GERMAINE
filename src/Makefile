@@ -85,7 +85,7 @@ GERMAINE+= \
 	free_seis_AC.c \
 	fwi_FD_AC.c \
 	grad_obj_AC.c \
-	hess_shin_AC.c \
+	hessian_AC.c \
         init_A_AC_9p_pml.c \
         init_mat_AC.c \
 	$(MODEL) \
@@ -94,6 +94,7 @@ GERMAINE+= \
         parabolicls_AC.c \
         RHS_source_AC.c \
         RHS_source_AC_adj.c \
+        RHS_source_AC_hess.c \
 	RTM_FD_AC.c \
 	RTM_AC_out.c \
 	store_PCG_AC.c \

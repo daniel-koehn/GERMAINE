@@ -1,5 +1,5 @@
 /*
- * Apply Hessian approximation according to Shin et al. (2001) 
+ * Apply diagonal elements of Hessian
  *
  * Daniel Koehn
  * Kiel, 02.07.2016

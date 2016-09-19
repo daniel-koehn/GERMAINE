@@ -64,6 +64,7 @@ output_of_jacobian_(JACOBIAN) = gradient/gradient
 seismograms_of_measured_data_(DATA_DIR) = seis/overthrust_true/overthrust
 cosine_taper_(yes=1/no=0)_(TAPER) = 0
 taper_length_(in_rec_numbers)_(TAPERLENGTH) = 3
+HESSIAN_(no=0/app_Hessian=1) = 1
 Regularization_term_for_inverse_Hessian_(EPS_HESS) = 5e-3
 gradient_taper_geometry_(GRADT1,GRADT2,GRADT3,GRADT4) = 2, 5, 490, 500
 #
@@ -93,7 +94,7 @@ increment_between_saved_gradients_(nf_jac) = 1
 #
 # ----- Upper and lower limits for model parameters ----- #
 upper_limit_for_vp/lambda_(VPUPPERLIM) = 6500.0
-lower_limit_for_vp/lambda_(VPLOWERLIM) = 2300.0
+lower_limit_for_vp/lambda_(VPLOWERLIM) = 2000.0
 #
 # ----- Optimization-Method ------ #
 gradient_method_(PCG=1/LBFGS=2)_(GRAD_METHOD) = 2

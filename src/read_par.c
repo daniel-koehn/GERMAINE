@@ -41,7 +41,7 @@ extern char PARA[STRING_SIZE];
 
 extern float FC_START, FC_END, FC_INCR, EPS_HESS;
 
-extern int LNORM;
+extern int LNORM, HESSIAN;
 
 extern int LINESEARCH,STEPMAX;
 extern float EPS_SCALE, SCALEFAC, C1, C2;
@@ -163,102 +163,105 @@ int  c=0, lineno=0, l;
 	    fscanf(fp_in,"%s =%i",s,&TAPERLENGTH);
 	    break; 
 	 case 31 :
-	    fscanf(fp_in,"%s =%f",s,&EPS_HESS);
+	    fscanf(fp_in,"%s =%i",s,&HESSIAN);
 	    break;        	
 	 case 32 :
+	    fscanf(fp_in,"%s =%f",s,&EPS_HESS);
+	    break;        	
+	 case 33 :
 	    fscanf(fp_in,"%s =%i, %i, %i, %i",s,&GRADT1,&GRADT2,&GRADT3,&GRADT4);
 	    break; 
-	 case 33 :
+	 case 34 :
             fscanf(fp_in,"%s =%i",s,&SWS_TAPER_GRAD_VERT);
             break;            	        
-	 case 34 :
+	 case 35 :
             fscanf(fp_in,"%s =%i",s,&SWS_TAPER_GRAD_HOR);
             break; 
-         case 35 :
+         case 36 :
             fscanf(fp_in,"%s =%f",s,&EXP_TAPER_GRAD_HOR);
             break;
-	 case 36 :
+	 case 37 :
             fscanf(fp_in,"%s =%i",s,&SWS_TAPER_GRAD_SOURCES);
             break; 
-	 case 37 :
+	 case 38 :
             fscanf(fp_in,"%s =%i",s,&SWS_TAPER_CIRCULAR_PER_SHOT);
             break;    
-	 case 38 :
+	 case 39 :
             fscanf(fp_in,"%s =%i",s,&SRTSHAPE);
             break;   
-	 case 39 :
+	 case 40 :
             fscanf(fp_in,"%s =%f",s,&SRTRADIUS);
             break; 
-	 case 40 :
+	 case 41 :
             fscanf(fp_in,"%s =%i",s,&FILTSIZE);
             break;
-         case 41 :
+         case 42 :
             fscanf(fp_in,"%s =%i",s,&SWS_TAPER_FILE);
             break;                          
-	 case 42 :
+	 case 43 :
             fscanf(fp_in,"%s =%s",s,INV_MODELFILE);
             break; 
-	 case 43 :
+	 case 44 :
             fscanf(fp_in,"%s =%i",s,&nfstart);
             break;  
-	 case 44 :
+	 case 45 :
             fscanf(fp_in,"%s =%i",s,&nf);
             break;   
-	 case 45 :
+	 case 46 :
             fscanf(fp_in,"%s =%i",s,&nfstart_jac);
             break;
-	 case 46 :
+	 case 47 :
             fscanf(fp_in,"%s =%i",s,&nf_jac);
             break;
-	 case 47 :
+	 case 48 :
             fscanf(fp_in,"%s =%f",s,&VPUPPERLIM);
             break;
-	 case 48 :
+	 case 49 :
             fscanf(fp_in,"%s =%f",s,&VPLOWERLIM);
             break;
-	 case 49 :         
+	 case 50 :         
             fscanf(fp_in,"%s =%i",s,&GRAD_METHOD);                         
             break;
-	 case 50 :         
+	 case 51 :         
             fscanf(fp_in,"%s =%i",s,&PCG_BETA);                         
             break;
-	 case 51 :         
+	 case 52 :         
             fscanf(fp_in,"%s =%i",s,&NLBFGS);                         
             break;   
-	 case 52 :         
+	 case 53 :         
             fscanf(fp_in,"%s =%i",s,&MODEL_FILTER);                         
             break;  
-	 case 53 :         
+	 case 54 :         
             fscanf(fp_in,"%s =%i",s,&FILT_SIZE);                         
             break;
-         case 54 :    
+         case 55 :    
             fscanf(fp_in,"%s =%i",s,&LINESEARCH);
             break;
-	 case 55 :
+	 case 56 :
 	   fscanf(fp_in,"%s =%f",s,&EPS_SCALE);                         
             break;
-	 case 56 :
+	 case 57 :
 	    fscanf(fp_in,"%s =%f, %f",s,&C1,&C2);
 	    break; 
-	 case 57 :
+	 case 58 :
 	   fscanf(fp_in,"%s =%i",s,&STEPMAX);                         
             break;
-	 case 58 :
+	 case 59 :
 	   fscanf(fp_in,"%s =%f",s,&SCALEFAC);                         
             break;
-	 case 59 :
+	 case 60 :
 	   fscanf(fp_in,"%s =%s",s,&MISFIT_LOG_FILE);                         
             break; 
-	 case 60 :
+	 case 61 :
 	   fscanf(fp_in,"%s =%i",s,&MIN_ITER);                         
             break; 
-	 case 61 :
+	 case 62 :
 	    fscanf(fp_in,"%s =%f, %f, %f",s,&VP0_1,&VP0_2,&DVP0);
 	    break;
-         case 62 :
+         case 63 :
 	    fscanf(fp_in,"%s =%f, %f, %f",s,&GRAD0_1,&GRAD0_2,&DGRAD0);
 	    break;
-	 case 63 :
+	 case 64 :
 	    fscanf(fp_in,"%s =%s",s,GRIDSEARCH_FILE);
 	    break; 
 	 default:

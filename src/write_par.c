@@ -35,7 +35,7 @@ void write_par(FILE *fp){
 	extern int nfstart_jac, nf_jac;
 	extern float VPUPPERLIM, VPLOWERLIM;
 	
-	extern int LINESEARCH, STEPMAX;
+	extern int LINESEARCH, STEPMAX, HESSIAN;
 	extern float EPS_SCALE, SCALEFAC, EPS_HESS;
 
 	extern int NORMALIZE, NLBFGS, N_STREAMER;
@@ -162,6 +162,7 @@ void write_par(FILE *fp){
                 }
 		fprintf(fp,"\n location of measured FD data : \n ");
 		fprintf(fp,"\t%s\n\n",DATA_DIR);
+		if(HESSIAN){fprintf(fp,"\n HESSIAN == %d: Calculate and apply Diagonal Pseudo-Hessian according to Shin et al. (2001)\n ",HESSIAN);}
 		fprintf(fp,"\n Regularization parameter for inverse Hessian : \n ");
 		fprintf(fp,"\n EPS_HESS = %e\n\n",EPS_HESS);	
 

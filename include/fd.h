@@ -41,7 +41,7 @@ struct waveAC{
 
 /* acoustic FWI variables */
 struct fwiAC{
-   float  ** lam, ** vp_old, ** grad, ** Hgrad, ** gradm;
+   float  ** lam, ** vp_old, ** grad, ** Hgrad, ** gradm, **hess;
    float ** forwardr, ** forwardi;
    float * presr, * presi;
    float stfr, stfi;
@@ -95,7 +95,7 @@ void fwi_FD_AC(char *fileinp1);
 
 float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC *matAC, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage);
 
-void hess_shin_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct matAC *matAC, float ** hess_shot);
+void hessian_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC *matAC, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage);
 
 void init_A_AC_9p_pml(struct PML_AC *PML_AC, struct matAC *matAC, struct waveAC *waveAC);
 
@@ -143,7 +143,7 @@ float dotp_matrix(float ** A, float ** B, int NX, int NY);
 
 void exchange_grad_MPI(float ** grad);
 
-void gauss_filt(float ** waveconv, float freq);
+void gauss_filt(float ** waveconv);
 
 void grid_search(float ** Vp, float ** S, float ** TT, float * Tmod, float * Tobs, float * Tres,  float ** srcpos, int nshots, int ** recpos, int ntr);
 
@@ -180,6 +180,8 @@ void note(FILE *fp);
 void PCG(float * PCG_new, float * PCG_old, float * PCG_dir, int PCG_class);
 
 void pml_pro(struct PML_AC *PML_AC, struct waveAC *waveAC);
+
+void precond(float ** grad);
 
 float readdsk(FILE *fp_in, int format);
 

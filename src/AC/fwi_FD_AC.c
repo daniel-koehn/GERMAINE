@@ -12,7 +12,7 @@ void fwi_FD_AC(char *fileinp1){
 	/* declaration of global variables */
         extern int NX, NY, NSHOT1, NSHOT2, GRAD_METHOD, NLBFGS, MYID, ITERMAX, LINESEARCH;
 	extern int NXG, NYG, NXNY, LOG, N_STREAMER, INFO, INVMAT, READMOD;
-	extern int NX0, NY0, NPML, READ_REC;
+	extern int NX0, NY0, NPML, READ_REC, HESSIAN;
         extern char MISFIT_LOG_FILE[STRING_SIZE], LOG_FILE[STRING_SIZE];
         extern float PRO, A0_PML;
 
@@ -235,6 +235,22 @@ void fwi_FD_AC(char *fileinp1){
  			   L2 = grad_obj_AC(&fwiAC,&waveAC,&PML_AC,&matAC,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage);
 			   L2t[1] = L2;
 
+			   /* calculate and apply approximate Hessian at first iteration of each frequency group */
+			   if(HESSIAN){
+
+			       /* calculate approximate Hessian */
+			       if(iter==1){
+			           hessian_AC(&fwiAC,&waveAC,&PML_AC,&matAC,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage);
+			       }
+
+   			       /* apply approximate Hessian to gradient */			    
+			       apply_hess_AC(fwiAC.grad,fwiAC.hess);
+
+			   }
+
+			   /* apply smoothing an taper functions to gradient */
+			   precond(fwiAC.grad);
+
 			   /* calculate descent directon gradm from gradient grad */
 			   cp_grad_frame(fwiAC.grad);
 			   descent(fwiAC.grad,fwiAC.gradm);
@@ -258,7 +274,7 @@ void fwi_FD_AC(char *fileinp1){
 			       /* store old steepest descent direction in PCG_old vector */
 			       store_PCG_AC(PCG_old,fwiAC.gradm);
 
-			}
+			   }
 
 			   /* ... quasi-Newton l-BFGS method */
 			   if(GRAD_METHOD==2){                              

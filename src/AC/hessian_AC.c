@@ -1,13 +1,13 @@
-/*------------------------------------------------------------------------
- *  Calculate gradient and objective function value
+/*--------------------------------------------------------------------------------------------------------------
+ *  Calculate diagonal elements of approximate Hessian according to Pratt et al. (1998), Operto et al. (2006)
  *
  *  D. Koehn
- *  Kiel, 29.06.2016
- *  ----------------------------------------------------------------------*/
+ *  Kiel, 18.09.2016
+ *  ------------------------------------------------------------------------------------------------------------*/
 
 #include "fd.h"
 
-float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC *matAC, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage){
+void hessian_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC *matAC, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage){
 
 	/* declaration of global variables */
         extern int SEISMO, NX, NY, NSHOT1, NSHOT2, NF, INFO, NONZERO, NXNY;
@@ -15,18 +15,21 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 	extern int SPATFILTER, SWS_TAPER_GRAD_HOR, SWS_TAPER_FILE;
         extern float DH, FC_low, FC_high;
 	extern char SNAP_FILE[STRING_SIZE];
+	extern char JACOBIAN[STRING_SIZE];
 	extern FILE *FP;
     
         /* declaration of local variables */
-        int ishot, i, nfreq; 
-        float L2sum, L2, ** grad_shot;
+        int ishot, i, j, nfreq, tr; 
         int status, nxsrc, nysrc;
     	double *null = (double *) NULL ;
 	int     *Ap, *Ai;
 	double  *Ax, *Az, *xr, *xi; 
 	double  time1, time2;
+	complex float J;
+	float tmp;
         char filename[STRING_SIZE];
         void *Symbolic, *Numeric;
+	FILE *FP1;
 
 	/* Allocate memory for compressed sparse column form and solution vector */
 	Ap = malloc(sizeof(int)*(NXNY+1));
@@ -36,14 +39,11 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 	xr = malloc(sizeof(double)*NONZERO);
 	xi = malloc(sizeof(double)*NONZERO);	
 
-        grad_shot =  matrix(1,NY,1,NX);
-
-        /* suppress modelled seismogram output during FWI */
+        /* suppress modelled seismogram output during Hessian construction */
         SEISMO = 0;
 
-	/* set gradient matrix and objective function to zero before next iteration */
-	init_grad((*fwiAC).grad);
-        L2 = 0.0;
+	/* set Hessian to zero */
+	init_grad((*fwiAC).hess);
 
 	/* estimate frequency sample interval and set first frequency */
 	(*waveAC).dfreq = (FC_high-FC_low) / NF;
@@ -93,16 +93,13 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 		}
 
 	        if(MYID==0){
-		   printf("\n============================================================================================================== \n");
-	  	   printf("\n   *** Evaluate gradient and objective function for shot no. %d - %d on MPI-process %d (Freq. %d of %d) ***    \n", NSHOT1, NSHOT2-1, MYID, nfreq, NF);
-		   printf("\n============================================================================================================== \n");
+		   printf("\n========================================== \n");
+	  	   printf("\n   *** Evaluate approximate Hessian ***    \n");
+		   printf("\n========================================== \n");
 	        }
 
 		/* loop over shots */ 
 		for (ishot=NSHOT1;ishot<NSHOT2;ishot++){
-
-		     /* set gradient for each shot to zero before next iteration */
-		     init_grad(grad_shot);  
 
 		     /* solve forward problem by FDFD */
                      /* ----------------------------- */
@@ -112,11 +109,11 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 
 			acq.recpos=receiver(FP, &ntr, 1);
 
-		        (*fwiAC).presr = vector(1,ntr);
-		        (*fwiAC).presi = vector(1,ntr);
+		        /*(*fwiAC).presr = vector(1,ntr);
+		        (*fwiAC).presi = vector(1,ntr);*/
 	
 			/* Allocate memory for FD seismograms */
-			alloc_seis_AC(waveAC,ntr);
+			/*alloc_seis_AC(waveAC,ntr);*/
 
 			if(N_STREAMER>0){
 			  free_imatrix(acq.recpos,1,3,1,ntr);
@@ -143,39 +140,45 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 		     store_mat((*waveAC).pr, (*fwiAC).forwardr, NX, NY);
 		     store_mat((*waveAC).pi, (*fwiAC).forwardi, NX, NY);
 
-		     /* calculate FD residuals at receiver positions */
-		     /* -------------------------------------------- */
-		     L2 += calc_res_AC(fwiAC,waveAC,ntr,ishot,nstage,nfreq);
+		     /* calculate Greens function at receiver positions */
+		     /* ----------------------------------------------- */
+			
+		     for (tr=1;tr<=ntr;tr++){
+		
+		         /* define source vector RHS for adjoint wavefield */
+			 RHS_source_AC_hess(waveAC,fwiAC,acq.recpos,tr);
 
-		     /* solve adjoint problem by FDFD */
-		     /* ----------------------------- */
+ 		         /* solve adjoint problem by forward and back substitution */
+	    	         status = umfpack_zi_solve(UMFPACK_A, Ap, Ai, Ax, Az, xr, xi, (*waveAC).RHSr, (*waveAC).RHSi, Numeric, null, null);
 
-		     /* define source vector RHS for adjoint wavefield */
-		     RHS_source_AC_adj(waveAC,fwiAC,acq.recpos,ntr);
+		         /* convert vector xr/xi to pr/pi */
+		         vec2mat((*waveAC).pr,(*waveAC).pi,xr,xi);		        
 
- 		     /* solve adjoint problem by forward and back substitution */
-	    	     status = umfpack_zi_solve(UMFPACK_A, Ap, Ai, Ax, Az, xr, xi, (*waveAC).RHSr, (*waveAC).RHSi, Numeric, null, null);
+			 /* assemble approximate Hessian */
+			 for (i=1;i<=NX;i++){
+			     for (j=1;j<=NY;j++){
 
-		     /* convert vector xr/xi to pr/pi */
-		     vec2mat((*waveAC).pr,(*waveAC).pi,xr,xi);
+			       J = - 2.0 * (*waveAC).omega2 * ((*fwiAC).forwardr[j][i] + (*fwiAC).forwardi[j][i] * I)  
+				         * (1.0 / ((*matAC).vp[j][i] * (*matAC).vp[j][i] * (*matAC).vp[j][i])) * ((*waveAC).pr[j][i] + (*waveAC).pi[j][i] * I);
 
-		     /*sprintf(filename,"%s_for_shot_%d.bin",SNAP_FILE,ishot);
-		     writemod(filename,(*waveAC).pr,3);*/
+			       (*fwiAC).hess[j][i] += creal( J * conjf(J));
 
-		     /* assemble gradient for each shot */
-		     ass_grad_AC(fwiAC, waveAC, matAC, grad_shot, srcpos, nshots, acq.recpos, ntr, ishot);
+			     }
+			 }
 
-		     /* de-allocate memory */
-		     if(READ_REC==1){
-		        free_imatrix(acq.recpos,1,3,1,ntr);
-			free_vector((*waveAC).precr,1,ntr);
-		        free_vector((*waveAC).preci,1,ntr);
-		        free_vector((*fwiAC).presr,1,ntr);
-		        free_vector((*fwiAC).presi,1,ntr);
-		        ntr=0;
+		         /* de-allocate memory */
+		         if(READ_REC==1){
+		             free_imatrix(acq.recpos,1,3,1,ntr);
+			     free_vector((*waveAC).precr,1,ntr);
+		             free_vector((*waveAC).preci,1,ntr);
+		             free_vector((*fwiAC).presr,1,ntr);
+		             free_vector((*fwiAC).presi,1,ntr);
+		             ntr=0;
+		         }
+
 		     }
 
-		} /* end of loop over shots (forward and adjoint) */	
+		} /* end of loop over shots (forward and adjoint) */  
 
 	(*waveAC).freq += (*waveAC).dfreq; 
 
@@ -183,26 +186,24 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
  
 	} /* end of loop over frequencies */
 
-        /* assemble objective function from all MPI processes */
-	/* printf("L2 before MPI_Allreduce = %e  on MYID = %d \n", L2, MYID); */
+	/* Assemble Hessian from all MPI processes  */
+	sum_grad_MPI((*fwiAC).hess);
+	cp_grad_frame((*fwiAC).hess);
 
-	/* Assemble gradient from all MPI processes  */
-	sum_grad_MPI((*fwiAC).grad);
-	cp_grad_frame((*fwiAC).grad);
-
-	L2sum = 0.0;
-        MPI_Barrier(MPI_COMM_WORLD);
-	MPI_Allreduce(&L2,&L2sum,1,MPI_FLOAT,MPI_SUM,MPI_COMM_WORLD);
-        L2 = 0.5 * L2sum;	
-
-	/* printf("L2 after MPI_Allreduce = %e  on MYID = %d \n", L2, MYID); */
-
-        /* deallocate memory */
-        free_matrix(grad_shot,1,NY,1,NX);
+	/* output of Hessian */
+	sprintf(filename,"%s_hess",JACOBIAN);
+	FP1=fopen(filename,"wb");
+	
+	for (i=1;i<=NX;i++){   
+           for (j=1;j<=NY;j++){
+		 tmp = (*fwiAC).hess[j][i];
+                 fwrite(&tmp,sizeof(float),1,FP1);
+	   }
+        }
+        
+	fclose(FP1);
 
 	/* free memory */
     	free(Ap); free(Ai); free(Ax); free(Az); free(xr); free(xi);
-
-return L2;
                 	    
 }
