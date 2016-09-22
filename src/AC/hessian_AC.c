@@ -188,7 +188,7 @@ void hessian_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_A
 
 	/* Assemble Hessian from all MPI processes  */
 	sum_grad_MPI((*fwiAC).hess);
-	cp_grad_frame((*fwiAC).hess);
+	//cp_grad_frame((*fwiAC).hess);
 
 	/* output of Hessian */
 	sprintf(filename,"%s_hess",JACOBIAN);

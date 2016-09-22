@@ -174,7 +174,7 @@ if(iter==1){
 
 }
 
-cp_grad_frame(Hgrad);
+//cp_grad_frame(Hgrad);
 
 /* save old models Vp */
 /* ------------------ */

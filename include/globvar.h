@@ -93,9 +93,10 @@ float REC_INCR_X, REC_INCR_Y;
 float VP0_1, VP0_2, DVP0, GRAD0_1, GRAD0_2, DGRAD0;
 char GRIDSEARCH_FILE[STRING_SIZE];
 
-/* FDFD PML parameters */
+/* FDFD CFS-PML parameters */
 int NPML;
-float A0_PML, OMEGA_PML;
+float A0_PML, OMEGA_PML, PML_VEL, PML_BETA0;
+float PML_POWD, PML_POWB, PML_POWA;
 
 /* Free surface */
 int FREE_SURF;

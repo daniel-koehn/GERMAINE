@@ -42,8 +42,14 @@ void alloc_waveAC(struct waveAC *waveAC, struct PML_AC *PML_AC){
 	(*PML_AC).Byr = matrix(1,NY,1,NX);
 	(*PML_AC).Byi = matrix(1,NY,1,NX);
 
-	(*PML_AC).sigma_x = vector(1,NX);
-	(*PML_AC).sigma_y = vector(1,NY);
+	(*PML_AC).d_x = vector(1,NX);
+	(*PML_AC).d_y = vector(1,NY);
+
+	(*PML_AC).b_x = vector(1,NX);
+	(*PML_AC).b_y = vector(1,NY);
+
+	(*PML_AC).a_x = vector(1,NX);
+	(*PML_AC).a_y = vector(1,NY);
 
 }
 

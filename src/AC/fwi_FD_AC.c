@@ -252,7 +252,7 @@ void fwi_FD_AC(char *fileinp1){
 			   precond(fwiAC.grad);
 
 			   /* calculate descent directon gradm from gradient grad */
-			   cp_grad_frame(fwiAC.grad);
+			   // cp_grad_frame(fwiAC.grad);
 			   descent(fwiAC.grad,fwiAC.gradm);
 
 			   /* estimate search direction waveconv with ... */

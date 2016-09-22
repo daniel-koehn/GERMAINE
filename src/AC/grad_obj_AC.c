@@ -188,7 +188,7 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 
 	/* Assemble gradient from all MPI processes  */
 	sum_grad_MPI((*fwiAC).grad);
-	cp_grad_frame((*fwiAC).grad);
+	//cp_grad_frame((*fwiAC).grad);
 
 	L2sum = 0.0;
         MPI_Barrier(MPI_COMM_WORLD);

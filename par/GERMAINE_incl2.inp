@@ -27,9 +27,11 @@ SOURCE_FILE = ./source/source_inc.dat
 read_model_parameters_from_MFILE(yes=1)(READMOD) = 1
 MFILE = start/inclusions_true
 #
-#--------------------- Define PML parameters -------------------------------------------
-width_of_absorbing_frame_(in_gridpoints)_(NPML) = 30
-damping_parameter_(A0_PML) = 1.79
+#--------------------- Define CFS-PML parameters -----------------------
+width_of_absorbing_frame_(in_gridpoints)_(NPML) = 20
+PML_P_wave_velocity_(PML_VEL) = 4000.0
+PML_BETA0 = 1.0
+damping_parameter_(A0_PML) = 0.0001
 #
 #----------------------Snapshots----------------------------------------
 output_of_P_field_(SNAP)(yes>0) = 0

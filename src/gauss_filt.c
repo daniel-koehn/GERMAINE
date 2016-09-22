@@ -16,29 +16,44 @@ extern char JACOBIAN[STRING_SIZE];
 extern float FILT_SIZE_GRAD, FILT_SIZE_GRAD1;
 
 /* local variables */
-int i, j, ii, jj;
+int i, j, ii, jj, filt_size_x, filt_size_y;
 int i1, j1, filtsize, hfsx, hfsy;
 float **model_tmp, **kernel, grad, normgauss, smooth_meter;
 float conv;
 float r, sigmax, sigmay, sx, sy, sum=0.0;
-float vref, lam, frac_lam_x, frac_lam_y, xlam, ylam;
+float vref, lam;
 
 /* calculate wavelength of reference velocity */
 lam = VREF / FC_low;
 
 /* define filter size as fraction of reference velocity wavelength */
-frac_lam_x = FILT_SIZE_GRAD * lam;
-frac_lam_y = FILT_SIZE_GRAD1 * lam;
+filt_size_x = round((FILT_SIZE_GRAD * lam)/DH);
+filt_size_y = round((FILT_SIZE_GRAD1 * lam)/DH);
 
-/* calculate filter size */
-xlam = 3.0 * frac_lam_x;
-ylam = 3.0 * frac_lam_y;
+if (filt_size_x==0)	return;
+if (!(filt_size_x % 2)) {
+    if (filt_size_x > 0)	
+        filt_size_x += 1;
+    else			
+        filt_size_x -= 1;
+}
 
-hfsx = (int)(xlam/DH);
-hfsy = (int)(ylam/DH);
+if (filt_size_y==0)	return;
+if (!(filt_size_y % 2)) {
+    if (filt_size_y > 0)	
+        filt_size_y += 1;
+    else			
+        filt_size_y -= 1;
+}
 
-sx = frac_lam_x * frac_lam_x;
-sy = frac_lam_y * frac_lam_y;
+
+hfsx = abs(filt_size_x)/2;
+sigmax = hfsx/2;
+sx = 2.0 * sigmax *sigmax;
+
+hfsy = abs(filt_size_y)/2;
+sigmay = hfsy/2;
+sy = 2.0 * sigmay *sigmay;
 
 if(MYID==0){
    printf("\n hfsx: %d \n",hfsx);
@@ -46,7 +61,7 @@ if(MYID==0){
 }
 
 model_tmp = matrix(-hfsy+1,NY+hfsy,-hfsx+1,NX+hfsx);
-kernel=matrix(1,2*hfsy+1,1,2*hfsx+1);
+kernel=matrix(1,abs(filt_size_y),1,abs(filt_size_x));
 
 /* load merged model */
 for (i=1;i<=NX;i++){
@@ -90,15 +105,15 @@ for (j=NY+1;j<=NY+hfsy;j++){
 for (ii=-hfsx;ii<=hfsx;ii++){
      for (jj=-hfsy;jj<=hfsy;jj++){
          
-	 kernel[jj+hfsy+1][ii+hfsx+1] = exp(-((ii*ii*DH*DH)/sx) - ((jj*jj*DH*DH)/sy));
+         kernel[jj+hfsy+1][ii+hfsx+1] = exp(-((ii*ii)/sx) - ((jj*jj)/sy));
          sum += kernel[jj+hfsy+1][ii+hfsx+1];
 
      }
 }
 
 /* normalize kernel */
-for (i=1;i<=2*hfsx;i++){
-     for (j=1;j<=2*hfsy;j++){
+for (i=1;i<=filt_size_x;i++){
+     for (j=1;j<=filt_size_y;j++){
          
          kernel[j][i] /= sum;
 
@@ -126,7 +141,7 @@ for (j=1;j<=NY;j++){
 }
       
 free_matrix(model_tmp,-hfsy+1,NY+hfsy,-hfsx+1,NX+hfsx);
-free_matrix(kernel,1,2*hfsy+1,1,2*hfsx+1);
+free_matrix(kernel,1,abs(filt_size_y),1,abs(filt_size_x));
 			
 }
 

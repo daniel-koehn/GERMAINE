@@ -62,7 +62,7 @@ struct acq{
 struct PML_AC{
    float ** Ar, ** Ai, ** Br, ** Bi, ** Cr, ** Ci;
    float ** Axr, ** Axi, ** Byr, ** Byi;
-   float * sigma_x, * sigma_y; 
+   float * d_x, * d_y, * b_x, * b_y, * a_x, * a_y; 
 } PML_AC;
 
 /* declaration of acoustic functions */
