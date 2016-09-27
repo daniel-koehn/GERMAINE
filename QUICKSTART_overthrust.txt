@@ -10,7 +10,7 @@ Aminzadeh, F., J. Brac, and T. Kunz, 1997,
 3-D Salt and Overthrust models,
 Society of Exploration Geophysicists.
 
-The optimum FWI parameters are based on:
+The optimum FWI parameters are partly based on:
 
 Operto S, Virieux J, Sourbier F, 2007
 Documentation of FWT2D.V4.6 program:
