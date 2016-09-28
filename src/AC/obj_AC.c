@@ -11,7 +11,7 @@ float obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, 
 
 	/* declaration of global variables */
         extern int SEISMO, NX, NY, NSHOT1, NSHOT2, NF, INFO, NONZERO, NXNY;
-        extern int SEISMO, MYID, INFO, NF, LAPLACE, N_STREAMER, READ_REC;
+        extern int SEISMO, MYID, INFO, NF, N_STREAMER, READ_REC;
         extern float DH, FC_low, FC_high;
 	extern char SNAP_FILE[STRING_SIZE];
 	extern FILE *FP;
@@ -49,8 +49,7 @@ float obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, 
 	for(nfreq=1;nfreq<=NF;nfreq++){
 
 		/* set squared angular frequency*/
-		if(LAPLACE==0){(*waveAC).omega2 = pow(2.0*M_PI*(*waveAC).freq,2.0);}
-		if(LAPLACE==1){(*waveAC).omega2 = - pow((*waveAC).freq,2.0);}
+		(*waveAC).omega2 = pow(2.0*M_PI*(*waveAC).freq,2.0);
 
 		/* define PML damping profiles */
 		pml_pro(PML_AC,waveAC);

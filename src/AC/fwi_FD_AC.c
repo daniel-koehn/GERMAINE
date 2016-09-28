@@ -12,7 +12,7 @@ void fwi_FD_AC(char *fileinp1){
 	/* declaration of global variables */
         extern int NX, NY, NSHOT1, NSHOT2, GRAD_METHOD, NLBFGS, MYID, ITERMAX, LINESEARCH;
 	extern int NXG, NYG, NXNY, LOG, N_STREAMER, INFO, INVMAT, READMOD;
-	extern int NX0, NY0, NPML, READ_REC, HESSIAN;
+	extern int NX0, NY0, NPML, READ_REC, HESSIAN, FSSHIFT;
         extern char MISFIT_LOG_FILE[STRING_SIZE], LOG_FILE[STRING_SIZE];
         extern float PRO, A0_PML;
 
@@ -61,7 +61,7 @@ void fwi_FD_AC(char *fileinp1){
 
 	/* add external PML layers */
 	NX += 2 * NPML;
-	NY += 2 * NPML;
+	NY += NPML + FSSHIFT;
 
 	NXG = NX;
 	NYG = NY;

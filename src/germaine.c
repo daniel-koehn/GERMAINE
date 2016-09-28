@@ -76,8 +76,8 @@ read_par(FP);
 
 if (MYID == 0) note(stdout);
 
-/* define frequency domain or Laplace domain modelling/FWI */
-LAPLACE = 0;
+if(FREE_SURF==0){FSSHIFT=NPML;}
+if(FREE_SURF==1){FSSHIFT=0;}
 
 /* solve acoustic forward problem by FDFD */
 /* -------------------------------------- */

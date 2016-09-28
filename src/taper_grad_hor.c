@@ -10,7 +10,7 @@
 void taper_grad_hor(float ** grad){
 
         /* global variables */
-	extern int NX, NY, GRADT2, NPML;
+	extern int NX, NY, GRADT2, NPML, FSSHIFT;
 	extern int SWS_TAPER_GRAD_HOR;
 	extern float  EXP_TAPER_GRAD_HOR, DH;
 	
@@ -24,7 +24,7 @@ void taper_grad_hor(float ** grad){
 
 		    //grad[j][i] *= pow((float)(j*DH),EXP_TAPER_GRAD_HOR);
 
-		    if(j <= GRADT2+NPML){
+		    if(j <= GRADT2+FSSHIFT){
 		       grad[j][i] = 0.0;
 		    }
 

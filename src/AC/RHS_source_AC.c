@@ -9,7 +9,7 @@
 
 void RHS_source_AC(struct waveAC *waveAC, float ** srcpos, int ishot){
 
-	extern int NX, NY, NXNY, NPML;
+	extern int NX, NY, NXNY, NPML, FSSHIFT;
         extern float DH;
 	
 	/* local variables */
@@ -22,7 +22,7 @@ void RHS_source_AC(struct waveAC *waveAC, float ** srcpos, int ishot){
 
 	/* shift discrete source coordinates by NPML */
 	nxsrc += NPML;
-	nysrc += NPML;
+	nysrc += FSSHIFT;
 	/*printf("nxsrc = %d \t nysrc = %d \n",nxsrc,nysrc);*/
 
 	/* calculate source vector index k_src for shot no. ishot */

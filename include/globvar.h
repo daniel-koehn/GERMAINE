@@ -112,11 +112,12 @@ int NF;
 int HESSIAN;
 float MAX_HESS, EPS_HESS;
 
-/* parameters for Laplace modelling/FWI */
-int LAPLACE;
-
 /* source time function inversion via Wiener deconvolution */
 int STF_INV;
 
 /* parameters for PCG optimization */
 int PCG_BETA;
+
+/* parameters for free surface boundary condition */
+int FREE_SURF, FSSHIFT;
+

@@ -11,7 +11,7 @@ void forward_AC(char *fileinp1){
 
 	/* declaration of global variables */
       	extern int MYID, NF, MYID, LOG, NXG, NYG, NX, NY, NXNY, INFO, INVMAT, N_STREAMER;
-	extern int READMOD, NX0, NY0, NPML, LAPLACE, READ_REC;
+	extern int READMOD, NX0, NY0, NPML, READ_REC, FSSHIFT;
 	extern float FC_low, FC_high, A0_PML;
 	extern char LOG_FILE[STRING_SIZE];
 	extern FILE *FP;
@@ -41,7 +41,7 @@ void forward_AC(char *fileinp1){
 
 	/* add external PML layers */
 	NX += 2 * NPML;
-	NY += 2 * NPML;
+	NY += NPML + FSSHIFT;
 
 	NXG = NX;
 	NYG = NY;
@@ -143,8 +143,7 @@ void forward_AC(char *fileinp1){
 			pml_pro(&PML_AC,&waveAC);
 
 			/* set squared angular frequency */
-			if(LAPLACE==0){waveAC.omega2 = pow(2.0*M_PI*waveAC.freq,2.0);}
-			if(LAPLACE==1){waveAC.omega2 = - pow(waveAC.freq,2.0);}
+			waveAC.omega2 = pow(2.0*M_PI*waveAC.freq,2.0);
 
 			/* update material parameters */
 			init_mat_AC(&waveAC,&matAC);

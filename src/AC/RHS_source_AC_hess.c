@@ -9,7 +9,7 @@
 
 void RHS_source_AC_hess(struct waveAC *waveAC, struct fwiAC *fwiAC, int ** recpos, int trace){
 
-	extern int NX, NY, NXNY, NPML;
+	extern int NX, NY, NXNY, NPML, FSSHIFT;
         extern float DH;
 	
 	/* local variables */
@@ -26,7 +26,7 @@ void RHS_source_AC_hess(struct waveAC *waveAC, struct fwiAC *fwiAC, int ** recpo
         amp = 1.0;
 
         /* calculate receiver vector index k_rec for receiver no. i */
-        k_rec = (recpos[1][trace] + NPML) + (recpos[2][trace] + NPML - 1) * NX;
+        k_rec = (recpos[1][trace] + NPML) + (recpos[2][trace] + FSSHIFT - 1) * NX;
 
         /* Define spike source */
         (*waveAC).RHSr[k_rec] = amp/(DH*DH);

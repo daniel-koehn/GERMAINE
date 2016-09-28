@@ -12,7 +12,7 @@ void writemod_true(char modfile[STRING_SIZE], float ** array, int format){
 
 
 	/* extern variables */
-	extern int MYID, NX, NY, IDX, IDY, NX0, NY0, NPML;
+	extern int MYID, NX, NY, IDX, IDY, NX0, NY0, NPML, FSSHIFT;
 	extern FILE *FP;
 
 	int i, j;
@@ -29,8 +29,7 @@ void writemod_true(char modfile[STRING_SIZE], float ** array, int format){
 	fpmod=fopen(file,"wb");
 	for (i=1;i<=NX0;i+=IDX){
 	    for (j=1;j<=NY0;j+=IDY){
-		//writedsk(fpmod,array[j+NPML][i+NPML],format);
-		fwrite(&array[j+NPML][i+NPML],sizeof(float),1,fpmod);
+		fwrite(&array[j+FSSHIFT][i+NPML],sizeof(float),1,fpmod);
 	    }
         }
 				

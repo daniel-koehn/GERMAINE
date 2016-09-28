@@ -84,7 +84,7 @@ void pml_pro(struct PML_AC *PML_AC, struct waveAC *waveAC){
 	    (*PML_AC).b_y[j] = 1.0;
 
 	    /* define damping profile at top PML boundary */
-	    if((j <= NPML)&&(FREE_SURF!=1)){
+	    if((j <= NPML)&&(FREE_SURF==0)){
 	      (*PML_AC).d_y[j] = d0 * pow((NPML-j)*DH/lPML,PML_POWD);
 	      (*PML_AC).a_y[j] = a0 * (1.0 - pow((NPML-j)*DH/lPML,PML_POWA));
 	      (*PML_AC).b_y[j] = 1.0 + (PML_BETA0 - 1.0) * pow((NPML-j)*DH/lPML,PML_POWB);

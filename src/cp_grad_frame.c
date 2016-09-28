@@ -10,7 +10,7 @@
 void cp_grad_frame(float ** A){
 
         /* global variables */
-	extern int NX, NY, NX0, NY0, NPML, MYID;
+	extern int NX, NY, NX0, NY0, NPML, MYID, FREE_SURF, FSSHIFT;
 
 	/* local variables */
 	int i, j, jj, ii, PML_grad, yb, ye, xb, xe;
@@ -45,20 +45,22 @@ void cp_grad_frame(float ** A){
 	    }
 
 	    /* top boundary */
-	    for (i=1;i<=NX;i++){
+	    if(FREE_SURF==0){
+	        for (i=1;i<=NX;i++){
 		    for (j=1;j<=NPML;j++){
-			    A[j][i] = A[NPML+1][i];				
-			    if(isnan(A[j][i])==1){A[j][i]=A[j-1][i];}
+	                A[j][i] = A[NPML+1][i];				
+			if(isnan(A[j][i])==1){A[j][i]=A[j-1][i];}
 		    }
-	     }
+	        }
+            }
 
-	     /* bottom boundary */
-	     for (i=1;i<=NX;i++){
-		    for (j = NPML + NY0 + 1;j <= NY;j++){
-			    A[j][i] = A[NPML+NY0][i];				
-			    if(isnan(A[j][i])==1){A[j][i]=A[j-1][i];}
-		    }
-	     }
+	    /* bottom boundary */
+	    for (i=1;i<=NX;i++){
+		   for (j = FSSHIFT + NY0 + 1;j <= NY;j++){
+			   A[j][i] = A[FSSHIFT+NY0][i];				
+			   if(isnan(A[j][i])==1){A[j][i]=A[j-1][i];}
+		   }
+	    }
 	
 	}
 	
@@ -82,15 +84,17 @@ void cp_grad_frame(float ** A){
 	    }
 
 	    /* top boundary */
-	    for (i=1;i<=NX;i++){
-		   for (j=1;j<=NPML;j++){
-			   A[j][i] = 0.0;				
-		   }
+	    if(FREE_SURF==0){
+	        for (i=1;i<=NX;i++){
+		       for (j=1;j<=NPML;j++){
+		           A[j][i] = 0.0;				
+		       }
+	        }
 	    }
 
 	    /* bottom boundary */
 	    for (i=1;i<=NX;i++){
-		    for (j = NPML + NY0 + 1;j <= NY;j++){
+		    for (j = FSSHIFT + NY0 + 1;j <= NY;j++){
 			   A[j][i] = 0.0;				
 		    }
 	    }
@@ -109,7 +113,7 @@ void cp_grad_frame(float ** A){
 
 	    /* Define damping profile within PML */
 	    /* --------------------------------- */ 	
-	    DAMPING = 40.0;	
+	    DAMPING = 60.0;	
 	    amp=1.0-DAMPING/100.0;   
 
     	    coeff=vector(1,NPML); 	
@@ -149,11 +153,13 @@ void cp_grad_frame(float ** A){
 	    }
 	    	
 	    /* compute coefficients for top and bottom grid boundaries (y-direction) */
-	    xb=1; xe=NX;
-	    for (j=1;j<=NPML;j++){
-	        xb=j;
-		xe=NX-j+1;
-		for (i=xb;i<=xe;i++) absorb_coeff[j][i]=coeff[j];
+	    if(FREE_SURF==0){
+	        xb=1; xe=NX;
+	        for (j=1;j<=NPML;j++){
+	            xb=j;
+		    xe=NX-j+1;
+		    for (i=xb;i<=xe;i++) absorb_coeff[j][i]=coeff[j];
+	        }
 	    }
 	    	    
 	    xb=1; xe=NX;
@@ -184,16 +190,18 @@ void cp_grad_frame(float ** A){
 	    }
 
 	    /* top boundary */
-	    for (i=1;i<=NX;i++){
+	    if(FREE_SURF==0){
+	        for (i=1;i<=NX;i++){
 		    for (j=1;j<=NPML;j++){
-			    A[j][i] *= absorb_coeff[j][i];
-			    if(isnan(A[j][i])==1){A[j][i]=A[j-1][i];}
+		        A[j][i] *= absorb_coeff[j][i];
+			if(isnan(A[j][i])==1){A[j][i]=A[j-1][i];}
 		    }
-	     }
+	        }
+            }
 
 	     /* bottom boundary */
 	     for (i=1;i<=NX;i++){
-		    for (j = NPML + NY0 + 1;j <= NY;j++){
+		    for (j = FSSHIFT + NY0 + 1;j <= NY;j++){
 			    A[j][i] *= absorb_coeff[j][i];
 			    if(isnan(A[j][i])==1){A[j][i]=A[j-1][i];}
 		    }
@@ -206,7 +214,5 @@ void cp_grad_frame(float ** A){
 	    free_matrix(absorb_coeff,1,NY,1,NX);
 	
 	}
-	
 			
-
 }

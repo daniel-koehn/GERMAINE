@@ -9,7 +9,7 @@
 
 void RHS_source_AC_adj(struct waveAC *waveAC, struct fwiAC *fwiAC, int ** recpos, int ntr){
 
-	extern int NX, NY, NXNY, NPML;
+	extern int NX, NY, NXNY, NPML, FSSHIFT;
         extern float DH;
 	
 	/* local variables */
@@ -25,7 +25,7 @@ void RHS_source_AC_adj(struct waveAC *waveAC, struct fwiAC *fwiAC, int ** recpos
 	for(i=1;i<=ntr;i++){
 
 	    /* calculate receiver vector index k_rec for receiver no. i */
-	    k_rec = (recpos[1][i] + NPML) + (recpos[2][i] + NPML - 1) * NX;
+	    k_rec = (recpos[1][i] + NPML) + (recpos[2][i] + FSSHIFT - 1) * NX;
 
 	    // printf("k_rec = %d \n",k_rec);
 

@@ -27,6 +27,9 @@ SOURCE_FILE = ./source/source_inc.dat
 read_model_parameters_from_MFILE(yes=1)(READMOD) = 1
 MFILE = start/inclusions_true
 #
+#----------------------Free Surface-------------------------------
+free_surface_(yes=1)(FREE_SURF) = 0
+#
 #--------------------- Define CFS-PML parameters -----------------------
 width_of_absorbing_frame_(in_gridpoints)_(NPML) = 20
 PML_P_wave_velocity_(PML_VEL) = 4000.0

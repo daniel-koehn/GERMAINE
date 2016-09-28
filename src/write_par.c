@@ -24,7 +24,7 @@ void write_par(FILE *fp){
 	
 	extern int GRADT1, GRADT2, GRADT3, GRADT4, ITERMAX, INVMAT;
 	extern int GRAD_METHOD, PCG_BETA,NPML, STF_INV;
-	extern int FILT_SIZE, MODEL_FILTER;
+	extern int FILT_SIZE, MODEL_FILTER, FREE_SURF;
 	
 	extern int SWS_TAPER_GRAD_VERT, SWS_TAPER_GRAD_HOR, SWS_TAPER_GRAD_SOURCES, SWS_TAPER_CIRCULAR_PER_SHOT, SRTSHAPE, FILTSIZE;
 	extern int SWS_TAPER_FILE;
@@ -104,6 +104,14 @@ void write_par(FILE *fp){
 		fprintf(fp,"\t tau for P-waves:\n\t %s.tp\n\n",MFILE);
 	}
 
+		fprintf(fp," ------------------------- Free Surface ------------------------\n");
+		fprintf(fp," FREE_SURF : %d \n",FREE_SURF);
+	        if(FREE_SURF){
+		    fprintf(fp," Apply free surface boundary condition on top of the model \n\n");
+		}else{
+		    fprintf(fp," No free surface boundary condition applied \n\n");
+	        }
+		
 		fprintf(fp," ------------------------- PML parameters -------------------------\n");
 		fprintf(fp," Thickness of PML-layer NPML [gridpoints] : %d \n",NPML);
 		fprintf(fp," maximum velocity in PML : %e \n",PML_VEL);

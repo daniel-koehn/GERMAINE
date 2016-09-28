@@ -11,7 +11,7 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 
 	/* declaration of global variables */
         extern int SEISMO, NX, NY, NSHOT1, NSHOT2, NF, INFO, NONZERO, NXNY;
-        extern int SEISMO, MYID, INFO, NF, LAPLACE, N_STREAMER, READ_REC;
+        extern int SEISMO, MYID, INFO, NF, N_STREAMER, READ_REC;
 	extern int SPATFILTER, SWS_TAPER_GRAD_HOR, SWS_TAPER_FILE;
         extern float DH, FC_low, FC_high;
 	extern char SNAP_FILE[STRING_SIZE];

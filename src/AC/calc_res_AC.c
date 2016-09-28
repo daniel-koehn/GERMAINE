@@ -10,7 +10,7 @@
 float calc_res_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, int ntr, int ishot, int nstage, int nfreq){
 
         /* global variables */
-	extern int LAPLACE, STF_INV, INVMAT;
+	extern int STF_INV, INVMAT;
 	extern char DATA_DIR[STRING_SIZE];
 
 	/* local variables */
@@ -83,36 +83,23 @@ float calc_res_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, int ntr, int ishot
 	    /*printf("resr = %e \n",creal(res));
 	    printf("resi = %e \n",cimag(res));*/
 
-	    if(LAPLACE==0){
+	    /* calculate complex data residuals ... */
+    	    /* ... for FDFD-FWI */
+	    if(INVMAT==1){res = ((pobsr + pobsi * I) - (wien*((*waveAC).precr[i] + (*waveAC).preci[i] * I)))/cabsf(wien);}
 
-		/* calculate complex data residuals ... */
-    		/* ... for FDFD-FWI */
-		if(INVMAT==1){res = ((pobsr + pobsi * I) - (wien*((*waveAC).precr[i] + (*waveAC).preci[i] * I)))/cabsf(wien);}
+    	    /* ... for FDFD-RTM */
+	    if(INVMAT==2){res = pobsr + pobsi * I;}
 
-    		/* ... for FDFD-RTM */
-		if(INVMAT==2){res = pobsr + pobsi * I;}
+	        (*fwiAC).presr[i] = creal(res);
+	        (*fwiAC).presi[i] = cimag(res);
 
-	    	(*fwiAC).presr[i] = creal(res);
-	    	(*fwiAC).presi[i] = cimag(res);
-
-		if((pobsr<1e-20)&&(pobsi<1e-20)){
-		   (*fwiAC).presr[i] = 0.0;
-	    	   (*fwiAC).presi[i] = 0.0;
-		}
-
-	    }
-
-	    if(LAPLACE==1){
-	    	// (*fwiAC).presr[i] = log((*waveAC).precr[i]/pobsr)/(*waveAC).precr[i];
-	    	(*fwiAC).presr[i] = pobsr - (*waveAC).precr[i];
+	    if((pobsr<1e-20)&&(pobsi<1e-20)){
+                (*fwiAC).presr[i] = 0.0;
 	    	(*fwiAC).presi[i] = 0.0;
 	    }
 
-
             /* calculate objective function */
-	    if(LAPLACE==0){l2 += creal(res * conj(res));}
-	    // if(LAPLACE==1){l2 += pow(log((*waveAC).precr[i]/pobsr),2.0);}
-	    if(LAPLACE==1){l2 += pow(pobsr - (*waveAC).precr[i],2.0);}
+	    l2 += creal(res * conj(res));
  
 	}
 

@@ -9,17 +9,19 @@
 
 void readmod(struct matAC *matAC){
 
-	extern int NX, NY, NX0, NY0, MYID, NPML;
+	extern int NX, NY, NX0, NY0, MYID, NPML, FREE_SURF;
 	extern char  MFILE[STRING_SIZE];	
 	extern FILE *FP;
 
 		
 	/* local variables */
-	int i, j;
+	int i, j, yshift;
 	float vp;
 	FILE *fp_vp;
 	char filename[STRING_SIZE];
 
+	if(FREE_SURF==1){yshift=0;}
+	if(FREE_SURF==0){yshift=NPML;}
 
 	fprintf(FP,"\n... reading P-wave velocity models from file...\n");
            
@@ -34,7 +36,7 @@ void readmod(struct matAC *matAC){
 	for (i=1;i<=NX0;i++){
 		for (j=1;j<=NY0;j++){
 			fread(&vp, sizeof(float), 1, fp_vp);
-			(*matAC).vp[j+NPML][i+NPML] = vp;				
+			(*matAC).vp[j+yshift][i+NPML] = vp;				
 		}
 	}
 
@@ -57,16 +59,18 @@ void readmod(struct matAC *matAC){
 	}
 
 	/* top boundary */
-	for (i=1;i<=NX;i++){
-		for (j=1;j<=NPML;j++){
-			(*matAC).vp[j][i] = (*matAC).vp[NPML+1][i];				
+	if(FREE_SURF==0){
+	    for (i=1;i<=NX;i++){
+	        for (j=1;j<=NPML;j++){
+		    (*matAC).vp[j][i] = (*matAC).vp[NPML+1][i];				
 		}
+	    }
 	}
 
 	/* bottom boundary */
 	for (i=1;i<=NX;i++){
-		for (j = NPML + NY0 + 1;j <= NY;j++){
-			(*matAC).vp[j][i] = (*matAC).vp[NPML+NY0][i];				
+		for (j = NY - NPML + 1;j <= NY;j++){
+			(*matAC).vp[j][i] = (*matAC).vp[NY-NPML][i];				
 		}
 	}	
 
