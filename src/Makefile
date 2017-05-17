@@ -86,6 +86,7 @@ GERMAINE+= \
 	fwi_FD_AC.c \
 	grad_obj_AC.c \
 	hessian_AC.c \
+	hessian_shin_AC.c \
         init_A_AC_9p_pml.c \
         init_mat_AC.c \
 	$(MODEL) \

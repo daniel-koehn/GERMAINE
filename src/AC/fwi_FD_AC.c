@@ -2,7 +2,7 @@
  *  Acoustic FDFD Full Waveform Inversion
  *
  *  D. Koehn
- *  Kiel, 21.06.2016
+ *  Kiel, 17.05.2017
  *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
@@ -239,8 +239,13 @@ void fwi_FD_AC(char *fileinp1){
 			   if(HESSIAN){
 
 			       /* calculate approximate Hessian */
-			       if(iter==1){
+			       if((HESSIAN==1)&&(iter==1)){
 			           hessian_AC(&fwiAC,&waveAC,&PML_AC,&matAC,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage);
+			       }
+			       
+			       /* calculate Pseudo-Hessian */
+			       if((HESSIAN==2)&&(iter==1)){
+			           hessian_shin_AC(&fwiAC,&waveAC,&PML_AC,&matAC,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage);
 			       }
 
    			       /* apply approximate Hessian to gradient */			    
@@ -248,7 +253,7 @@ void fwi_FD_AC(char *fileinp1){
 
 			   }
 
-			   /* apply smoothing an taper functions to gradient */
+			   /* apply smoothing and taper functions to gradient */
 			   precond(fwiAC.grad);
 
 			   /* calculate descent directon gradm from gradient grad */

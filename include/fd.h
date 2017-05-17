@@ -97,6 +97,8 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 
 void hessian_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC *matAC, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage);
 
+void hessian_shin_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC *matAC, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage);
+
 void init_A_AC_9p_pml(struct PML_AC *PML_AC, struct matAC *matAC, struct waveAC *waveAC);
 
 void init_mat_AC(struct waveAC *waveAC, struct matAC *matAC);
