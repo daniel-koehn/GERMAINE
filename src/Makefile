@@ -47,7 +47,7 @@ IFLAGS=-I$//sfs/fs4/work-sh2/sungw331/suitesparse/SuiteSparse/include -I./../inc
 .c.o:
 	$(CC) $(CFLAGS) -c $< $(IFLAGS)
 
-VPATH = AC:models
+VPATH = AC:SH:models
 
 FDVEPS_UTIL = \
 	absorb.c \
@@ -100,6 +100,15 @@ GERMAINE+= \
 	RTM_AC_out.c \
 	store_PCG_AC.c \
 	write_seis_AC.c
+
+# add SH source files
+GERMAINE+= \
+	alloc_matSH.c \
+	forward_SH.c \
+	forward_shot_SH.c \
+	init_A_SH_9p_pml.c \
+	pml_pro_SH.c \
+	readmod_SH.c
 
 GERMAINE_OBJ = $(GERMAINE:%.c=%.o)
 

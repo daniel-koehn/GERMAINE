@@ -3,52 +3,51 @@
 #-----------------------------------------------------------------------
 # description:
 # description/name of model: 
-# Two inclusion in a homogeneous full-space 
+# 2D SH CTS model 
 # from
-# Operto S, Virieux J, Sourbier F, 2007
-# Documentation of FWT2D.V4.6 program:
-# Frequency-domain full-waveform modeling/inversion
-# of wide-aperture seismic data for imaging 2D acoustic media
-# Technical report No 6 - SEISCOPE project
+# Dokter E, Koehn D, Wilken D, De Nil D, Rabbel W (2017)
+# Full-waveform inversion of SH- and Love-wave data in near-surface prospecting
+# Geophysical Prospecting, accepted
+# 
 # 
 #-------------------- GERMAINE modus ------------------------------------- 
 forward_modelling_(yes=0)_FDFWI_(yes=1)_RTM_(yes=2)_(INVMAT) = 0
 #
 # ---------------- GERMAINE Physics -----------------------------
-(2D-AC=1;2D-SH=2)_(PHYSICS) = 1
+(2D-AC=1;2D-SH=2)_(PHYSICS) = 2
 #
 #-------------------- 2-D Grid -----------------------------------------
-number_of_gridpoints_in_x-direction_(NX) = 250
-number_of_gridpoints_in_y-direction_(NY) = 125
-distance_between_gridpoints(in_m)_(DH) = 40.0
+number_of_gridpoints_in_x-direction_(NX) = 500
+number_of_gridpoints_in_y-direction_(NY) = 150
+distance_between_gridpoints(in_m)_(DH) = 0.05
 #
 #--------------------Source---------------------------------------------
 # File with source positions:
-SOURCE_FILE = ./source/source_inc.dat 
+SOURCE_FILE = ./source/source_Prof2_SH.dat 
 #
 #--------------------- Model -------------------------------------------
 read_model_parameters_from_MFILE(yes=1)(READMOD) = 1
-MFILE = start/inclusions_true
+MFILE = start/CTS_complex_NS_new
 #
 #----------------------Free Surface-------------------------------
-free_surface_(yes=1)(FREE_SURF) = 0
+free_surface_(yes=1)(FREE_SURF) = 1
 #
 #--------------------- Define CFS-PML parameters -----------------------
 width_of_absorbing_frame_(in_gridpoints)_(NPML) = 20
-PML_P_wave_velocity_(PML_VEL) = 4000.0
+PML_P_wave_velocity_(PML_VEL) = 160.0
 PML_BETA0 = 1.0
 damping_parameter_(A0_PML) = 0.0001
 #
 #----------------------Snapshots----------------------------------------
-output_of_P_field_(SNAP)(yes>0) = 0
+output_of_P_field_(SNAP)(yes>0) = 1
 increment_x-direction_(IDX) = 1
 increment_y-direction_(IDY) = 1
 data-format_(SNAP_FORMAT)(ASCII(2);BINARY(3)) = 3
-basic_filename_(SNAP_FILE) = ./snap/incl2
+basic_filename_(SNAP_FILE) = ./snap/CTS_SH
 #
 #---------------------- Receiver ---------------------------------------
-output_of_seismograms_(SEISMO) = 1 
-file_with_receiver_positions_(REC_FILE) = ./receiver/receiver_inc
+output_of_seismograms_(SEISMO) = 0
+file_with_receiver_positions_(REC_FILE) = ./receiver/receiver_OVER
 read_receiver_positions_from_multiple_files_(yes=1)_(READ_REC) = 0
 reference_point_for_receiver_coordinate_system_(REFREC) = 0.0 , 0.0
 #
@@ -59,7 +58,7 @@ Cable_increment_per_shot_(REC_INCR_X) = 80
 Cable_increment_per_shot_(REC_INCR_Y) = 0
 #
 #-------------------- FD pressure seismograms  -------------------------
-Outputfile_for_pressure_seismograms_(PICKS_FILE) = ./seis/incl2
+Outputfile_for_pressure_seismograms_(PICKS_FILE) = ./seis/CTS_SH
 # 
 #-----------------------------------------------------------------------
 # each PE is printing log-information to LOG_FILE.MYID
@@ -68,15 +67,15 @@ info_of_processing_element_zero_to_stdout_(yes=1/no=0)_(LOG) = 1
 #-----------------------------------------------------------------------
 # GERMAINE inversion parameters
 # ----------------------------------------------------------------------
-number_of_TDFWI_iterations_(ITERMAX) = 10
+number_of_TDFWI_iterations_(ITERMAX) = 100
 invert_STF_using_Wiener_Deco_(yes=1/no=0)_(STF_INV) = 0
 output_of_jacobian_(JACOBIAN) = gradient/gradient
-seismograms_of_measured_data_(DATA_DIR) = seis/incl2_true/incl2
+seismograms_of_measured_data_(DATA_DIR) = seis/overthrust_true/overthrust
 cosine_taper_(yes=1/no=0)_(TAPER) = 0
-taper_length_(in_rec_numbers)_(TAPERLENGTH) = 4
+taper_length_(in_rec_numbers)_(TAPERLENGTH) = 3
 HESSIAN_(no=0/app_Hessian=1/pseudo_Hessian=2) = 2
 Regularization_term_for_inverse_Hessian_(EPS_HESS) = 0.01
-gradient_taper_geometry_(GRADT1,GRADT2,GRADT3,GRADT4) = 22, 25, 490, 500
+gradient_taper_geometry_(GRADT1,GRADT2,GRADT3,GRADT4) = 2, 5, 490, 500
 #
 # ----- Definition of gradient taper geometry ----- #
 # Vertical taper
@@ -103,13 +102,13 @@ first_gradient_to_be_saved(nfstart_jac) = 2000
 increment_between_saved_gradients_(nf_jac) = 1
 #
 # ----- Upper and lower limits for model parameters ----- #
-upper_limit_for_vp/lambda_(VPUPPERLIM) = 6000.0
-lower_limit_for_vp/lambda_(VPLOWERLIM) = 300.0
+upper_limit_for_vp/lambda_(VPUPPERLIM) = 7000.0
+lower_limit_for_vp/lambda_(VPLOWERLIM) = 2000.0
 #
 # ----- Optimization-Method ------ #
 gradient_method_(PCG=1/LBFGS=2)_(GRAD_METHOD) = 2
 PCG_BETA_(Fletcher_Reeves=1/Polak_Ribiere=2/Hestenes_Stiefel=3/Dai_Yuan=4) = 2
-save_(NLBFGS)_updates_during_LBFGS_optimization = 10
+save_(NLBFGS)_updates_during_LBFGS_optimization = 25
 #
 #----- Definition of smoothing the models vp and vs ----- #
 apply_spatial_filtering_(1=yes)_(MODEL_FILTER) = 0

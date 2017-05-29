@@ -65,6 +65,22 @@ struct PML_AC{
    float * d_x, * d_y, * b_x, * b_y, * a_x, * a_y; 
 } PML_AC;
 
+/* elastic SH-wavefield variables */
+
+/* elastic SH-FWI variables */
+struct fwiSH{
+   float  ** mu, ** vs_old, ** grad, ** Hgrad, ** gradm, **hess;
+   float ** forwardr, ** forwardi;
+   float * presr, * presi;
+   float stfr, stfi;
+} fwiSH;
+
+/* elastic SH material parameters */
+struct matSH{
+   float  **rho, ** vs, ** ivs2, **k2;	
+} matSH; 
+
+
 /* declaration of acoustic functions */
 
 void alloc_fwiAC(struct fwiAC *fwiAC, int ntr);
@@ -118,6 +134,20 @@ void RTM_AC_out(float ** Vp);
 void store_PCG_AC(float * PCG_old, float ** waveconv);
 
 void write_seis_AC(struct waveAC *waveAC, int ishot, int ntr, int nstage, int nfreq);
+
+/* declaration of elastic SH functions */
+
+void alloc_matSH(struct matSH *matSH);
+
+void forward_SH(char *fileinp1);
+
+void forward_shot_SH(struct waveAC *waveAC, struct PML_AC *PML_AC, struct matSH *matSH, float ** srcpos, int nshots, int ** recpos, int ntr, int nstage, int nfreq);
+
+void init_A_SH_9p_pml(struct PML_AC *PML_AC, struct matSH *matSH, struct waveAC *waveAC);
+
+void pml_pro_SH(struct PML_AC *PML_AC, struct waveAC *waveAC, struct matSH *matSH);
+
+void readmod_SH(struct matSH *matSH);
 
 /* declaration of general functions */
 

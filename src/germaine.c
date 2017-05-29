@@ -79,23 +79,46 @@ if (MYID == 0) note(stdout);
 if(FREE_SURF==0){FSSHIFT=NPML;}
 if(FREE_SURF==1){FSSHIFT=0;}
 
-/* solve acoustic forward problem by FDFD */
-/* -------------------------------------- */
-if(INVMAT==0){
-  forward_AC(fileinp1);
+/* ---------------------- */
+/* PHYSICS = 1 (Acoustic) */
+/* ---------------------- */
+
+if(PHYSICS==1){
+
+    /* solve acoustic forward problem by FDFD */
+    /* -------------------------------------- */
+    if(INVMAT==0){
+        forward_AC(fileinp1);
+    }
+
+    /* 2D acoustic FDFD Full Waveform Inversion */
+    /* ---------------------------------------- */
+    if(INVMAT==1){
+        fwi_FD_AC(fileinp1);
+    }
+          
+    /* 2D acoustic FDFD Reverse Time Migration */
+    /* --------------------------------------- */
+    if(INVMAT==2){
+         RTM_FD_AC(fileinp1);
+    }
+
 }
 
-/* 2D acoustic FDFD Full Waveform Inversion */
-/* ---------------------------------------- */
-if(INVMAT==1){
-   fwi_FD_AC(fileinp1);
+/* ------------------------ */
+/* PHYSICS = 2 (Elastic SH) */
+/* ------------------------ */
+
+if(PHYSICS==2){
+
+    /* solve acoustic forward problem by FDFD */
+    /* -------------------------------------- */
+    if(INVMAT==0){
+        forward_SH(fileinp1);
+    }    
+
 }
-          
-/* 2D acoustic FDFD Reverse Time Migration */
-/* --------------------------------------- */
-if(INVMAT==2){
-   RTM_FD_AC(fileinp1);
-}
+
 
 MPI_Barrier(MPI_COMM_WORLD);
 
