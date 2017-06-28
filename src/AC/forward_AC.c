@@ -4,22 +4,23 @@
  *  D. Koehn
  *  Kiel, 22.06.2016
  *  --------------------------------------------------------------------------------*/
-
 #include "fd.h"
 
 void forward_AC(char *fileinp1){
 
 	/* declaration of global variables */
       	extern int MYID, NF, MYID, LOG, NXG, NYG, NX, NY, NXNY, INFO, INVMAT, N_STREAMER;
-	extern int READMOD, NX0, NY0, NPML, READ_REC, FSSHIFT;
+	extern int READMOD, NX0, NY0, NPML, READ_REC, FSSHIFT, NFREQ1, NFREQ2, COLOR;
+	extern int NPROCFREQ, NPROCSHOT, NP, MYID_SHOT, NSHOT1, NSHOT2;
 	extern float FC_low, FC_high, A0_PML;
 	extern char LOG_FILE[STRING_SIZE];
 	extern FILE *FP;
     
         /* declaration of local variables */
 	int i, j, nstage, stagemax, nfreq;
-        char ext[10];
 	int ntr, nshots;
+        char ext[10];
+	float *stage_freq;
 
 	FILE *FP_stage;
 
@@ -75,9 +76,6 @@ void forward_AC(char *fileinp1){
 	/* Reading source positions from SOURCE_FILE */ 	
 	acq.srcpos=sources(&nshots);
 
-	/* Initiate MPI shot parallelization */
-	init_MPIshot(nshots);
-
 	/* read receiver positions from receiver files for each shot */
 	if(READ_REC==0){
 
@@ -118,10 +116,7 @@ void forward_AC(char *fileinp1){
 	rewind(FP);
 	stagemax--;
 	fclose(FP);
-
-	/* extend model with PML boundary */
      
-
 	/* initiate vp, ivp2, k2 */
 	init_mat_AC(&waveAC,&matAC);
 
@@ -132,12 +127,38 @@ void forward_AC(char *fileinp1){
 		FP_stage=fopen(fileinp1,"r");
 		read_par_inv(FP_stage,nstage,stagemax);
 
-		/* estimate frequency sample interval and set first frequency */
+		/* estimate frequency sample interval */
 		waveAC.dfreq = (FC_high-FC_low) / NF;
-                waveAC.freq = FC_low;
+
+		/* estimate frequencies for current FWI stage */
+		waveAC.stage_freq = vector(1,NF);
+		waveAC.stage_freq[1] = FC_low;
+
+		for(i=2;i<=NF;i++){
+		    waveAC.stage_freq[i] = waveAC.stage_freq[i-1] + waveAC.dfreq; 
+		} 		
+
+		/* split MPI communicator for shot parallelization */
+		COLOR = MYID / NPROCFREQ;
+
+		MPI_Comm shot_comm;
+		MPI_Comm_split(MPI_COMM_WORLD, COLOR, MYID, &shot_comm);		
+
+		/* esimtate communicator size for shot_comm and number of colors (NPROCSHOT) */
+		MPI_Comm_rank(shot_comm, &MYID_SHOT);
+		NPROCSHOT = NP / NPROCFREQ;
+
+		/* Initiate MPI shot parallelization */
+		init_MPIshot(nshots);
+
+		/* Initiate MPI frequency parallelization */		
+		init_MPIfreq();
 
 		/* loop over frequencies at each stage */
-		for(nfreq=1;nfreq<=NF;nfreq++){
+		for(nfreq=NFREQ1;nfreq<NFREQ2;nfreq++){			
+
+			/* set frequency on local MPI process */
+			waveAC.freq = waveAC.stage_freq[nfreq];			
 
 			/* define PML damping profiles */
 			pml_pro(&PML_AC,&waveAC);
@@ -151,9 +172,10 @@ void forward_AC(char *fileinp1){
 			/* solve forward problem for all shots*/
 			forward_shot_AC(&waveAC,&PML_AC,&matAC,acq.srcpos,nshots,acq.recpos,ntr,nstage,nfreq);
 
-			waveAC.freq += waveAC.dfreq; 
-
 		} /* end of loop over frequencies */
+
+		/* free shot_comm */
+		MPI_Comm_free(&shot_comm);
 
   	} /* end of loop over workflow stages*/
 

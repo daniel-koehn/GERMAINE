@@ -35,6 +35,7 @@ struct waveAC{
    float freq, dfreq, omega2;
    float **pr, **pi; 
    float *precr, *preci;
+   float *stage_freq;
    double *RHSr, *RHSi, *Ar, *Ai;
    int *irow, *icol;
 } waveAC; 
@@ -184,6 +185,8 @@ void info_mem(FILE *fp, int NLBFGS_vec, int ntr);
 void info(FILE *fp);
 
 void init_grad(float ** A);
+
+void init_MPIfreq();
 
 void init_MPIshot(int nshots);
 

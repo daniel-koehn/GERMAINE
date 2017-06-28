@@ -13,8 +13,9 @@ void RTM_FD_AC(char *fileinp1){
         extern int NX, NY, NSHOT1, NSHOT2, GRAD_METHOD, NLBFGS, MYID, ITERMAX, LINESEARCH;
 	extern int NXG, NYG, NXNY, LOG, N_STREAMER, INFO, INVMAT, READMOD;
 	extern int NX0, NY0, NPML, READ_REC, FSSHIFT;
+	extern int NPROCFREQ, NPROCSHOT, NP, MYID_SHOT, NSHOT1, NSHOT2, COLOR, NF;
         extern char MISFIT_LOG_FILE[STRING_SIZE], LOG_FILE[STRING_SIZE];
-        extern float PRO, A0_PML;
+        extern float PRO, A0_PML, FC_high, FC_low;
 
 	extern FILE *FP;
     
@@ -86,9 +87,6 @@ void RTM_FD_AC(char *fileinp1){
 	/* Reading source positions from SOURCE_FILE */ 	
 	acq.srcpos=sources(&nshots);
 
-	/* Initiate MPI shot parallelization */
-	init_MPIshot(nshots);
-
 	/* read receiver positions from receiver files for each shot */
 	if(READ_REC==0){
 
@@ -150,6 +148,33 @@ void RTM_FD_AC(char *fileinp1){
 		FP_stage=fopen(fileinp1,"r");
 		read_par_inv(FP_stage,nstage,stagemax);
 
+		/* estimate frequency sample interval */
+		waveAC.dfreq = (FC_high-FC_low) / NF;
+
+		/* estimate frequencies for current FWI stage */
+		waveAC.stage_freq = vector(1,NF);
+		waveAC.stage_freq[1] = FC_low;
+
+		for(i=2;i<=NF;i++){
+	    		waveAC.stage_freq[i] = waveAC.stage_freq[i-1] + waveAC.dfreq; 
+		} 		
+
+		/* split MPI communicator for shot parallelization */
+		COLOR = MYID / NPROCFREQ;
+
+		MPI_Comm shot_comm;
+		MPI_Comm_split(MPI_COMM_WORLD, COLOR, MYID, &shot_comm);		
+
+		/* esimtate communicator size for shot_comm and number of colors (NPROCSHOT) */
+		MPI_Comm_rank(shot_comm, &MYID_SHOT);
+		NPROCSHOT = NP / NPROCFREQ;
+
+		/* Initiate MPI shot parallelization */
+		init_MPIshot(nshots);
+
+		/* Initiate MPI frequency parallelization */		
+		init_MPIfreq();
+
 		if (MYID==0){
 		   printf("\n\n\n ------------------------------------------------------------------\n");
 		   printf("\n\n\n                2D Acoustic Reverse Time Migration                 \n");
@@ -161,6 +186,10 @@ void RTM_FD_AC(char *fileinp1){
 
 	        /* calculate Vp image */
 		L2 = grad_obj_AC(&fwiAC,&waveAC,&PML_AC,&matAC,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage);			
+
+		/* free shot_comm and stage_freq */
+		MPI_Comm_free(&shot_comm);
+		free_vector(waveAC.stage_freq,1,NF);
 
 	} /* End of RTM-workflow loop */
 

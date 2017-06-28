@@ -21,7 +21,10 @@ FILE *FP;
 
 /* Mpi-variables */
 int   NP, NPSP, NPROC, MYID, IENDX, IENDY;
-int   NSHOT1, NSHOT2;
+int   NPROCSHOT, NPROCFREQ;
+int   COLOR;
+int   NFREQ1, NFREQ2;
+int   NSHOT1, NSHOT2, MYID_SHOT;
 int   POS[3], INDEX[5];     
 const int TAG1=1,TAG2=2, TAG3=3, TAG4=4, TAG5=5,TAG6=6;
 

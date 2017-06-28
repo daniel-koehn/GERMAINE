@@ -13,6 +13,7 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
         extern int SEISMO, NX, NY, NSHOT1, NSHOT2, NF, INFO, NONZERO, NXNY;
         extern int SEISMO, MYID, INFO, NF, N_STREAMER, READ_REC;
 	extern int SPATFILTER, SWS_TAPER_GRAD_HOR, SWS_TAPER_FILE;
+	extern int NFREQ1, NFREQ2;
         extern float DH, FC_low, FC_high;
 	extern char SNAP_FILE[STRING_SIZE];
 	extern FILE *FP;
@@ -45,12 +46,11 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 	init_grad((*fwiAC).grad);
         L2 = 0.0;
 
-	/* estimate frequency sample interval and set first frequency */
-	(*waveAC).dfreq = (FC_high-FC_low) / NF;
-        (*waveAC).freq = FC_low;
-
 	/* loop over frequencies at each stage */
-	for(nfreq=1;nfreq<=NF;nfreq++){
+	for(nfreq=NFREQ1;nfreq<NFREQ2;nfreq++){
+
+		/* set frequency on local MPI process */
+		(*waveAC).freq = (*waveAC).stage_freq[nfreq];
 
 		/* set squared angular frequency*/
 		(*waveAC).omega2 = pow(2.0*M_PI*(*waveAC).freq,2.0);
@@ -175,9 +175,7 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 		        ntr=0;
 		     }
 
-		} /* end of loop over shots (forward and adjoint) */	
-
-	(*waveAC).freq += (*waveAC).dfreq; 
+		} /* end of loop over shots (forward and adjoint) */
 
 	umfpack_zi_free_numeric (&Numeric);
  

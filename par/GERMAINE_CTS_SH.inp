@@ -10,11 +10,14 @@
 # Geophysical Prospecting, accepted
 # 
 # 
-#-------------------- GERMAINE modus ------------------------------------- 
+#-------------------- GERMAINE modus -----------------------------------
 forward_modelling_(yes=0)_FDFWI_(yes=1)_RTM_(yes=2)_(INVMAT) = 0
 #
-# ---------------- GERMAINE Physics -----------------------------
+# ---------------- GERMAINE Physics ------------------------------------
 (2D-AC=1;2D-SH=2)_(PHYSICS) = 2
+#
+#-------------- MPI Parallelization ------------------------------------
+number_of_processors_for_frequency_parallelization_(NPROCFREQ) = 1
 #
 #-------------------- 2-D Grid -----------------------------------------
 number_of_gridpoints_in_x-direction_(NX) = 500
@@ -29,7 +32,7 @@ SOURCE_FILE = ./source/source_Prof2_SH.dat
 read_model_parameters_from_MFILE(yes=1)(READMOD) = 1
 MFILE = start/CTS_complex_NS_new
 #
-#----------------------Free Surface-------------------------------
+#----------------------Free Surface-------------------------------------
 free_surface_(yes=1)(FREE_SURF) = 1
 #
 #--------------------- Define CFS-PML parameters -----------------------
