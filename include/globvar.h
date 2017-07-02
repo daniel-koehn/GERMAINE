@@ -124,3 +124,6 @@ int PCG_BETA;
 /* parameters for free surface boundary condition */
 int FREE_SURF, FSSHIFT;
 
+/* parameters for different misfit functionals */
+int MISFIT;
+

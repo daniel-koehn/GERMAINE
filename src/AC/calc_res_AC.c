@@ -10,7 +10,7 @@
 float calc_res_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, int ntr, int ishot, int nstage, int nfreq){
 
         /* global variables */
-	extern int STF_INV, INVMAT;
+	extern int STF_INV, INVMAT, MISFIT;
 	extern char DATA_DIR[STRING_SIZE];
 
 	/* local variables */
@@ -85,7 +85,21 @@ float calc_res_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, int ntr, int ishot
 
 	    /* calculate complex data residuals ... */
     	    /* ... for FDFD-FWI */
-	    if(INVMAT==1){res = ((pobsr + pobsi * I) - (wien*((*waveAC).precr[i] + (*waveAC).preci[i] * I)))/cabsf(wien);}
+	    if(INVMAT==1){
+		
+		if(MISFIT==1){ /* L2-norm */
+	            res = ((pobsr + pobsi * I) - (wien*((*waveAC).precr[i] + (*waveAC).preci[i] * I)))/cabsf(wien);
+		}
+
+		if(MISFIT==2){ /* logarithmic L2-norm */
+	            res = clogf(pobsr + pobsi * I) - clogf((*waveAC).precr[i] + (*waveAC).preci[i] * I);
+		}
+
+		if(MISFIT==3){ /* phase-only logarithmic L2-norm */
+	            res = cimag(clogf(pobsr + pobsi * I) - clogf((*waveAC).precr[i] + (*waveAC).preci[i] * I));
+		}
+
+	    }
 
     	    /* ... for FDFD-RTM */
 	    if(INVMAT==2){res = pobsr + pobsi * I;}
