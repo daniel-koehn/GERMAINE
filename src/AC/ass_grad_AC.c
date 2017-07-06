@@ -12,12 +12,14 @@ void ass_grad_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct matAC *matAC
 
         /* global variables */
 	extern int NX, NY, SWS_TAPER_CIRCULAR_PER_SHOT;
+	extern float S;
 
 	/* local variables */
 	int i, j;
-	complex float wien;
+	complex float wien, Omega2;
 
 	wien = 	(*fwiAC).stfr + (*fwiAC).stfi * I;	
+	Omega2 = cpowf(((2.0*M_PI*(*waveAC).freq) + (I * S)),2.0);
 
 	// printf("abs(wien) = %e + i %e \n",creal(fabs(wien)),cimag(fabs(wien)));
 	
@@ -25,7 +27,7 @@ void ass_grad_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct matAC *matAC
 	for (i=1;i<=NX;i++){
 	    for (j=1;j<=NY;j++){
 
-               grad_shot[j][i] = - 2.0 * (*waveAC).omega2 * creal( wien/cabsf(wien) * ((*fwiAC).forwardr[j][i] + (*fwiAC).forwardi[j][i] * I)  
+               grad_shot[j][i] = - 2.0 * creal(Omega2 * wien/cabsf(wien) * ((*fwiAC).forwardr[j][i] + (*fwiAC).forwardi[j][i] * I)  
 				       * (1.0 / ((*matAC).vp[j][i] * (*matAC).vp[j][i] * (*matAC).vp[j][i])) * ((*waveAC).pr[j][i] + (*waveAC).pi[j][i] * I) );
 		    
 	    }

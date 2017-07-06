@@ -14,7 +14,7 @@ void hessian_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_A
         extern int SEISMO, MYID, INFO, NF, N_STREAMER, READ_REC;
 	extern int SPATFILTER, SWS_TAPER_GRAD_HOR, SWS_TAPER_FILE;
 	extern int NFREQ1, NFREQ2;
-        extern float DH, FC_low, FC_high;
+        extern float DH, FC_low, FC_high, S;
 	extern char SNAP_FILE[STRING_SIZE];
 	extern char JACOBIAN[STRING_SIZE];
 	extern FILE *FP;
@@ -26,7 +26,7 @@ void hessian_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_A
 	int     *Ap, *Ai;
 	double  *Ax, *Az, *xr, *xi; 
 	double  time1, time2;
-	complex float J;
+	complex float J, Omega2;
 	float tmp;
         char filename[STRING_SIZE];
         void *Symbolic, *Numeric;
@@ -52,8 +52,8 @@ void hessian_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_A
 		/* set frequency on local MPI process */
 		(*waveAC).freq = (*waveAC).stage_freq[nfreq];
 
-		/* set squared angular frequency*/
-		(*waveAC).omega2 = pow(2.0*M_PI*(*waveAC).freq,2.0);
+		/* set squared complex angular frequency*/		
+                Omega2 = cpowf(((2.0*M_PI*(*waveAC).freq) + (I * S)),2.0);
 
 		/* define PML damping profiles */
 		pml_pro(PML_AC,waveAC);
@@ -158,7 +158,7 @@ void hessian_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_A
 			 for (i=1;i<=NX;i++){
 			     for (j=1;j<=NY;j++){
 
-			       J = - 2.0 * (*waveAC).omega2 * ((*fwiAC).forwardr[j][i] + (*fwiAC).forwardi[j][i] * I)  
+			       J = - 2.0 * Omega2 * ((*fwiAC).forwardr[j][i] + (*fwiAC).forwardi[j][i] * I)  
 				         * (1.0 / ((*matAC).vp[j][i] * (*matAC).vp[j][i] * (*matAC).vp[j][i])) * ((*waveAC).pr[j][i] + (*waveAC).pi[j][i] * I);
 
 			       (*fwiAC).hess[j][i] += creal( J * conjf(J));

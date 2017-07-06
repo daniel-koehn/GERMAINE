@@ -127,3 +127,6 @@ int FREE_SURF, FSSHIFT;
 /* parameters for different misfit functionals */
 int MISFIT;
 
+/* parameters for Laplace damping */
+float S;
+

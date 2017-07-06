@@ -164,7 +164,7 @@ void forward_AC(char *fileinp1){
 			pml_pro(&PML_AC,&waveAC);
 
 			/* set squared angular frequency */
-			waveAC.omega2 = pow(2.0*M_PI*waveAC.freq,2.0);
+			/* waveAC.omega2 = pow(2.0*M_PI*waveAC.freq,2.0); */
 
 			/* update material parameters */
 			init_mat_AC(&waveAC,&matAC);

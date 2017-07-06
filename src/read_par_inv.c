@@ -14,16 +14,16 @@ void read_par_inv(FILE *fp,int nstage,int stagemax){
 /* declaration of global variables */
 extern int MYID, INVMAT;
 extern int SPATFILTER, NF, MISFIT;
-extern float PRO, FC_low, FC_high, VREF;
+extern float PRO, FC_low, FC_high, VREF, S;
 extern float FILT_SIZE_GRAD, FILT_SIZE_GRAD1;
 
 /* definition of local variables */
 int i;
 char str [80];
 
-fscanf(fp,"%s%s%s%s%s%s%s%s%s",str,str,str,str,str,str,str,str,str);
+fscanf(fp,"%s%s%s%s%s%s%s%s%s%s",str,str,str,str,str,str,str,str,str,str);
 for (i=1;i<=nstage;i++){
-      fscanf(fp,"%f%f%f%i%i%f%f%f%i",&PRO,&FC_low,&FC_high,&NF,&SPATFILTER,&FILT_SIZE_GRAD,&FILT_SIZE_GRAD1,&VREF,&MISFIT);
+      fscanf(fp,"%f%f%f%i%f%i%f%f%f%i",&PRO,&FC_low,&FC_high,&NF,&S,&SPATFILTER,&FILT_SIZE_GRAD,&FILT_SIZE_GRAD1,&VREF,&MISFIT);
 }
 
 fclose(fp);
@@ -35,6 +35,7 @@ if((MYID==0)&&(INVMAT==1)){
    
    printf("\n\n");
    printf(" Invert NF = %d frequencies between FC_low = %e Hz and FC_high = %e Hz.\n", NF, FC_low, FC_high);
+   printf(" Laplace constant S = %e 1/s\n", S);
    printf(" Smoothing (spatial filtering) of the gradients: \n ");
    if(SPATFILTER){
      printf(" \tSPATFILTER=%d: Gradients are smoothed.\n",SPATFILTER);

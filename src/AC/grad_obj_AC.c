@@ -53,7 +53,7 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 		(*waveAC).freq = (*waveAC).stage_freq[nfreq];
 
 		/* set squared angular frequency*/
-		(*waveAC).omega2 = pow(2.0*M_PI*(*waveAC).freq,2.0);
+		/* (*waveAC).omega2 = pow(2.0*M_PI*(*waveAC).freq,2.0); */
 
 		/* define PML damping profiles */
 		pml_pro(PML_AC,waveAC);
