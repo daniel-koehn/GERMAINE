@@ -91,12 +91,12 @@ float calc_res_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, int ntr, int ishot
 	            res = ((pobsr + pobsi * I) - (wien*((*waveAC).precr[i] + (*waveAC).preci[i] * I)))/cabsf(wien);
 		}
 
-		if(MISFIT==2){ /* logarithmic L2-norm */
+		if(MISFIT==2){ /* logarithmic L2-norm (Shin and Min 2006) */
 	            res = clogf(pobsr + pobsi * I) - clogf((*waveAC).precr[i] + (*waveAC).preci[i] * I);
 		}
 
-		if(MISFIT==3){ /* phase-only logarithmic L2-norm */
-	            res = cimag(clogf(pobsr + pobsi * I) - clogf((*waveAC).precr[i] + (*waveAC).preci[i] * I));
+		if(MISFIT==3){ /* phase-only residuals (Bednar et al. 2007) */
+	            res = cargf((*waveAC).precr[i] + (*waveAC).preci[i] * I) - cargf(pobsr + pobsi * I);
 		}
 
 	    }
