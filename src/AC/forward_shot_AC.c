@@ -68,7 +68,7 @@ void forward_shot_AC(struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC 
 
 	if((MYID==0)&&(INFO==1)){
 	  printf("\n============================================================================================================= \n");
-	  printf("\n *****  Solve acoustic forward problem by FDFD for shot %d - %d (f = %3.2f Hz) on MPI process no. %d **********  \n",NSHOT1,NSHOT2-1,(*waveAC).freq, MYID);
+	  printf("\n *****  Solve acoustic forward problem by FDFD for shot %d - %d (f = %3.4f Hz) on MPI process no. %d **********  \n",NSHOT1,NSHOT2-1,(*waveAC).freq, MYID);
 	  printf("\n============================================================================================================= \n\n");				
 	  time1=MPI_Wtime(); 
 	}
