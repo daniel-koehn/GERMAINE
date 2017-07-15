@@ -52,7 +52,7 @@ void pml_pro(struct PML_AC *PML_AC, struct waveAC *waveAC){
 	a0 = M_PI * (*waveAC).freq;
 
         /* set free surface to zero */
-        FREE_SURF = 0;
+        /* FREE_SURF = 0; */
 
         /* calculate PML damping profiles sigma_x and sigma_y in x- and y-direction */
 	for (i=1;i<=NX;i++){  
