@@ -46,6 +46,9 @@ void write_par(FILE *fp){
         extern float VP0_1, VP0_2, DVP0, GRAD0_1, GRAD0_2, DGRAD0;
         extern char GRIDSEARCH_FILE[STRING_SIZE];
 
+	extern int READ_WAVELET;
+	extern char WAVELET_NAME[STRING_SIZE];
+
 	/* definition of local variables */
 	int l;
 	
@@ -70,6 +73,11 @@ void write_par(FILE *fp){
 	fprintf(fp," reading source positions, time delay, centre frequency \n");
 	fprintf(fp," and initial amplitude from ASCII-file \n");
 	fprintf(fp,"\t%s\n\n",SOURCE_FILE);
+
+	if (READ_WAVELET==1){
+	    fprintf(fp," reading time-domain source wavelet from SU file \n");
+	    fprintf(fp,"\t%s\n\n",WAVELET_NAME);
+	}
 
 	if (SEISMO){
 		fprintf(fp," ------------------------- RECEIVER  --------------------------\n");

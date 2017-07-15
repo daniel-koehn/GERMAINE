@@ -19,6 +19,10 @@ char  MFILE[STRING_SIZE], REC_FILE[STRING_SIZE];
 char  LOG_FILE[STRING_SIZE];
 FILE *FP;
 
+/* Read time-domain source wavelet */
+int READ_WAVELET;
+char WAVELET_NAME[STRING_SIZE];
+
 /* Mpi-variables */
 int   NP, NPSP, NPROC, MYID, IENDX, IENDY;
 int   NPROCSHOT, NPROCFREQ;

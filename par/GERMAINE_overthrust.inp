@@ -25,7 +25,10 @@ distance_between_gridpoints(in_m)_(DH) = 25.0
 #
 #--------------------Source---------------------------------------------
 # File with source positions:
-SOURCE_FILE = ./source/source_OVER.dat 
+SOURCE_FILE = ./source/source_OVER.dat
+# Read time-domain source wavelet from SU file:
+READ_WAVELET = 0
+WAVELET_NAME = start/wavelet.su
 #
 #--------------------- Model -------------------------------------------
 read_model_parameters_from_MFILE(yes=1)(READMOD) = 1

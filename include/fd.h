@@ -220,11 +220,13 @@ void precond(float ** grad);
 
 float readdsk(FILE *fp_in, int format);
 
+void readmod(struct matAC *matAC);
+
 void read_par(FILE *fp_in);
 
 void read_par_inv(FILE *fp,int nstage,int stagemax);
 
-void readmod(struct matAC *matAC);
+void read_stf_dft(struct waveAC *waveAC, float *amp);
 
 int **receiver(FILE *fp, int *ntr, int ishot);
 
