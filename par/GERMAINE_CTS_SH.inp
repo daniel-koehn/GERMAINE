@@ -17,7 +17,7 @@ forward_modelling_(yes=0)_FDFWI_(yes=1)_RTM_(yes=2)_(INVMAT) = 0
 (2D-AC=1;2D-SH=2)_(PHYSICS) = 2
 #
 #-------------- MPI Parallelization ------------------------------------
-number_of_processors_for_frequency_parallelization_(NPROCFREQ) = 1
+number_of_processors_for_frequency_parallelization_(NPROCFREQ) = 8
 #
 #-------------------- 2-D Grid -----------------------------------------
 number_of_gridpoints_in_x-direction_(NX) = 500
@@ -28,7 +28,7 @@ distance_between_gridpoints(in_m)_(DH) = 0.05
 # File with source positions:
 SOURCE_FILE = ./source/source_Prof2_SH.dat
 # Read time-domain source wavelet from SU file:
-READ_WAVELET = 0
+READ_WAVELET = 1
 WAVELET_NAME = start/wavelet.su 
 #
 #--------------------- Model -------------------------------------------
@@ -45,15 +45,15 @@ PML_BETA0 = 1.0
 damping_parameter_(A0_PML) = 0.0001
 #
 #----------------------Snapshots----------------------------------------
-output_of_P_field_(SNAP)(yes>0) = 1
+output_of_P_field_(SNAP)(yes>0) = 0
 increment_x-direction_(IDX) = 1
 increment_y-direction_(IDY) = 1
 data-format_(SNAP_FORMAT)(ASCII(2);BINARY(3)) = 3
 basic_filename_(SNAP_FILE) = ./snap/CTS_SH
 #
 #---------------------- Receiver ---------------------------------------
-output_of_seismograms_(SEISMO) = 0
-file_with_receiver_positions_(REC_FILE) = ./receiver/receiver_OVER
+output_of_seismograms_(SEISMO) = 1
+file_with_receiver_positions_(REC_FILE) = ./receiver/receiver_Prof2
 read_receiver_positions_from_multiple_files_(yes=1)_(READ_REC) = 0
 reference_point_for_receiver_coordinate_system_(REFREC) = 0.0 , 0.0
 #

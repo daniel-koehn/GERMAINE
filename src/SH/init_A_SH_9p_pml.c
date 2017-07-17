@@ -15,11 +15,11 @@
 void init_A_SH_9p_pml(struct PML_AC *PML_AC, struct matSH *matSH, struct waveAC *waveAC){
 
 	extern int NX, NY, NONZERO;
-        extern float DH;	
+        extern float DH, S;	
 
 	/* local variables */
 	int i, j, k;
-        complex float tmp;
+        complex float tmp, Omega2;
         complex float tmpA, tmpB, tmpC;
         float b, d, e, idh2;
 	//SuiteSparse_long count;
@@ -37,6 +37,9 @@ void init_A_SH_9p_pml(struct PML_AC *PML_AC, struct matSH *matSH, struct waveAC 
         k=0;        /* index of main diagonal  */	
         count=0;    /* count non-zero elements */
 
+	/* set squared complex angular frequency*/
+	Omega2 = cpowf(((2.0*M_PI*(*waveAC).freq) + (I * S)),2.0);
+
         for (j=1;j<=NY;j++){
 		for (i=1;i<=NX;i++){
 
@@ -47,7 +50,7 @@ void init_A_SH_9p_pml(struct PML_AC *PML_AC, struct matSH *matSH, struct waveAC 
 		       tmpB = (*PML_AC).Byr[j-1][i-1] + (*PML_AC).Byi[j-1][i-1] * I;
 		       tmpC = (*PML_AC).Cr[j-1][i-1] + (*PML_AC).Ci[j-1][i-1] * I;
 
-		       tmp = ((1-b)*idh2/2.0) * (tmpA + tmpB) + (e/4.0) * tmpC * (*waveAC).omega2 * (*matSH).rho[j-1][i-1];
+		       tmp = ((1-b)*idh2/2.0) * (tmpA + tmpB) + (e/4.0) * tmpC * Omega2 * (*matSH).rho[j-1][i-1];
 
                        (*waveAC).Ar[count] = creal(tmp); 
                        (*waveAC).Ai[count] = cimag(tmp);
@@ -64,7 +67,7 @@ void init_A_SH_9p_pml(struct PML_AC *PML_AC, struct matSH *matSH, struct waveAC 
 		       tmpB = (*PML_AC).Byr[j-1][i] + (*PML_AC).Byi[j-1][i] * I;
 		       tmpC = (*PML_AC).Cr[j-1][i] + (*PML_AC).Ci[j-1][i] * I;
 
-		       tmp = -((1-b)*idh2) * tmpA + (b*idh2) * tmpB + (d/4.0) * tmpC *  (*waveAC).omega2 * (*matSH).rho[j-1][i];
+		       tmp = -((1-b)*idh2) * tmpA + (b*idh2) * tmpB + (d/4.0) * tmpC *  Omega2 * (*matSH).rho[j-1][i];
 
                        (*waveAC).Ar[count] = creal(tmp); 
                        (*waveAC).Ai[count] = cimag(tmp);
@@ -81,7 +84,7 @@ void init_A_SH_9p_pml(struct PML_AC *PML_AC, struct matSH *matSH, struct waveAC 
 		       tmpB = (*PML_AC).Byr[j-1][i+1] + (*PML_AC).Byi[j-1][i+1] * I;
 		       tmpC = (*PML_AC).Cr[j-1][i+1] + (*PML_AC).Ci[j-1][i+1] * I;
 
-		       tmp = ((1-b)*idh2/2.0) * (tmpA + tmpB) + (e/4.0) * tmpC *  (*waveAC).omega2 * (*matSH).rho[j-1][i+1];
+		       tmp = ((1-b)*idh2/2.0) * (tmpA + tmpB) + (e/4.0) * tmpC * Omega2 * (*matSH).rho[j-1][i+1];
 
                        (*waveAC).Ar[count] = creal(tmp); 
                        (*waveAC).Ai[count] = cimag(tmp);
@@ -98,7 +101,7 @@ void init_A_SH_9p_pml(struct PML_AC *PML_AC, struct matSH *matSH, struct waveAC 
 		       tmpB = (*PML_AC).Br[j][i-1] + (*PML_AC).Bi[j][i-1] * I;
 		       tmpC = (*PML_AC).Cr[j][i-1] + (*PML_AC).Ci[j][i-1] * I;
 
-		       tmp = (b*idh2) * tmpA - ((1-b)*idh2) * tmpB + (d/4.0) * tmpC *  (*waveAC).omega2 * (*matSH).rho[j][i-1];
+		       tmp = (b*idh2) * tmpA - ((1-b)*idh2) * tmpB + (d/4.0) * tmpC * Omega2 * (*matSH).rho[j][i-1];
 
                        (*waveAC).Ar[count] = creal(tmp); 
                        (*waveAC).Ai[count] = cimag(tmp);
@@ -113,7 +116,7 @@ void init_A_SH_9p_pml(struct PML_AC *PML_AC, struct matSH *matSH, struct waveAC 
 		    tmpB = (*PML_AC).Br[j][i] + (*PML_AC).Bi[j][i] * I;
 		    tmpC = (*PML_AC).Cr[j][i] + (*PML_AC).Ci[j][i] * I;
 
-		    tmp = (1-d-e) * tmpC * (*waveAC).omega2 * (*matSH).rho[j][i] - (2.0*b*idh2) * (tmpA+tmpB);
+		    tmp = (1-d-e) * tmpC * Omega2 * (*matSH).rho[j][i] - (2.0*b*idh2) * (tmpA+tmpB);
 
                     (*waveAC).Ar[count] = creal(tmp); 
                     (*waveAC).Ai[count] = cimag(tmp);
@@ -128,7 +131,7 @@ void init_A_SH_9p_pml(struct PML_AC *PML_AC, struct matSH *matSH, struct waveAC 
 		       tmpB = (*PML_AC).Br[j][i+1] + (*PML_AC).Bi[j][i+1] * I;
 		       tmpC = (*PML_AC).Cr[j][i+1] + (*PML_AC).Ci[j][i+1] * I;
 
-		       tmp = (b*idh2) * tmpA - ((1-b)*idh2) * tmpB + (d/4.0) * tmpC *  (*waveAC).omega2 * (*matSH).rho[j][i+1];
+		       tmp = (b*idh2) * tmpA - ((1-b)*idh2) * tmpB + (d/4.0) * tmpC * Omega2 * (*matSH).rho[j][i+1];
 
                        (*waveAC).Ar[count] = creal(tmp); 
                        (*waveAC).Ai[count] = cimag(tmp);
@@ -145,7 +148,7 @@ void init_A_SH_9p_pml(struct PML_AC *PML_AC, struct matSH *matSH, struct waveAC 
 		       tmpB = (*PML_AC).Byr[j][i-1] + (*PML_AC).Byi[j][i-1] * I;
 		       tmpC = (*PML_AC).Cr[j+1][i-1] + (*PML_AC).Ci[j+1][i-1] * I;
 
-		       tmp = ((1-b)*idh2/2.0) * (tmpA + tmpB) + (e/4.0) * tmpC *  (*waveAC).omega2 * (*matSH).rho[j+1][i-1];
+		       tmp = ((1-b)*idh2/2.0) * (tmpA + tmpB) + (e/4.0) * tmpC * Omega2 * (*matSH).rho[j+1][i-1];
 
                        (*waveAC).Ar[count] = creal(tmp); 
                        (*waveAC).Ai[count] = cimag(tmp);
@@ -162,7 +165,7 @@ void init_A_SH_9p_pml(struct PML_AC *PML_AC, struct matSH *matSH, struct waveAC 
 		       tmpB = (*PML_AC).Byr[j][i] + (*PML_AC).Byi[j][i] * I;
 		       tmpC = (*PML_AC).Cr[j+1][i] + (*PML_AC).Ci[j+1][i] * I;
 
-		       tmp = -((1-b)*idh2) * tmpA + (b*idh2) * tmpB + (d/4.0) * tmpC *  (*waveAC).omega2 * (*matSH).rho[j+1][i];
+		       tmp = -((1-b)*idh2) * tmpA + (b*idh2) * tmpB + (d/4.0) * tmpC * Omega2 * (*matSH).rho[j+1][i];
 
                        (*waveAC).Ar[count] = creal(tmp); 
                        (*waveAC).Ai[count] = cimag(tmp);
@@ -179,7 +182,7 @@ void init_A_SH_9p_pml(struct PML_AC *PML_AC, struct matSH *matSH, struct waveAC 
 		       tmpB = (*PML_AC).Byr[j][i+1] + (*PML_AC).Byi[j][i+1] * I;
 		       tmpC = (*PML_AC).Cr[j+1][i+1] + (*PML_AC).Ci[j+1][i+1] * I;
 
-		       tmp = ((1-b)*idh2/2.0) * (tmpA + tmpB) + (e/4.0) * tmpC *  (*waveAC).omega2 * (*matSH).rho[j+1][i+1];
+		       tmp = ((1-b)*idh2/2.0) * (tmpA + tmpB) + (e/4.0) * tmpC * Omega2 * (*matSH).rho[j+1][i+1];
 
                        (*waveAC).Ar[count] = creal(tmp); 
                        (*waveAC).Ai[count] = cimag(tmp);
