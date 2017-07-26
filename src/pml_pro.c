@@ -20,25 +20,25 @@
 void pml_pro(struct PML_AC *PML_AC, struct waveAC *waveAC){
 
 	extern int NX, NY, NPML, FREE_SURF;
-        extern float DH, A0_PML, OMEGA_PML;
-	extern float A0_PML, OMEGA_PML, PML_VEL, PML_BETA0;
-	extern float PML_POWD, PML_POWB, PML_POWA;
+        extern float DH, A0_PML;
+	extern float A0_PML, PML_VEL, PML_BETA0;
+	extern float PML_POWD, PML_POWB, PML_POWA, S;
 	extern char SNAP_FILE[STRING_SIZE];	
 
 	/* local variables */
 	int i, j, k;
-        complex float tmp, sx, sy, ci;
-        float lPML, d0, a0;
+        complex float tmp, sx, sy, ci, OMEGA_PML, a0, ax, ay;
+        float lPML, d0;
 	char filename[STRING_SIZE];
 
         /* define complex i */
-        ci = 0.0 + 1.0 *I;
+        ci = 0.0 + 1.0 * I;
 
 	/* define thickness of PML [m] */
 	lPML = NPML * DH;
 
 	/* define PML damping parameters */
-        OMEGA_PML = 2.0 * M_PI * (*waveAC).freq;
+        OMEGA_PML = 2.0 * M_PI * ((*waveAC).freq - I * S);
 
 	/* define polynomial degrees */
 	PML_POWD = 2.0;
@@ -46,10 +46,10 @@ void pml_pro(struct PML_AC *PML_AC, struct waveAC *waveAC){
 	PML_POWB = 2.0;
 
 	/* define d0 */
-	d0 = - log(A0_PML) * PML_VEL*(PML_POWD + 1.0) / (2.0 * lPML);
+	d0 = - log(A0_PML) * PML_VEL * (PML_POWD + 1.0) / (2.0 * lPML);
 	
 	/* define a0 */
-	a0 = M_PI * (*waveAC).freq;
+	a0 = M_PI * ((*waveAC).freq - I * S);
 
         /* set free surface to zero */
         /* FREE_SURF = 0; */
@@ -58,20 +58,23 @@ void pml_pro(struct PML_AC *PML_AC, struct waveAC *waveAC){
 	for (i=1;i<=NX;i++){  
 	    
 	    (*PML_AC).d_x[i] = 0.0;
-	    (*PML_AC).a_x[i] = 0.0;
+	    (*PML_AC).a_xr[i] = 0.0;
+	    (*PML_AC).a_xi[i] = 0.0;
 	    (*PML_AC).b_x[i] = 1.0;
 	    
 	    /* define damping profile at left PML boundary */
 	    if(i <= NPML){
 	      (*PML_AC).d_x[i] = d0 * pow((NPML-i)*DH/lPML,PML_POWD);
-	      (*PML_AC).a_x[i] = a0 * (1.0 - pow((NPML-i)*DH/lPML,PML_POWA));
+	      (*PML_AC).a_xr[i] = creal(a0 * (1.0 - pow((NPML-i)*DH/lPML,PML_POWA)));
+	      (*PML_AC).a_xi[i] = cimag(a0 * (1.0 - pow((NPML-i)*DH/lPML,PML_POWA)));
 	      (*PML_AC).b_x[i] = 1.0 + (PML_BETA0 - 1.0) * pow((NPML-i)*DH/lPML,PML_POWB);
 	    }
 	    
 	    /* define damping profile at right PML boundary */
 	    if(i >= NX - NPML){
 	      (*PML_AC).d_x[i] = d0 * pow((DH*((NX-NPML)-i))/lPML,PML_POWD);
-	      (*PML_AC).a_x[i] = a0 * (1.0 - pow((DH*((NX-NPML)-i))/lPML,PML_POWA));
+	      (*PML_AC).a_xr[i] = creal(a0 * (1.0 - pow((DH*((NX-NPML)-i))/lPML,PML_POWA)));
+	      (*PML_AC).a_xi[i] = cimag(a0 * (1.0 - pow((DH*((NX-NPML)-i))/lPML,PML_POWA)));
 	      (*PML_AC).b_x[i] = 1.0 + (PML_BETA0 - 1.0) * pow((DH*((NX-NPML)-i))/lPML,PML_POWB);
 	    }
 	    
@@ -80,20 +83,23 @@ void pml_pro(struct PML_AC *PML_AC, struct waveAC *waveAC){
 	for (j=1;j<=NY;j++){
 	    
 	    (*PML_AC).d_y[j] = 0.0;
-	    (*PML_AC).a_y[j] = 0.0;	    
+	    (*PML_AC).a_yr[j] = 0.0;
+	    (*PML_AC).a_yi[j] = 0.0;
 	    (*PML_AC).b_y[j] = 1.0;
 
 	    /* define damping profile at top PML boundary */
 	    if((j <= NPML)&&(FREE_SURF==0)){
 	      (*PML_AC).d_y[j] = d0 * pow((NPML-j)*DH/lPML,PML_POWD);
-	      (*PML_AC).a_y[j] = a0 * (1.0 - pow((NPML-j)*DH/lPML,PML_POWA));
+	      (*PML_AC).a_yr[j] = creal(a0 * (1.0 - pow((NPML-j)*DH/lPML,PML_POWA)));
+	      (*PML_AC).a_yi[j] = cimag(a0 * (1.0 - pow((NPML-j)*DH/lPML,PML_POWA)));
 	      (*PML_AC).b_y[j] = 1.0 + (PML_BETA0 - 1.0) * pow((NPML-j)*DH/lPML,PML_POWB);
 	    }
 	    
 	    /* define damping profile at bottom PML boundary */
 	    if(j >= NY - NPML){
 	      (*PML_AC).d_y[j] = d0 * pow((DH*((NY-NPML)-j))/lPML,PML_POWD);
-	      (*PML_AC).a_y[j] = a0 * (1.0 - pow((DH*((NY-NPML)-j))/lPML,PML_POWA));
+	      (*PML_AC).a_yr[j] = creal(a0 * (1.0 - pow((DH*((NY-NPML)-j))/lPML,PML_POWA)));
+	      (*PML_AC).a_yi[j] = cimag(a0 * (1.0 - pow((DH*((NY-NPML)-j))/lPML,PML_POWA)));
 	      (*PML_AC).b_y[j] = 1.0 + (PML_BETA0 - 1.0) * pow((DH*((NY-NPML)-j))/lPML,PML_POWB);
 	    }
 	    
@@ -102,9 +108,12 @@ void pml_pro(struct PML_AC *PML_AC, struct waveAC *waveAC){
 	/* calculate sx and sy */
 	for (j=1;j<=NY;j++){
 	    for (i=1;i<=NX;i++){  
-		
-		sx = (*PML_AC).b_x[i] + ((*PML_AC).d_x[i]/((*PML_AC).a_x[i] + OMEGA_PML*ci));
-		sy = (*PML_AC).b_y[j] + ((*PML_AC).d_y[j]/((*PML_AC).a_y[j] + OMEGA_PML*ci));
+
+		ax = (*PML_AC).a_xr[i] + ci * (*PML_AC).a_xi[i];		
+		ay = (*PML_AC).a_yr[i] + ci * (*PML_AC).a_yi[i];		
+
+		sx = (*PML_AC).b_x[i] + ((*PML_AC).d_x[i]/(ax + OMEGA_PML*ci));
+		sy = (*PML_AC).b_y[j] + ((*PML_AC).d_y[j]/(ay + OMEGA_PML*ci));
 
 		/* sx = 1.0 - ((*PML_AC).d_x[i] * ci / OMEGA_PML);
 		sy = 1.0 - ((*PML_AC).d_y[j] * ci / OMEGA_PML); */

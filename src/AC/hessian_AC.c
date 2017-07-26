@@ -53,7 +53,7 @@ void hessian_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_A
 		(*waveAC).freq = (*waveAC).stage_freq[nfreq];
 
 		/* set squared complex angular frequency*/		
-                Omega2 = cpowf(((2.0*M_PI*(*waveAC).freq) + (I * S)),2.0);
+                Omega2 = cpowf(((2.0*M_PI*(*waveAC).freq) - (I * S)),2.0);
 
 		/* define PML damping profiles */
 		pml_pro(PML_AC,waveAC);

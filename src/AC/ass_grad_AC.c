@@ -19,7 +19,7 @@ void ass_grad_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct matAC *matAC
 	complex float wien, Omega2;
 
 	wien = 	(*fwiAC).stfr + (*fwiAC).stfi * I;	
-	Omega2 = cpowf(((2.0*M_PI*(*waveAC).freq) + (I * S)),2.0);
+	Omega2 = cpowf(((2.0*M_PI*(*waveAC).freq) - (I * S)),2.0);
 
 	// printf("abs(wien) = %e + i %e \n",creal(fabs(wien)),cimag(fabs(wien)));
 	

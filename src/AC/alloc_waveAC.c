@@ -48,8 +48,12 @@ void alloc_waveAC(struct waveAC *waveAC, struct PML_AC *PML_AC){
 	(*PML_AC).b_x = vector(1,NX);
 	(*PML_AC).b_y = vector(1,NY);
 
-	(*PML_AC).a_x = vector(1,NX);
-	(*PML_AC).a_y = vector(1,NY);
+	(*PML_AC).a_xr = vector(1,NX);
+	(*PML_AC).a_yr = vector(1,NY);
+
+	(*PML_AC).a_xi = vector(1,NX);
+	(*PML_AC).a_yi = vector(1,NY);
+
 
 }
 

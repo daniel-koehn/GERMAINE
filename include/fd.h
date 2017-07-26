@@ -63,7 +63,7 @@ struct acq{
 struct PML_AC{
    float ** Ar, ** Ai, ** Br, ** Bi, ** Cr, ** Ci;
    float ** Axr, ** Axi, ** Byr, ** Byi;
-   float * d_x, * d_y, * b_x, * b_y, * a_x, * a_y; 
+   float * d_x, * d_y, * b_x, * b_y, * a_xr, * a_yr, * a_xi, * a_yi; 
 } PML_AC;
 
 /* elastic SH-wavefield variables */

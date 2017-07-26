@@ -38,7 +38,7 @@ void init_A_AC_9p_pml(struct PML_AC *PML_AC, struct matAC *matAC, struct waveAC 
         count=0;    /* count non-zero elements */
 
 	/* set squared complex angular frequency*/
-	Omega2 = cpowf(((2.0*M_PI*(*waveAC).freq) + (I * S)),2.0);
+	Omega2 = cpowf(2.0 * M_PI * ((*waveAC).freq - S * I),2.0);
 
         for (j=1;j<=NY;j++){
 		for (i=1;i<=NX;i++){
