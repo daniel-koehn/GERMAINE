@@ -21,44 +21,42 @@ float calc_res_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, int ntr, int ishot
 
         FILE *fp;
 
-        /* open FA pick file */
-      	sprintf(pickfile_char,"%s_p_shot_%d_stage_%d_nfreq_%d.bin",DATA_DIR,ishot,nstage,nfreq);
-	fp=fopen(pickfile_char,"rb");
-	if (fp == NULL) {
+	if(STF_INV==1){
+
+           /* open FA pick file */
+      	   sprintf(pickfile_char,"%s_p_shot_%d_stage_%d_nfreq_%d.bin",DATA_DIR,ishot,nstage,nfreq);
+	   fp=fopen(pickfile_char,"rb");
+	   if (fp == NULL) {
 		err(" field data file could not be opened !");
-	}
+	   }
 
-	l2 = 0.0;
+	   l2 = 0.0;
 
-        /* initiate wiener deconvolution */
-        wiennom = 0.0 + 0.0 * I;
-        wiendenom = 0.0 + 0.0 * I;
+           /* initiate wiener deconvolution */
+           wiennom = 0.0 + 0.0 * I;
+           wiendenom = 0.0 + 0.0 * I;
 
-	for(i=1;i<=ntr;i++){
+	   for(i=1;i<=ntr;i++){
 
-            /* read FD seismic data */
-            //fscanf(fp,"%e%e",&pobsr,&pobsi);
-	    fread(&pobsr, sizeof(float), 1, fp);  
-	    fread(&pobsi, sizeof(float), 1, fp);  
+               /* read FD seismic data */
+	       fread(&pobsr, sizeof(float), 1, fp);  
+	       fread(&pobsi, sizeof(float), 1, fp);  
 
-	    /*printf("resr = %e \n",creal(res));
-	    printf("resi = %e \n",cimag(res));*/
+	       /*printf("resr = %e \n",creal(res));
+	       printf("resi = %e \n",cimag(res));*/
 		
-	    // estimate nominator and denominator of Wiener deconvolution
-	    if(STF_INV==1){
-	        if((pobsr>1e-20)&&(pobsi>1e-20)){
-		    wiennom += conj((*waveAC).precr[i] + (*waveAC).preci[i] * I) * (pobsr + pobsi * I);
-		    wiendenom += conj(pobsr + pobsi * I) * (pobsr + pobsi * I);
-	        } 
- 	    }
+	       /* estimate nominator and denominator of Wiener deconvolution */
+	    
+	       wiennom += conj((*waveAC).precr[i] + (*waveAC).preci[i] * I) * (pobsr + pobsi * I);
+	       wiendenom += conj(pobsr + pobsi * I) * (pobsr + pobsi * I);
+	          	    
+	   }
 
-	}
+           fclose(fp);
 
-        fclose(fp);
+           /* estimate STF */        
+           wien = wiennom / wiendenom;	
 
-        /* estimate STF */
-        if(STF_INV==1){
-            wien = wiennom/wiendenom;	
 	}
 
 	if(STF_INV==0){
@@ -68,15 +66,19 @@ float calc_res_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, int ntr, int ishot
         (*fwiAC).stfr = creal(wien);
         (*fwiAC).stfi = cimag(wien);
 
-	// printf("stfr = %e \t stfi = %e \n",(*fwiAC).stfr,(*fwiAC).stfi);
+	/* printf("stfr = %e \t stfi = %e \n",(*fwiAC).stfr,(*fwiAC).stfi); */
 
 	sprintf(pickfile_char,"%s_p_shot_%d_stage_%d_nfreq_%d.bin",DATA_DIR,ishot,nstage,nfreq);
 	fp=fopen(pickfile_char,"rb");
+	if (fp == NULL) {
+	    err(" field data file could not be opened !");
+	}
+
 
 	for(i=1;i<=ntr;i++){
 
             /* read FD seismic data */
-            //fscanf(fp,"%e%e",&pobsr,&pobsi);
+            /* fscanf(fp,"%e%e",&pobsr,&pobsi); */
 	    fread(&pobsr, sizeof(float), 1, fp);  
 	    fread(&pobsi, sizeof(float), 1, fp);  
 

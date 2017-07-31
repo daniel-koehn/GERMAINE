@@ -21,13 +21,13 @@ void ass_grad_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct matAC *matAC
 	wien = 	(*fwiAC).stfr + (*fwiAC).stfi * I;	
 	Omega2 = cpowf(((2.0*M_PI*(*waveAC).freq) - (I * S)),2.0);
 
-	// printf("abs(wien) = %e + i %e \n",creal(fabs(wien)),cimag(fabs(wien)));
+	/* printf("abs(wien) = %e + i %e \n",creal(cabsf(wien)),cimag(cabsf(wien))); */
 	
 	/* assemble gradient for one shot */
 	for (i=1;i<=NX;i++){
 	    for (j=1;j<=NY;j++){
 
-               grad_shot[j][i] = - 2.0 * creal(Omega2 * wien/cabsf(wien) * ((*fwiAC).forwardr[j][i] + (*fwiAC).forwardi[j][i] * I)  
+               grad_shot[j][i] = - 2.0 * creal(Omega2 * (wien/cabsf(wien)) * ((*fwiAC).forwardr[j][i] + (*fwiAC).forwardi[j][i] * I)  
 				       * (1.0 / ((*matAC).vp[j][i] * (*matAC).vp[j][i] * (*matAC).vp[j][i])) * ((*waveAC).pr[j][i] + (*waveAC).pi[j][i] * I) );
 		    
 	    }

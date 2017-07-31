@@ -193,6 +193,9 @@ void RTM_FD_AC(char *fileinp1){
 
 	} /* End of RTM-workflow loop */
 
+	/* apply smoothing and taper functions to gradient */
+	precond(fwiAC.grad);
+
         /* write RTM result */
         RTM_AC_out(fwiAC.grad);        
 

@@ -16,7 +16,7 @@ void read_stf_dft(struct waveAC *waveAC, float *amp){
         extern char WAVELET_NAME[STRING_SIZE];
 
 	/* declaration of local variables */
-	int i, j, ns, ndt;
+	int i, j, h, ns, ndt;
 	segy tr;
 	float dump, *wavelet, dt, t;
         FILE *fpdata;		
@@ -43,9 +43,11 @@ void read_stf_dft(struct waveAC *waveAC, float *amp){
 	wavelet = vector(1,ns);						
 			  
 	/* read source wavelet */
+	h=ns;
 	for(j=1;j<=ns;j++){
 	    dump=tr.data[j];
-	    wavelet[j]=dump;
+	    wavelet[h]=dump;
+	    h--;
 	}
 
 	fclose(fpdata);
