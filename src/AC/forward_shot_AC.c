@@ -10,7 +10,7 @@
 void forward_shot_AC(struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC *matAC, float ** srcpos, int nshots, int ** recpos, int ntr, int nstage, int nfreq){
 
 	/* declaration of global variables */
-        extern int NSHOT1, NSHOT2, NONZERO, NX, NY, NXNY;
+        extern int NSHOT1, NSHOT2, NONZERO, NX, NY, NXNY, NF;
         extern int SNAP, SEISMO, MYID, INFO, N_STREAMER, READ_REC;
         extern float DH;
         extern char SNAP_FILE[STRING_SIZE];
@@ -78,16 +78,7 @@ void forward_shot_AC(struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC 
 
 		/* read receiver positions from receiver files for each shot */
 		if(READ_REC==1){
-
-		    acq.recpos=receiver(FP, &ntr, 1);
-	
-		    /* Allocate memory for FD seismograms */
-		    alloc_seis_AC(waveAC,ntr);
-
-		    if(N_STREAMER>0){
-		      free_imatrix(acq.recpos,1,3,1,ntr);
-		    }			                         
-
+		    acq.recpos=receiver(FP, &ntr, 1);	                         
       		}
 
                 /* define source vector RHS */
@@ -102,24 +93,21 @@ void forward_shot_AC(struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC 
 		/* write real part of pressure wavefield to file */
 		if(SNAP==1){
 		   sprintf(filename,"%s_shot_%d.p",SNAP_FILE,ishot);
-		   /* writemod(filename,(*waveAC).pr,3); */
 		   writemod_true(filename,(*waveAC).pr,3);
 		}
 
-		/* write FD seismogram files */
+		/* calculate FD seismogram files */
 		if(SEISMO==1){
-		   calc_seis_AC(waveAC,acq.recpos,ntr);
-		   write_seis_AC(waveAC,ishot,ntr,nstage,nfreq);
+		   calc_seis_AC(waveAC,acq.recpos,ntr,ishot,nshots,nfreq);
 		}
 
 		if(READ_REC==1){
 		   free_imatrix(acq.recpos,1,3,1,ntr);
-		   free_vector((*waveAC).precr,1,ntr);
-		   free_vector((*waveAC).preci,1,ntr);
 		   ntr=0;
  		}
 
 	}
+
 
 	if((MYID==0)&&(INFO==1)){
 	  time2=MPI_Wtime();

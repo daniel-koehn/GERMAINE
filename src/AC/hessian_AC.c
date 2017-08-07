@@ -106,19 +106,7 @@ void hessian_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_A
 
 		     /* read receiver positions from receiver files for each shot */
 		     if(READ_REC==1){
-
-			acq.recpos=receiver(FP, &ntr, 1);
-
-		        /*(*fwiAC).presr = vector(1,ntr);
-		        (*fwiAC).presi = vector(1,ntr);*/
-	
-			/* Allocate memory for FD seismograms */
-			/*alloc_seis_AC(waveAC,ntr);*/
-
-			if(N_STREAMER>0){
-			  free_imatrix(acq.recpos,1,3,1,ntr);
-			}			                         
-
+			acq.recpos=receiver(FP, &ntr, 1);			                         
 	      	     }
 
 		     /* define source vector RHS */
@@ -134,7 +122,7 @@ void hessian_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_A
 		     writemod(filename,(*waveAC).pr,3);*/
 
 		     /* calculate seismograms at receiver positions */
-		     calc_seis_AC(waveAC,acq.recpos,ntr);
+		     /*calc_seis_AC(waveAC,acq.recpos,ntr);*/
 
 		     /* store forward wavefield */
 		     store_mat((*waveAC).pr, (*fwiAC).forwardr, NX, NY);
@@ -169,8 +157,6 @@ void hessian_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_A
 		         /* de-allocate memory */
 		         if(READ_REC==1){
 		             free_imatrix(acq.recpos,1,3,1,ntr);
-			     free_vector((*waveAC).precr,1,ntr);
-		             free_vector((*waveAC).preci,1,ntr);
 		             free_vector((*fwiAC).presr,1,ntr);
 		             free_vector((*fwiAC).presi,1,ntr);
 		             ntr=0;

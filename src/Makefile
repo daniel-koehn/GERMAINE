@@ -74,6 +74,7 @@ GERMAINE+= \
 	alloc_fwiAC.c \
         alloc_matAC.c \
 	alloc_seis_AC.c \
+	alloc_seis_fwi_AC.c \
         alloc_waveAC.c \
 	apply_hess_AC.c \
 	ass_grad_AC.c \
@@ -93,6 +94,7 @@ GERMAINE+= \
         $(MODEL_GRID_SEARCH) \
 	obj_AC.c \
         parabolicls_AC.c \
+	read_seis_AC.c \
         RHS_source_AC.c \
         RHS_source_AC_adj.c \
         RHS_source_AC_hess.c \

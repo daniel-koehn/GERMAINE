@@ -78,16 +78,7 @@ void forward_shot_SH(struct waveAC *waveAC, struct PML_AC *PML_AC, struct matSH 
 
 		/* read receiver positions from receiver files for each shot */
 		if(READ_REC==1){
-
-		    acq.recpos=receiver(FP, &ntr, 1);
-	
-		    /* Allocate memory for FD seismograms */
-		    alloc_seis_AC(waveAC,ntr);
-
-		    if(N_STREAMER>0){
-		      free_imatrix(acq.recpos,1,3,1,ntr);
-		    }			                         
-
+		    acq.recpos=receiver(FP, &ntr, 1);			                         
       		}
 
                 /* define source vector RHS */
@@ -107,15 +98,12 @@ void forward_shot_SH(struct waveAC *waveAC, struct PML_AC *PML_AC, struct matSH 
 		}
 
 		/* write FD seismogram files */
-		if(SEISMO==1){
-		   calc_seis_AC(waveAC,acq.recpos,ntr);
-		   write_seis_AC(waveAC,ishot,ntr,nstage,nfreq);
+		if(SEISMO==1){		   
+		   calc_seis_AC(waveAC,acq.recpos,ntr,ishot,nshots,nfreq);
 		}
 
 		if(READ_REC==1){
 		   free_imatrix(acq.recpos,1,3,1,ntr);
-		   free_vector((*waveAC).precr,1,ntr);
-		   free_vector((*waveAC).preci,1,ntr);
 		   ntr=0;
  		}
 

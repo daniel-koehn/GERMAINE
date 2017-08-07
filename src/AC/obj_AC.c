@@ -76,10 +76,6 @@ float obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, 
 		/* loop over shots */ 
 		for (ishot=NSHOT1;ishot<NSHOT2;ishot++){
 
-		     /*if(MYID==0){
-		  	printf("Calculate gradient for shot no. ... %d \n", ishot);
-		     }  */
-
 		     /* solve forward problem by FDFD */
                      /* ----------------------------- */
 
@@ -89,14 +85,7 @@ float obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, 
 			acq.recpos=receiver(FP, &ntr, 1);
 
 		        (*fwiAC).presr = vector(1,ntr);
-		        (*fwiAC).presi = vector(1,ntr);
-	
-			/* Allocate memory for FD seismograms */
-			alloc_seis_AC(waveAC,ntr);
-
-			if(N_STREAMER>0){
-			  free_imatrix(acq.recpos,1,3,1,ntr);
-			}			                         
+		        (*fwiAC).presi = vector(1,ntr);			                         
 
 	      	     }	
 
@@ -112,8 +101,8 @@ float obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, 
 		     /*sprintf(filename,"%s_for_shot_%d.bin",SNAP_FILE,ishot);
 		     writemod(filename,(*waveAC).pr,3);*/
 
-		     /* calculate seismograms at receiver positions */
-		     calc_seis_AC(waveAC,acq.recpos,ntr);
+		     /* calculate seismograms at receiver positions */		     
+		     calc_seis_AC(waveAC,acq.recpos,ntr,ishot,nshots,nfreq);
 
 		     /* store forward wavefield */
 		     store_mat((*waveAC).pr, (*fwiAC).forwardr, NX, NY);
@@ -126,8 +115,6 @@ float obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, 
 		     /* de-allocate memory */
 		     if(READ_REC==1){
 		        free_imatrix(acq.recpos,1,3,1,ntr);
-		        free_vector((*waveAC).precr,1,ntr);
-		        free_vector((*waveAC).preci,1,ntr);
 		        free_vector((*fwiAC).presr,1,ntr);
 		        free_vector((*fwiAC).presi,1,ntr);
 		        ntr=0;

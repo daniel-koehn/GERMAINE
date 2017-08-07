@@ -110,7 +110,7 @@ Number of cores		Computation time [s]
 7. For each shot defined in source/source_inc.dat the real and imaginary parts of the pressure wavefield at the 
 receiver positions defined in receiver/receiver_inc.dat are written to 
 
-seis/incl2_p_shot_[shotno]_stage_[fwi_stage]_nfreq_[freq_groupno].bin
+seis/incl2_p_stage_[fwi_stage].bin
 
 for each frequency (group) defined in the workflow file GERMAINE_workflow_incl2.inp 
 
@@ -129,7 +129,7 @@ mkdir incl2_true
 
 9. Move the FDFD data of the true model from /seis to /seis/incl2_true
 
-mv incl2_p_shot_* incl2_true/
+mv incl2_p_stage_* incl2_true/
 
 10. To run the acoustic FDFD FWI change the following parameters in GERMAINE_incl2.inp
 

@@ -104,7 +104,7 @@ not exceed the total number of shots. For the given problem 8 cores should be su
 7. For each shot defined in source/source_OVER.dat the real and imaginary parts of the pressure wavefield at the 
 receiver positions defined in receiver/receiver_OVER.dat are written to 
 
-seis/overthrust_p_shot_[shotno]_stage_[fwi_stage]_nfreq_[freq_groupno].bin
+seis/overthrust_p_stage_[fwi_stage].bin
 
 for each frequency (group) defined in the workflow file GERMAINE_workflow_overthrust.inp 
 
@@ -123,7 +123,7 @@ mkdir overthrust_true
 
 9. Move the FDFD data of the true model from /seis to /seis/overthrust_true
 
-mv overthrust_p_shot_* overthrust_true/
+mv overthrust_p_stage_* overthrust_true/
 
 10. To run the acoustic FDFD FWI change the following parameters in GERMAINE_overthrust.inp
 

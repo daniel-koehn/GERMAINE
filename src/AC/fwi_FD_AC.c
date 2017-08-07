@@ -12,7 +12,7 @@ void fwi_FD_AC(char *fileinp1){
 	/* declaration of global variables */
         extern int NX, NY, NSHOT1, NSHOT2, GRAD_METHOD, NLBFGS, MYID, ITERMAX, LINESEARCH;
 	extern int NXG, NYG, NXNY, LOG, N_STREAMER, INFO, INVMAT, READMOD;
-	extern int NX0, NY0, NPML, READ_REC, HESSIAN, FSSHIFT;
+	extern int NX0, NY0, NPML, READ_REC, HESSIAN, FSSHIFT, NSHOTS;
         extern int NPROCFREQ, NPROCSHOT, NP, MYID_SHOT, NSHOT1, NSHOT2, COLOR, NF;
         extern char MISFIT_LOG_FILE[STRING_SIZE], LOG_FILE[STRING_SIZE];
         extern float PRO, A0_PML, FC_high, FC_low;
@@ -102,14 +102,7 @@ void fwi_FD_AC(char *fileinp1){
 	    acq.recpos=receiver(FP, &ntr, 1);
 
 	    fwiAC.presr = vector(1,ntr);
- 	    fwiAC.presi = vector(1,ntr);
-
-	    /* Allocate memory for FD seismograms */
-	    alloc_seis_AC(&waveAC,ntr);
-
-	    if(N_STREAMER>0){
-	      free_imatrix(acq.recpos,1,3,1,ntr);
-	    }			                         
+ 	    fwiAC.presi = vector(1,ntr);	                         
 
 	}
 
@@ -194,7 +187,7 @@ void fwi_FD_AC(char *fileinp1){
 		read_par_inv(FP_stage,nstage,stagemax);
 
 		/* estimate frequency sample interval */
-		waveAC.dfreq = (FC_high-FC_low) / NF;
+		waveAC.dfreq = (FC_high-FC_low) / (NF-1);
 
 		/* estimate frequencies for current FWI stage */
 		waveAC.stage_freq = vector(1,NF);
@@ -219,6 +212,15 @@ void fwi_FD_AC(char *fileinp1){
 
 		/* Initiate MPI frequency parallelization */		
 		init_MPIfreq();
+
+                /* allocate memory for FD data */
+		if(READ_REC==0){
+ 	           alloc_seis_AC(&waveAC,ntr,nshots);
+		   alloc_seis_fwi_AC(&fwiAC,ntr,nshots);
+		   read_seis_AC(&fwiAC,nshots,ntr,nstage);			                         
+	        }
+
+		NSHOTS = nshots;
 
 		iter=1;
 		/* --------------------------------------
@@ -405,9 +407,19 @@ void fwi_FD_AC(char *fileinp1){
 		} /* end of FWI iteration loop*/
 		/* ====================================== */
 
-		/* free shot_comm and stage_freq */
+		/* free shot_comm, stage_freq and FD data arrays */
 		MPI_Comm_free(&shot_comm);
 		free_vector(waveAC.stage_freq,1,NF);
+
+		if(READ_REC==0){
+
+                   free_vector(waveAC.precr,1,ntr*NF*nshots);
+            	   free_vector(waveAC.preci,1,ntr*NF*nshots);
+
+            	   free_vector(fwiAC.pobsr,1,ntr*NF*nshots);
+                   free_vector(fwiAC.pobsi,1,ntr*NF*nshots);
+
+		}
 
 	} /* End of FWI-workflow loop */
         
@@ -453,9 +465,9 @@ void fwi_FD_AC(char *fileinp1){
 	free_seis_AC(&waveAC,ntr); 
 
 	if(READ_REC==0){
+
 	    free_imatrix(acq.recpos,1,3,1,ntr);
-	    free_vector(fwiAC.presr,1,ntr);
-	    free_vector(fwiAC.presi,1,ntr);
+
 	}
         	    
 }

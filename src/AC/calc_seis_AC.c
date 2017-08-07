@@ -7,18 +7,18 @@
 
 #include "fd.h"
 
-void calc_seis_AC(struct waveAC *waveAC, int ** recpos, int ntr){
+void calc_seis_AC(struct waveAC *waveAC, int ** recpos, int ntr, int ishot, int nshots, int nfreq){
 
 	/* global variables */
-	extern int NPML, FSSHIFT;	
+	extern int NPML, FSSHIFT, NF;	
 
 	/* local variables */
-	int i;
+	int i, index;
 
 	for(i=1;i<=ntr;i++){
-	    (*waveAC).precr[i] = (*waveAC).pr[recpos[2][i]+FSSHIFT][recpos[1][i]+NPML];
-            (*waveAC).preci[i] = (*waveAC).pi[recpos[2][i]+FSSHIFT][recpos[1][i]+NPML];
+	    index = i + ntr * (ishot-1) + ntr * nshots * (nfreq-1);
+	    (*waveAC).precr[index] = (*waveAC).pr[recpos[2][i]+FSSHIFT][recpos[1][i]+NPML];
+            (*waveAC).preci[index] = (*waveAC).pi[recpos[2][i]+FSSHIFT][recpos[1][i]+NPML];
 	}
 
-	
 }

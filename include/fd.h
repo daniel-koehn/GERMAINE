@@ -44,7 +44,7 @@ struct waveAC{
 struct fwiAC{
    float  ** lam, ** vp_old, ** grad, ** Hgrad, ** gradm, **hess;
    float ** forwardr, ** forwardi;
-   float * presr, * presi;
+   float * presr, * presi, * pobsr, * pobsi;
    float stfr, stfi;
 } fwiAC;
 
@@ -88,7 +88,9 @@ void alloc_fwiAC(struct fwiAC *fwiAC, int ntr);
 
 void alloc_matAC(struct matAC *matAC);
 
-void alloc_seis_AC(struct waveAC *waveAC, int ntr);
+void alloc_seis_AC(struct waveAC *waveAC, int ntr, int nshots);
+
+void alloc_seis_fwi_AC(struct fwiAC *fwiAC, int ntr, int nshots);
 
 void alloc_waveAC(struct waveAC *waveAC, struct PML_AC *PML_AC);
 
@@ -98,7 +100,7 @@ void ass_grad_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct matAC *matAC
 
 float calc_res_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, int ntr, int ishot, int nstage, int nfreq);
 
-void calc_seis_AC(struct waveAC *waveAC, int ** recpos, int ntr);
+void calc_seis_AC(struct waveAC *waveAC, int ** recpos, int ntr, int ishot, int nshots, int nfreq);
 
 void extract_PCG_AC(float * PCG_old, float ** waveconv);
 
@@ -124,6 +126,8 @@ float obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, 
 
 float parabolicls_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC *matAC, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage, float alpha, float L2);
 
+void read_seis_AC(struct fwiAC *fwiAC, int nshots, int ntr, int nstage);
+
 void RHS_source_AC(struct waveAC *waveAC, float ** srcpos, int ishot);
 
 void RHS_source_AC_adj(struct waveAC *waveAC, struct fwiAC *fwiAC, int ** recpos, int ntr);
@@ -134,7 +138,7 @@ void RTM_AC_out(float ** Vp);
 
 void store_PCG_AC(float * PCG_old, float ** waveconv);
 
-void write_seis_AC(struct waveAC *waveAC, int ishot, int ntr, int nstage, int nfreq);
+void write_seis_AC(struct waveAC *waveAC, int nshots, int ntr, int nstage);
 
 /* declaration of elastic SH functions */
 

@@ -12,7 +12,7 @@ void forward_SH(char *fileinp1){
 	/* declaration of global variables */
       	extern int MYID, NF, MYID, LOG, NXG, NYG, NX, NY, NXNY, INFO, INVMAT, N_STREAMER;
 	extern int READMOD, NX0, NY0, NPML, READ_REC, FSSHIFT, NFREQ1, NFREQ2, COLOR;
-	extern int NPROCFREQ, NPROCSHOT, NP, MYID_SHOT, NSHOT1, NSHOT2;
+	extern int NPROCFREQ, NPROCSHOT, NP, MYID_SHOT, NSHOT1, NSHOT2, NF, SEISMO;
         extern float FC_low, FC_high, A0_PML;
 	extern char LOG_FILE[STRING_SIZE];
 	extern FILE *FP;
@@ -78,16 +78,7 @@ void forward_SH(char *fileinp1){
 
 	/* read receiver positions from receiver files for each shot */
 	if(READ_REC==0){
-
-	    acq.recpos=receiver(FP, &ntr, 1);
-
-	    /* Allocate memory for FD seismograms */
-	    alloc_seis_AC(&waveAC,ntr);
-
-	    if(N_STREAMER>0){
-	      free_imatrix(acq.recpos,1,3,1,ntr);
-	    }			                         
-
+	    acq.recpos=receiver(FP, &ntr, 1);	                         
 	}
 
 	/* read/create S-wave velocity and density models */
@@ -125,7 +116,7 @@ void forward_SH(char *fileinp1){
 		read_par_inv(FP_stage,nstage,stagemax);
 
 		/* estimate frequency sample interval and set first frequency */
-		waveAC.dfreq = (FC_high-FC_low) / NF;
+		waveAC.dfreq = (FC_high-FC_low) / (NF-1);
                 
 		/* estimate frequencies for current FWI stage */
 		waveAC.stage_freq = vector(1,NF);
@@ -151,6 +142,11 @@ void forward_SH(char *fileinp1){
 		/* Initiate MPI frequency parallelization */		
                 init_MPIfreq();
 
+                /* allocate memory for FD data */
+		if(READ_REC==0){
+ 	           alloc_seis_AC(&waveAC,ntr,nshots);			                         
+	        }
+
 		/* loop over frequencies at each stage */
 		for(nfreq=NFREQ1;nfreq<NFREQ2;nfreq++){
 
@@ -159,14 +155,22 @@ void forward_SH(char *fileinp1){
 
 			/* define PML damping profiles */
 			pml_pro_SH(&PML_AC,&waveAC,&matSH);
-
-			/* set squared angular frequency */
-			/*waveAC.omega2 = pow(2.0*M_PI*waveAC.freq,2.0);*/
 	
 			/* solve forward problem for all shots*/
 			forward_shot_SH(&waveAC,&PML_AC,&matSH,acq.srcpos,nshots,acq.recpos,ntr,nstage,nfreq);
 
 		} /* end of loop over frequencies */
+
+		/* write FD seismogram files */
+		if(SEISMO==1){
+	   	   write_seis_AC(&waveAC,nshots,ntr,nstage);
+		}
+
+		/* free memory */
+		if(READ_REC==0){
+		   free_vector(waveAC.precr,1,ntr*NF*nshots);
+		   free_vector(waveAC.preci,1,ntr*NF*nshots);
+		}
 
 		/* free shot_comm */
 		MPI_Comm_free(&shot_comm);
