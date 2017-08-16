@@ -147,7 +147,7 @@ void hessian_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_A
 			     for (j=1;j<=NY;j++){
 
 			       J = - 2.0 * Omega2 * ((*fwiAC).forwardr[j][i] + (*fwiAC).forwardi[j][i] * I)  
-				         * (1.0 / ((*matAC).vp[j][i] * (*matAC).vp[j][i] * (*matAC).vp[j][i])) * ((*waveAC).pr[j][i] + (*waveAC).pi[j][i] * I);
+				         * (1.0 / ((*matAC).rho[j][i] * (*matAC).vp[j][i] * (*matAC).vp[j][i] * (*matAC).vp[j][i])) * ((*waveAC).pr[j][i] + (*waveAC).pi[j][i] * I);
 
 			       (*fwiAC).hess[j][i] += creal( J * conjf(J));
 
