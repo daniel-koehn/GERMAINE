@@ -85,7 +85,7 @@ void forward_AC(char *fileinp1){
 	if (READMOD){
 	    readmod(&matAC); 
 	}else{
-	    model(matAC.vp);
+	    // model(matAC.vp);
 	}
 
 	/* read parameters from workflow-file (stdin) */
@@ -106,8 +106,8 @@ void forward_AC(char *fileinp1){
 	if (i=='\n') ++stagemax;
 	rewind(FP);
 	stagemax--;
-	fclose(FP);
-     
+	fclose(FP);     
+
 	/* initiate vp, ivp2, k2 */
 	init_mat_AC(&waveAC,&matAC);
 
@@ -119,7 +119,8 @@ void forward_AC(char *fileinp1){
 		read_par_inv(FP_stage,nstage,stagemax);
 
 		/* estimate frequency sample interval */
-		waveAC.dfreq = (FC_high-FC_low) / (NF-1);
+		if(NF>1){waveAC.dfreq = (FC_high-FC_low) / (NF-1);}
+                else{waveAC.dfreq = (FC_high-FC_low) / NF;}
 
 		/* estimate frequencies for current FWI stage */
 		waveAC.stage_freq = vector(1,NF);
@@ -143,7 +144,7 @@ void forward_AC(char *fileinp1){
 		init_MPIshot(nshots);
 
 		/* Initiate MPI frequency parallelization */		
-		init_MPIfreq();
+		init_MPIfreq();	        
 
                 /* allocate memory for FD data */
 		if(READ_REC==0){
@@ -154,7 +155,7 @@ void forward_AC(char *fileinp1){
 		for(nfreq=NFREQ1;nfreq<NFREQ2;nfreq++){			
 
 			/* set frequency on local MPI process */
-			waveAC.freq = waveAC.stage_freq[nfreq];			
+			waveAC.freq = waveAC.stage_freq[nfreq];					        
 
 			/* define PML damping profiles */
 			pml_pro(&PML_AC,&waveAC);

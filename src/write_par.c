@@ -28,7 +28,7 @@ void write_par(FILE *fp){
 	
 	extern int SWS_TAPER_GRAD_VERT, SWS_TAPER_GRAD_HOR, SWS_TAPER_GRAD_SOURCES, SWS_TAPER_CIRCULAR_PER_SHOT, SRTSHAPE, FILTSIZE;
 	extern int SWS_TAPER_FILE;
-	extern float SRTRADIUS, EXP_TAPER_GRAD_HOR, A0_PML, PML_VEL, PML_BETA0;
+	extern float SRTRADIUS, EXP_TAPER_GRAD_HOR, A0_PML;
 	extern int MIN_ITER;
 	extern char INV_MODELFILE[STRING_SIZE];
 	extern int nfstart, nf;
@@ -122,9 +122,7 @@ void write_par(FILE *fp){
 		
 		fprintf(fp," ------------------------- PML parameters -------------------------\n");
 		fprintf(fp," Thickness of PML-layer NPML [gridpoints] : %d \n",NPML);
-		fprintf(fp," maximum velocity in PML : %e \n",PML_VEL);
-		fprintf(fp," PML_BETA0 : %e \n",PML_BETA0);
-		fprintf(fp," Theoretical reflection coefficient A0_PML : %e \n\n",A0_PML);
+		fprintf(fp," A0_PML : %e \n\n",A0_PML);
 
 	if (SNAP){
 		fprintf(fp,"\n");

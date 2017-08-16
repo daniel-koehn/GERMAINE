@@ -50,7 +50,8 @@ struct fwiAC{
 
 /* acoustic material parameters */
 struct matAC{
-   float  ** vp, ** ivp2, **k2;	
+   float ** vp, ** rho, ** ivp2, ** b;
+   float bpm, bmp, bpp, bmm, b00, bp0, bm0, b0p, b0m;	
 } matAC; 
 
 /* Acquisition geometry */
@@ -63,7 +64,9 @@ struct acq{
 struct PML_AC{
    float ** Ar, ** Ai, ** Br, ** Bi, ** Cr, ** Ci;
    float ** Axr, ** Axi, ** Byr, ** Byi;
-   float * d_x, * d_y, * b_x, * b_y, * a_xr, * a_yr, * a_xi, * a_yi; 
+   float * d_x, * d_y, * b_x, * b_y, * a_xr, * a_yr, * a_xi, * a_yi;
+   float * dampxr, * dampxi, * dampxhr, * dampxhi;
+   float * dampyr, * dampyi, * dampyhr, * dampyhi;
 } PML_AC;
 
 /* elastic SH-wavefield variables */
@@ -155,6 +158,8 @@ void pml_pro_SH(struct PML_AC *PML_AC, struct waveAC *waveAC, struct matSH *matS
 void readmod_SH(struct matSH *matSH);
 
 /* declaration of general functions */
+
+void av_rho(struct matAC *matAC, int i, int j);
 
 float calc_mat_change(float  **  waveconv, float **  pi, float **  pinp1, int iter, float eps_scale, int itest, int nfstart);
 

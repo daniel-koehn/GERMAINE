@@ -78,7 +78,7 @@ make germaine
 
 git clone https://github.com/daniel-koehn/DENISE-Benchmark
 
-4. Copy model file for the 2 inclusion toy example from DENISE-Benchmark to GERMAINE 
+4. Copy model files for the 2 inclusion toy example from DENISE-Benchmark to GERMAINE 
 
 cp DENISE-Benchmark/2_inclusion_toy_example/start/inclusions* GERMAINE/par/start/
 

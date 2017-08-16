@@ -54,6 +54,16 @@ void alloc_waveAC(struct waveAC *waveAC, struct PML_AC *PML_AC){
 	(*PML_AC).a_xi = vector(1,NX);
 	(*PML_AC).a_yi = vector(1,NY);
 
+	(*PML_AC).dampxr = vector(0,NX+1);
+	(*PML_AC).dampxi = vector(0,NX+1);
+	(*PML_AC).dampxhr = vector(0,NX+1);
+	(*PML_AC).dampxhi = vector(0,NX+1);
+
+	(*PML_AC).dampyr = vector(0,NY+1);
+	(*PML_AC).dampyi = vector(0,NY+1);
+	(*PML_AC).dampyhr = vector(0,NY+1);
+	(*PML_AC).dampyhi = vector(0,NY+1);
+
 
 }
 

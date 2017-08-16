@@ -1,35 +1,38 @@
-/*-------------------------------------------------------------------------------
- *  Define damping profiles within CFS-PML boundary condition according to 
+/*----------------------------------------------------------------------------------------------------------------
+ *  Define damping profiles within PML boundary condition according to 
  * 
- *  Z. Chen, D. Cheng, W. Feng, H. Yang, 2013, An optimal 9-point finite 
- *  difference scheme for the Helmholtz equation with PML, Int. J. Numer. 
- *  Anal. Model., 10, 389-410.
+ *  Hustedt, B., Operto, S. and Virieux, J. (2004) Mixed-grid and staggered-grid finite difference
+ *  methods for frequency domain acoustic wave modelling. Geophysical Journal International, 157:1269–1296.
+ *
+ *  Operto, S. and Virieux, J. (2006) Practical aspects of frequency-domain finite-difference modelling of 
+ *  seismic wave propagation. Lecture Notes summer school "Seismic Imaging of Complex Structures from Multicomponent 
+ *  global offset data by Full Waveform Inversion"
  *  
- *  and
- *  
- *  W. Zhang, Y. Shen, 2013, Unsplit complex frequency-shifted PML 
- *  implementation using auxiliary differential equations for seismic 
- *  wave modeling. Geophysics, 75(4), T141–T154.
+ *  Operto, S., Virieux, J., Ribodetti, A. and Anderson, J.A. (2009) Finite-difference frequency-domain modeling 
+ *  of viscoacoustic wave propagation in 2D tilted transversely isotropic (TTI) media . Geophysics 74(5):T75-T95.
  *  
  *  D. Koehn
- *  Kiel, 20.09.2016
- *  -----------------------------------------------------------------------------*/
+ *  Kiel, 15.08.2017
+ *  -------------------------------------------------------------------------------------------------------------- */
 
 #include "fd.h"
 
 void pml_pro(struct PML_AC *PML_AC, struct waveAC *waveAC){
 
 	extern int NX, NY, NPML, FREE_SURF;
-        extern float DH, A0_PML;
-	extern float A0_PML, PML_VEL, PML_BETA0;
-	extern float PML_POWD, PML_POWB, PML_POWA, S;
+        extern float DH, A0_PML, S;
 	extern char SNAP_FILE[STRING_SIZE];	
 
 	/* local variables */
-	int i, j, k;
-        complex float tmp, sx, sy, ci, OMEGA_PML, a0, ax, ay;
-        float lPML, d0;
+	int i;
+        complex float ci, OMEGA_PML, ax, ay;
+        float lPML, x, y, xh, yh, pih, betad, betadh, betam;
+	float xmax, xh1;
+	float alpha, alphah, eps, epsh;
 	char filename[STRING_SIZE];
+	FILE *fpmod;
+
+	pih = M_PI / 2.0;
 
         /* define complex i */
         ci = 0.0 + 1.0 * I;
@@ -38,123 +41,101 @@ void pml_pro(struct PML_AC *PML_AC, struct waveAC *waveAC){
 	lPML = NPML * DH;
 
 	/* define PML damping parameters */
-        OMEGA_PML = 2.0 * M_PI * ((*waveAC).freq - I * S);
+	betam = 0.0;
+        OMEGA_PML = 2.0 * M_PI * ((*waveAC).freq - I * S);	
 
-	/* define polynomial degrees */
-	PML_POWD = 2.0;
-	PML_POWA = 1.0;
-	PML_POWB = 2.0;
+	/* initialize PML profiles */
+	for (i=0;i<=NX+1;i++){;
+	    (*PML_AC).dampxr[i] = 1.0;
+	    (*PML_AC).dampxi[i] = 0.0;
+	    (*PML_AC).dampxhr[i] = 1.0;
+	    (*PML_AC).dampxhi[i] = 0.0;
+	}
 
-	/* define d0 */
-	d0 = - log(A0_PML) * PML_VEL * (PML_POWD + 1.0) / (2.0 * lPML);
+	for (i=0;i<=NY+1;i++){;
+	    (*PML_AC).dampyr[i] = 1.0;
+	    (*PML_AC).dampyi[i] = 0.0;
+	    (*PML_AC).dampyhr[i] = 1.0;
+	    (*PML_AC).dampyhi[i] = 0.0;
+	}
+
+        /* calculate PML damping profiles in x- and y-direction */
+	/* ---------------------------------------------------- */
+	for (i=1;i<=NPML;i++){  
+
+	    x = i * DH;
+	    xh = x + 0.5 * DH;
+
+	    betad = x * betam / lPML;
+	    betadh = xh * betam / lPML;
+
+	    /* compute eps and alpha */
+            eps = A0_PML * (1.0 - cos((lPML-x) * pih / lPML));
+	    alpha = 1.0;
 	
-	/* define a0 */
-	a0 = M_PI * ((*waveAC).freq - I * S);
+	    /* compute epsh and alphah */
+            epsh = A0_PML * (1.0 - cos((lPML-xh) * pih / lPML));
+	    alphah = 1.0;
+     	    
+	    /* define PML damping profiles in x- and y-direction */
+            (*PML_AC).dampxr[i] = creal( 1.0 / (alpha  + ci * eps  / (OMEGA_PML + ci * betad)));            
+            (*PML_AC).dampxi[i] = cimag( 1.0 / (alpha  + ci * eps  / (OMEGA_PML + ci * betad)));            
 
-        /* set free surface to zero */
-        /* FREE_SURF = 0; */
+            (*PML_AC).dampxhr[i] = creal( 1.0 / (alphah + ci * epsh / (OMEGA_PML + ci * betadh)));
+            (*PML_AC).dampxhi[i] = cimag( 1.0 / (alphah + ci * epsh / (OMEGA_PML + ci * betadh)));
 
-        /* calculate PML damping profiles sigma_x and sigma_y in x- and y-direction */
-	for (i=1;i<=NX;i++){  
-	    
-	    (*PML_AC).d_x[i] = 0.0;
-	    (*PML_AC).a_xr[i] = 0.0;
-	    (*PML_AC).a_xi[i] = 0.0;
-	    (*PML_AC).b_x[i] = 1.0;
-	    
-	    /* define damping profile at left PML boundary */
-	    if(i <= NPML){
-	      (*PML_AC).d_x[i] = d0 * pow((NPML-i)*DH/lPML,PML_POWD);
-	      (*PML_AC).a_xr[i] = creal(a0 * (1.0 - pow((NPML-i)*DH/lPML,PML_POWA)));
-	      (*PML_AC).a_xi[i] = cimag(a0 * (1.0 - pow((NPML-i)*DH/lPML,PML_POWA)));
-	      (*PML_AC).b_x[i] = 1.0 + (PML_BETA0 - 1.0) * pow((NPML-i)*DH/lPML,PML_POWB);
+	    (*PML_AC).dampyr[i] = (*PML_AC).dampxr[i];
+	    (*PML_AC).dampyi[i] = (*PML_AC).dampxi[i];
+	    (*PML_AC).dampyhr[i] = (*PML_AC).dampxhr[i];
+	    (*PML_AC).dampyhi[i] = (*PML_AC).dampxhi[i];
+
+
+            /* mirror PMLs at opposite site of computational domain */
+	    (*PML_AC).dampxr[NX-i+1] = (*PML_AC).dampxr[i];
+	    (*PML_AC).dampxi[NX-i+1] = (*PML_AC).dampxi[i];
+	    (*PML_AC).dampxhr[NX-i+1] = (*PML_AC).dampxhr[i];
+	    (*PML_AC).dampxhi[NX-i+1] = (*PML_AC).dampxhi[i];
+
+	    (*PML_AC).dampyr[NY-i+1] = (*PML_AC).dampxr[i];
+	    (*PML_AC).dampyi[NY-i+1] = (*PML_AC).dampxi[i];
+	    (*PML_AC).dampyhr[NY-i+1] = (*PML_AC).dampxhr[i];
+	    (*PML_AC).dampyhi[NY-i+1] = (*PML_AC).dampxhi[i];
+
+	    /* deactivate PML for y <= NPML if FREE_SURF == 1*/
+	    if(FREE_SURF==1){
+	        (*PML_AC).dampyr[i] = 1.0;
+	        (*PML_AC).dampyi[i] = 0.0;
+	        (*PML_AC).dampyhr[i] = 1.0;
+	        (*PML_AC).dampyhi[i] = 0.0;
 	    }
-	    
-	    /* define damping profile at right PML boundary */
-	    if(i >= NX - NPML){
-	      (*PML_AC).d_x[i] = d0 * pow((DH*((NX-NPML)-i))/lPML,PML_POWD);
-	      (*PML_AC).a_xr[i] = creal(a0 * (1.0 - pow((DH*((NX-NPML)-i))/lPML,PML_POWA)));
-	      (*PML_AC).a_xi[i] = cimag(a0 * (1.0 - pow((DH*((NX-NPML)-i))/lPML,PML_POWA)));
-	      (*PML_AC).b_x[i] = 1.0 + (PML_BETA0 - 1.0) * pow((DH*((NX-NPML)-i))/lPML,PML_POWB);
-	    }
-	    
+
 	}
 
-	for (j=1;j<=NY;j++){
-	    
-	    (*PML_AC).d_y[j] = 0.0;
-	    (*PML_AC).a_yr[j] = 0.0;
-	    (*PML_AC).a_yi[j] = 0.0;
-	    (*PML_AC).b_y[j] = 1.0;
+	(*PML_AC).dampxr[0] = (*PML_AC).dampxr[1];
+	(*PML_AC).dampxi[0] = (*PML_AC).dampxi[1];
+	(*PML_AC).dampxhr[0] = (*PML_AC).dampxhr[1];
+	(*PML_AC).dampxhi[0] = (*PML_AC).dampxhi[1];
 
-	    /* define damping profile at top PML boundary */
-	    if((j <= NPML)&&(FREE_SURF==0)){
-	      (*PML_AC).d_y[j] = d0 * pow((NPML-j)*DH/lPML,PML_POWD);
-	      (*PML_AC).a_yr[j] = creal(a0 * (1.0 - pow((NPML-j)*DH/lPML,PML_POWA)));
-	      (*PML_AC).a_yi[j] = cimag(a0 * (1.0 - pow((NPML-j)*DH/lPML,PML_POWA)));
-	      (*PML_AC).b_y[j] = 1.0 + (PML_BETA0 - 1.0) * pow((NPML-j)*DH/lPML,PML_POWB);
-	    }
-	    
-	    /* define damping profile at bottom PML boundary */
-	    if(j >= NY - NPML){
-	      (*PML_AC).d_y[j] = d0 * pow((DH*((NY-NPML)-j))/lPML,PML_POWD);
-	      (*PML_AC).a_yr[j] = creal(a0 * (1.0 - pow((DH*((NY-NPML)-j))/lPML,PML_POWA)));
-	      (*PML_AC).a_yi[j] = cimag(a0 * (1.0 - pow((DH*((NY-NPML)-j))/lPML,PML_POWA)));
-	      (*PML_AC).b_y[j] = 1.0 + (PML_BETA0 - 1.0) * pow((DH*((NY-NPML)-j))/lPML,PML_POWB);
-	    }
-	    
-	}
+	(*PML_AC).dampxr[NX+1] = (*PML_AC).dampxr[NX];
+	(*PML_AC).dampxi[NX+1] = (*PML_AC).dampxi[NX];
+	(*PML_AC).dampxhr[NX+1] = (*PML_AC).dampxhr[NX];
+	(*PML_AC).dampxhi[NX+1] = (*PML_AC).dampxhi[NX];
 
-	/* calculate sx and sy */
-	for (j=1;j<=NY;j++){
-	    for (i=1;i<=NX;i++){  
+	(*PML_AC).dampyr[0] = (*PML_AC).dampyr[1];
+	(*PML_AC).dampyi[0] = (*PML_AC).dampyi[1];
+	(*PML_AC).dampyhr[0] = (*PML_AC).dampyhr[1];
+	(*PML_AC).dampyhi[0] = (*PML_AC).dampyhi[1];
 
-		ax = (*PML_AC).a_xr[i] + ci * (*PML_AC).a_xi[i];		
-		ay = (*PML_AC).a_yr[i] + ci * (*PML_AC).a_yi[i];		
+	(*PML_AC).dampyr[NY+1] = (*PML_AC).dampyr[NY];
+	(*PML_AC).dampyi[NY+1] = (*PML_AC).dampyi[NY];
+	(*PML_AC).dampyhr[NY+1] = (*PML_AC).dampyhr[NY];
+	(*PML_AC).dampyhi[NY+1] = (*PML_AC).dampyhi[NY];        
 
-		sx = (*PML_AC).b_x[i] + ((*PML_AC).d_x[i]/(ax + OMEGA_PML*ci));
-		sy = (*PML_AC).b_y[j] + ((*PML_AC).d_y[j]/(ay + OMEGA_PML*ci));
 
-		/* sx = 1.0 - ((*PML_AC).d_x[i] * ci / OMEGA_PML);
-		sy = 1.0 - ((*PML_AC).d_y[j] * ci / OMEGA_PML); */
+	/*fpmod=fopen("pml.dat","w");
+	for (i=0;i<=NY+1;i++){fprintf(fpmod,"%e \n",(*PML_AC).dampyhr[i]);}						
+	fclose(fpmod);*/
 
-                /* calculate real and imaginary parts of factors A, B and C */
-		(*PML_AC).Ar[j][i] = creal(sy/sx);
-		(*PML_AC).Ai[j][i] = cimag(sy/sx);
-
-		(*PML_AC).Br[j][i] = creal(sx/sy);
-		(*PML_AC).Bi[j][i] = cimag(sx/sy);
-
-		(*PML_AC).Cr[j][i] = creal(sx*sy);
-		(*PML_AC).Ci[j][i] = cimag(sx*sy);
-
-	    }
-	}
-
-	/* calculate arithmetic average values of A and B in x- and y-direction */
-
-        /* initiate arrays */
-	store_mat((*PML_AC).Ar,(*PML_AC).Axr,NX,NY);
-	store_mat((*PML_AC).Ai,(*PML_AC).Axi,NX,NY);
-
-	store_mat((*PML_AC).Br,(*PML_AC).Byr,NX,NY);
-	store_mat((*PML_AC).Bi,(*PML_AC).Byi,NX,NY);
-
-        /* arithmetic averages */
-	for (j=2;j<=NY-1;j++){
-	    for (i=2;i<=NX-1;i++){  
-		
-		(*PML_AC).Axr[j][i] = ((*PML_AC).Ar[j][i] + (*PML_AC).Ar[j][i+1]) / 2.0;        
-		(*PML_AC).Axi[j][i] = ((*PML_AC).Ai[j][i] + (*PML_AC).Ai[j][i+1]) / 2.0;        
-
-		(*PML_AC).Byr[j][i] = ((*PML_AC).Br[j][i] + (*PML_AC).Br[j+1][i]) / 2.0;
-		(*PML_AC).Byi[j][i] = ((*PML_AC).Bi[j][i] + (*PML_AC).Bi[j+1][i]) / 2.0;		
-
-	    }
-	}
-
-   /*sprintf(filename,"%s_Axr.bin",SNAP_FILE);
-   writemod(filename,(*PML_AC).Ar,3);*/
        
 }
 
