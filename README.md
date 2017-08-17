@@ -1,17 +1,17 @@
 # GERMAINE
 
-2D acoustic FDFD modelling and FWI code, which I developed together with Denise De Nil.
+2D acoustic FDFD modelling, FWI and RTM code, which I developed together with Denise De Nil.
 
-The 2D Frequency Domain Finite-Difference (FDFD) Code GERMAINE solves the 2D Helmholtz equation using a 9-point FD stencil with PML absorbing boundary conditions according to 
+The Frequency Domain Finite-Difference (FDFD) Code GERMAINE solves the 2D isotropic acoustic wave equation using a 9-point mixed-grid FD stencil with PML absorbing boundary conditions according to 
 
-- I. Singer, E. Turkel, 2004, A perfectly matched layer for the Helmholtz equation in a semi-infinite strip. Journal of Computational Physics, 201(2), 439-465.
-- Z. Chen, D. Cheng, W. Feng, H. Yang, 2013, An optimal 9-point finite difference scheme for the Helmholtz equation with PML, Int. J. Numer. Anal. Model., 10, 389-410. 
+- Hustedt, B., Operto, S., and Virieux, J. (2004) Mixed-grid and staggered-grid finite difference methods for frequency domain acoustic wave modelling. Geophysical Journal International, 157:1269–1296.
+- Operto, S., Virieux, J., Ribodetti, A. and Anderson, J.A. (2009) Finite-difference frequency-domain modeling of viscoacoustic wave propagation in 2D tilted transversely isotropic (TTI) media. Geophysics 74(5):T75-T95.
 
 The forward wavefield is calculated via a LU-decompostion and forward/backward substitution using UMFPACK, which is part of the sparse matrix library SuiteSparse:
 
 http://faculty.cse.tamu.edu/davis/suitesparse.html
 
-The code is parallelized with MPI using a very simple shot parallelization. The FWI code is based on the adjoint state-method with quasi-Newton l-BFGS optimization (Nocedal & Wright 2006).
+The code is parallelized with MPI using a very simple shot-frequency parallelization. The FWI code is based on the adjoint state-method with quasi-Newton l-BFGS optimization (Nocedal & Wright 2006).
 
 GERMAINE is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.0 of the License only.
 
