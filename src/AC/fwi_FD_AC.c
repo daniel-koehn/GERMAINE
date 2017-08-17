@@ -327,8 +327,10 @@ void fwi_FD_AC(char *fileinp1){
 			   MPI_Barrier(MPI_COMM_WORLD);
 
 			   /* ... by line search which satisfies the Wolfe conditions */
-                           /*if(LINESEARCH==1){
-			   eps_scale=wolfels(Hgrad,grad,Vp,S,TT,lam,Tmod,Tobs,Tres,srcpos,nshots,recpos,ntr,iter,eps_scale,L2);}*/
+                           if(LINESEARCH==1){
+                              eps_scale=wolfels_AC(&fwiAC,&waveAC,&PML_AC,&matAC,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage,eps_scale,L2);
+			   }
+			   
 			   
 			   /* ... by inexact parabolic line search */
                            if(LINESEARCH==2){
@@ -370,7 +372,7 @@ void fwi_FD_AC(char *fileinp1){
 			    }
 
 			    /* are convergence criteria satisfied? */	
-			    if((diff<=PRO)||(eps_scale<1e-10)||(iter==ITERMAX)){
+			    if((diff<=PRO)||(eps_scale<1e-20)||(iter==ITERMAX)){
 	
 			       /* model output at the end of given workflow stage */
 			       model_out(matAC.vp,nstage);
@@ -385,7 +387,7 @@ void fwi_FD_AC(char *fileinp1){
 
 			       if(MYID==0){
 
-				  if(eps_scale<1e-10){
+				  if(eps_scale<1e-20){
 
 				     printf("\n Steplength estimation failed. Changing to next FWI stage \n");
 

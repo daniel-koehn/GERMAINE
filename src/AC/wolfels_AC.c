@@ -9,7 +9,7 @@
 
 #include "fd.h"
 
-float wolfels(float ** Hgrad, float ** grad, float ** Vp, float ** S, float ** TT, float ** lam, float * Tmod, float * Tobs, float * Tres,  float ** srcpos, int nshots, int ** recpos, int ntr, int iter, float alpha, float L2){
+float wolfels_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC *matAC, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage, float alpha, float L2){
 
 	/* declaration of global variables */
         extern int NX, NY, GRAD_METHOD, STEPMAX, MYID;
@@ -22,14 +22,18 @@ float wolfels(float ** Hgrad, float ** grad, float ** Vp, float ** S, float ** T
 
         gt =  matrix(1,NY,1,NX);
 
+        /* copy  -> gt */
+	store_mat((*fwiAC).grad,gt,NX,NY);
+
+
         /* calculate initial step length */
         if(iter==1){
 
            /* normg = norm_matrix(grad,NX,NY);
            alpha = 1.0/normg;*/
 
-           maxgrad = maximum_m(*fwiAC.Hgrad,NX,NY);
-           maxvp = maximum_m(*matAc.vp,NX,NY);
+           maxgrad = maximum_m((*fwiAC).Hgrad,NX,NY);
+           maxvp = maximum_m((*matAC).vp,NX,NY);
 
            alpha = EPS_SCALE * maxvp/maxgrad;
 
@@ -65,8 +69,17 @@ float wolfels(float ** Hgrad, float ** grad, float ** Vp, float ** S, float ** T
                     printf("alpha = %e ... \n",alpha);
                  }
 
-                 /*calc_mat_change_wolfe(Hgrad,Vp,Vpnp1,alpha,1);
-                 ft = grad_obj(gt,Snp1,TT,lam,Tmod,Tobs,Tres,srcpos,nshots,recpos,ntr,iter);*/
+          	 /* copy vp -> vp_old */
+	  	 store_mat((*matAC).vp,(*fwiAC).vp_old,NX,NY);
+
+          	 /* test Vp-update */
+	  	 calc_mat_change_wolfe((*fwiAC).Hgrad,(*matAC).vp,(*fwiAC).vp_old,alpha,1);
+
+		 ft = grad_obj_AC(fwiAC,waveAC,PML_AC,matAC,srcpos,nshots,recpos,ntr,iter,nstage);
+ 
+	  	 /* copy vp_old -> vp */
+	  	 store_mat((*fwiAC).vp_old,(*matAC).vp,NX,NY);
+
                  lsiter++;
 
               }else{
@@ -76,24 +89,32 @@ float wolfels(float ** Hgrad, float ** grad, float ** Vp, float ** S, float ** T
 
               }
            
-              g0s0=dotp_matrix(grad,Hgrad,NX,NY);
-              gts0=dotp_matrix(gt,Hgrad,NX,NY);
+              g0s0=dotp_matrix(gt,(*fwiAC).Hgrad,NX,NY);
+              gts0=dotp_matrix((*fwiAC).grad,(*fwiAC).Hgrad,NX,NY);
 
               if(MYID==0){
                  printf("Wolfe Conditions \n");
                  printf("---------------- \n");
-                 /*printf("ft = %e \t <= L2  = %e \n",ft,L2);*/
+                 printf("ft = %e \t <= L2  = %e \n",ft,L2);
                  printf("ft = %e \t <= L2 + C1*alpha*g0s0 = %e \n",ft,L2 + C1*alpha*g0s0);
                  printf("gts0 = %e \t >= C2*g0s0 = %e \n",gts0,C2*g0s0);
               }
  
-              if (ft > (L2 + C1*alpha*g0s0)){
+              /* if (ft > (L2 + C1*alpha*g0s0)){
                   nu = alpha;
               }else if(gts0 < (C2*g0s0)){
                   mu = alpha;
               }else{
                   done = 1;
-              }
+              }*/
+
+              if(ft < L2){
+		done = 1;
+	      }
+
+              if(ft > L2){
+                alpha/=2.0;
+	      }
 
         }
 

@@ -141,6 +141,8 @@ void RTM_AC_out(float ** Vp);
 
 void store_PCG_AC(float * PCG_old, float ** waveconv);
 
+float wolfels_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC *matAC, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage, float alpha, float L2);
+
 void write_seis_AC(struct waveAC *waveAC, int nshots, int ntr, int nstage);
 
 /* declaration of elastic SH functions */
@@ -262,9 +264,6 @@ void taper_grad_shot1(float ** waveconv, float **srcpos, int nshots, int **recpo
 void tripd(float *d, float *e, float *b, int n);
 
 void vec2mat(float **pr, float **pi, double *xr, double *xi);
-
-float wolfels(float ** waveconv, float ** gradp, float ** Vp, float ** S, float ** TT, float ** lam, float * Tmod, float * Tobs, float * Tres,  float ** srcpos, int nshots, int ** recpos, int ntr,
-              int iter, float alpha, float L2);
 
 void write_gridsearch(float L2, float vp0, float grad0, int count);
 

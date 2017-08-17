@@ -34,7 +34,7 @@ WAVELET_NAME = start/wavelet.su
 #
 #--------------------- Model -------------------------------------------
 read_model_parameters_from_MFILE(yes=1)(READMOD) = 1
-MFILE = start/inclusions_init
+MFILE = start/inclusions_true
 #
 #----------------------Free Surface-------------------------------------
 free_surface_(yes=1)(FREE_SURF) = 0
@@ -44,7 +44,7 @@ width_of_absorbing_frame_(in_gridpoints)_(NPML) = 10
 damping_parameter_(A0_PML) = 90.0
 #
 #----------------------Snapshots----------------------------------------
-output_of_P_field_(SNAP)(yes>0) = 1
+output_of_P_field_(SNAP)(yes>0) = 0
 increment_x-direction_(IDX) = 1
 increment_y-direction_(IDY) = 1
 data-format_(SNAP_FORMAT)(ASCII(2);BINARY(3)) = 3
@@ -123,7 +123,7 @@ filter_length_in_gridpoints_(FILT_SIZE) = 5
 step_length_estimation_(Wolfe=1/Parabolic=2)_(LINESEARCH) = 2
 maximum_model_change_of_maximum_model_value_(EPS_SCALE) = 0.01 
 parameters_for_Wolfe_conditions_(C1,C2) = 1e-4, 0.9
-maximum_number_of_attemps_to_find_a_step_length_(STEPMAX) = 4
+maximum_number_of_attemps_to_find_a_step_length_(STEPMAX) = 6
 SCALEFAC = 2.0
 #
 #----- MISFIT LOG FILE -----#

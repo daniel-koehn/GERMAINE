@@ -101,6 +101,7 @@ GERMAINE+= \
 	RTM_FD_AC.c \
 	RTM_AC_out.c \
 	store_PCG_AC.c \
+	wolfels_AC.c \
 	write_seis_AC.c
 
 # add SH source files

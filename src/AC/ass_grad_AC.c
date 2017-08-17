@@ -28,7 +28,7 @@ void ass_grad_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct matAC *matAC
 	    for (j=1;j<=NY;j++){
 
                grad_shot[j][i] = - 2.0 * creal(Omega2 * (wien/cabsf(wien)) * ((*fwiAC).forwardr[j][i] + (*fwiAC).forwardi[j][i] * I)  
-				       * (1.0 / ((*matAC).rho[j][i] * (*matAC).vp[j][i] * (*matAC).vp[j][i]) * (*matAC).vp[j][i])) * ((*waveAC).pr[j][i] + (*waveAC).pi[j][i] * I) );
+				       * (1.0 / ((*matAC).rho[j][i] * (*matAC).vp[j][i] * (*matAC).vp[j][i] * (*matAC).vp[j][i])) * ((*waveAC).pr[j][i] + (*waveAC).pi[j][i] * I) );
 		    
 	    }
 	}
