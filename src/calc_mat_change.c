@@ -18,7 +18,7 @@ float calc_mat_change(float  **  waveconv, float **  pi, float **  pinp1, int it
 	
 	extern char INV_MODELFILE[STRING_SIZE];
 	
-	extern float VPUPPERLIM, VPLOWERLIM;
+	extern float MAT1_LOW, MAT1_UP;
 
 	/* local variables */
 
@@ -55,8 +55,8 @@ float calc_mat_change(float  **  waveconv, float **  pi, float **  pinp1, int it
 	
 	/* calculate scaling factor for the gradient */
         /* ----------------------------------------- */
-/* 	EPSILON = eps_scale * (pimax/gradmax); */
-	EPSILON = 0.005 * (pimax/gradmax);
+ 	EPSILON = eps_scale * (pimax/gradmax);
+	/*EPSILON = 0.005 * (pimax/gradmax);*/
 		
         if(MYID==0){
 	  printf("|Vpmax| = %e \t |gradmax| = %e \n",pimax,gradmax);
@@ -73,11 +73,11 @@ float calc_mat_change(float  **  waveconv, float **  pi, float **  pinp1, int it
 		    pinp1[j][i] = pi[j][i] - EPSILON*waveconv[j][i]; 	
 		  
 		    /* apply hard constraints */
-	      	    if(pinp1[j][i]<VPLOWERLIM){
+	      	    if(pinp1[j][i]<MAT1_LOW){
 	               pinp1[j][i] = pi[j][i];
 	            }
 		      
-		    if(pinp1[j][i]>VPUPPERLIM){
+		    if(pinp1[j][i]>MAT1_UP){
 		       pinp1[j][i] = pi[j][i];
 		    }
 		      

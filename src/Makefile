@@ -30,6 +30,8 @@ IFLAGS=-I$//sfs/fs4/work-sh2/sungw331/suitesparse/SuiteSparse/include -I./../inc
 #CC=mpicc
 #LFLAGS=-lm -lfftw3 -lstdc++ -lumfpack
 #CFLAGS=-O3 -w -fno-stack-protector -D_FORTIFY_SOURCE=0
+# SFLAGS=-L$//home/daniel-koehn/libs/SuiteSparse/lib
+# IFLAGS=-I$//home/daniel-koehn/libs/SuiteSparse/include -I./../include
 #IFLAGS=-I./../include 
 
 # On HLRN system

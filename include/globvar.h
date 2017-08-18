@@ -55,7 +55,8 @@ int nfstart, nf;
 
 int nfstart_jac, nf_jac;
 
-float VPUPPERLIM, VPLOWERLIM;
+float MAT1_LOW, MAT1_UP, MAT2_LOW, MAT2_UP;
+float MAT1_NORM, MAT2_NORM;
 
 int INV_STF, N_STF, N_STF_START;
 float EPS_STF, OFFSETC_STF;

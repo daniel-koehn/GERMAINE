@@ -36,7 +36,8 @@ extern int MIN_ITER;
 extern char INV_MODELFILE[STRING_SIZE];
 extern int nfstart, nf;
 extern int nfstart_jac, nf_jac;
-extern float VPUPPERLIM, VPLOWERLIM;
+extern float MAT1_LOW, MAT1_UP, MAT2_LOW, MAT2_UP;
+extern float MAT1_NORM, MAT2_NORM;
 extern char PARA[STRING_SIZE];
 
 extern float FC_START, FC_END, FC_INCR, EPS_HESS;
@@ -233,54 +234,60 @@ int  c=0, lineno=0, l;
             fscanf(fp_in,"%s =%i",s,&nf_jac);
             break;
 	 case 53 :
-            fscanf(fp_in,"%s =%f",s,&VPUPPERLIM);
-            break;
+            fscanf(fp_in,"%s =%f, %f",s,&MAT1_LOW,&MAT1_UP);
+            break;	 
 	 case 54 :
-            fscanf(fp_in,"%s =%f",s,&VPLOWERLIM);
+            fscanf(fp_in,"%s =%f, %f",s,&MAT2_LOW,&MAT2_UP);
+            break;	 
+	 case 55 :
+	    fscanf(fp_in,"%s =%f",s,&MAT1_NORM);                         
             break;
-	 case 55 :         
-            fscanf(fp_in,"%s =%i",s,&GRAD_METHOD);                         
-            break;
-	 case 56 :         
-            fscanf(fp_in,"%s =%i",s,&PCG_BETA);                         
+	 case 56 :
+	    fscanf(fp_in,"%s =%f",s,&MAT2_NORM);                         
             break;
 	 case 57 :         
+            fscanf(fp_in,"%s =%i",s,&GRAD_METHOD);                         
+            break;
+	 case 58 :         
+            fscanf(fp_in,"%s =%i",s,&PCG_BETA);                         
+            break;
+	 case 59 :         
             fscanf(fp_in,"%s =%i",s,&NLBFGS);                         
             break;   
-	 case 58 :         
+	 case 60 :         
             fscanf(fp_in,"%s =%i",s,&MODEL_FILTER);                         
             break;  
-	 case 59 :         
+	 case 61 :         
             fscanf(fp_in,"%s =%i",s,&FILT_SIZE);                         
             break;
-         case 60 :    
+         case 62 :    
             fscanf(fp_in,"%s =%i",s,&LINESEARCH);
             break;
-	 case 61 :
+	 case 63 :
 	   fscanf(fp_in,"%s =%f",s,&EPS_SCALE);                         
             break;
-	 case 62 :
+	 case 64 :
 	    fscanf(fp_in,"%s =%f, %f",s,&C1,&C2);
 	    break; 
-	 case 63 :
+	 case 65 :
 	   fscanf(fp_in,"%s =%i",s,&STEPMAX);                         
             break;
-	 case 64 :
+	 case 66 :
 	   fscanf(fp_in,"%s =%f",s,&SCALEFAC);                         
             break;
-	 case 65 :
+	 case 67 :
 	   fscanf(fp_in,"%s =%s",s,&MISFIT_LOG_FILE);                         
             break; 
-	 case 66 :
+	 case 68 :
 	   fscanf(fp_in,"%s =%i",s,&MIN_ITER);                         
             break; 
-	 case 67 :
+	 case 69 :
 	    fscanf(fp_in,"%s =%f, %f, %f",s,&VP0_1,&VP0_2,&DVP0);
 	    break;
-         case 68 :
+         case 70 :
 	    fscanf(fp_in,"%s =%f, %f, %f",s,&GRAD0_1,&GRAD0_2,&DGRAD0);
 	    break;
-	 case 69 :
+	 case 71 :
 	    fscanf(fp_in,"%s =%s",s,GRIDSEARCH_FILE);
 	    break; 
 	 default:

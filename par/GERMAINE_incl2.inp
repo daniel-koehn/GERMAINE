@@ -106,9 +106,13 @@ increment_between_saved_models_(nf) = 2000
 first_gradient_to_be_saved(nfstart_jac) = 2000
 increment_between_saved_gradients_(nf_jac) = 1
 #
-# ----- Upper and lower limits for model parameters ----- #
-upper_limit_for_vp/lambda_(VPUPPERLIM) = 6000.0
-lower_limit_for_vp/lambda_(VPLOWERLIM) = 300.0
+# ----- Upper and lower bound for model parameters ----- #
+limits_for_vp_(MAT1_LOW,MAT1_UP) = 300.0, 6000.0
+limits_for_density_(MAT2_LOW,MAT2_UP) = 1.25, 2000.0
+#
+# --- Normalization factor for material parameters ----- #
+norm_vp_(MAT1_NORM) = 1.0
+norm_density_(MAT2_NORM) = 1.0
 #
 # ----- Optimization-Method ------ #
 gradient_method_(PCG=1/LBFGS=2)_(GRAD_METHOD) = 2

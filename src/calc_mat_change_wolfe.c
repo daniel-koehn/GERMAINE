@@ -12,7 +12,7 @@ void calc_mat_change_wolfe(float  **  Hgrad, float **  vp, float **  vp_old, flo
 	/* global variables */
 	extern int NX, NY, MYID;
 	extern char INV_MODELFILE[STRING_SIZE];
-	extern float VPUPPERLIM, VPLOWERLIM;
+	extern float MAT1_LOW, MAT1_UP;
 
 	/* local variables */
 	int i, j;
@@ -32,11 +32,11 @@ void calc_mat_change_wolfe(float  **  Hgrad, float **  vp, float **  vp_old, flo
 		    vp[j][i] = vp_old[j][i] + eps_scale * Hgrad[j][i]; 	
 		  
 		    /* apply hard constraints */
-	      	    if(vp[j][i]<VPLOWERLIM){
+	      	    if(vp[j][i]<MAT1_LOW){
 	               vp[j][i] = vp_old[j][i];
 	            }
 		      
-		    if(vp[j][i]>VPUPPERLIM){
+		    if(vp[j][i]>MAT1_UP){
 		       vp[j][i] = vp_old[j][i];
 		    }
 		      

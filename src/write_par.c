@@ -33,8 +33,9 @@ void write_par(FILE *fp){
 	extern char INV_MODELFILE[STRING_SIZE];
 	extern int nfstart, nf;
 	extern int nfstart_jac, nf_jac;
-	extern float VPUPPERLIM, VPLOWERLIM;
-	
+	extern float MAT1_LOW, MAT1_UP, MAT2_LOW, MAT2_UP;
+	extern float MAT1_NORM, MAT2_NORM;	
+
 	extern int LINESEARCH, STEPMAX, HESSIAN;
 	extern float EPS_SCALE, SCALEFAC, EPS_HESS;
 
@@ -216,9 +217,14 @@ void write_par(FILE *fp){
 		else	fprintf(fp," SWS_TAPER_CIRCULAR_PER_SHOT=%d: No taper around the sources applied.\n\n",SWS_TAPER_CIRCULAR_PER_SHOT);
 		
 		fprintf(fp,"\n\n");
-		fprintf(fp," --------------- Limits of model parameters -------------------\n");
-		fprintf(fp," VPLOWERLIM = %f \t\t VPUPPERLIM = %f \n",VPLOWERLIM,VPUPPERLIM);
+		fprintf(fp," --------------- Bounds of model parameters -------------------\n");
+		fprintf(fp," Vp lower bound = %f \t\t Vp upper bound = %f \n",MAT1_LOW,MAT1_UP);
+		fprintf(fp," rho lower bound = %f \t\t rho upper bound = %f \n",MAT2_LOW,MAT2_UP);	
 	
+		fprintf(fp,"\n\n");
+		fprintf(fp," --------------- Normalization factors for model parameters-------------------\n");
+		fprintf(fp," Vp normalization = %f \n",MAT1_NORM);
+		fprintf(fp," rho normalization = %f \n",MAT2_NORM);	
 	
 		fprintf(fp,"\n\n");
 		fprintf(fp," --------------- Optimization method -------------------\n");
