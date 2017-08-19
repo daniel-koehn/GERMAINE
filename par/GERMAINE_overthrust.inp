@@ -13,7 +13,7 @@
 forward_modelling_(yes=0)_FDFWI_(yes=1)_RTM_(yes=2)_(INVMAT) = 0
 #
 # ---------------- GERMAINE Physics ------------------------------------
-(2D-AC=1;2D-SH=2)_(PHYSICS) = 1
+(2D-AC=1;2D-SH=2;2D-TE=4)_(PHYSICS) = 1
 #
 #-------------- MPI Parallelization ------------------------------------
 number_of_processors_for_frequency_parallelization_(NPROCFREQ) = 1

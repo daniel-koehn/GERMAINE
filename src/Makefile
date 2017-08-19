@@ -20,19 +20,18 @@ EXEC= ../bin
 # CC=cc
 
 # On Linux NEC-cluster with Intel-MPI
-CC=mpiicc 
-LFLAGS=-lm -ftz -lstdc++ -lumfpack
-CFLAGS=-O3 -xAVX -fno-fnalias -restrict
-SFLAGS=-L$//sfs/fs4/work-sh2/sungw331/suitesparse/SuiteSparse/lib
-IFLAGS=-I$//sfs/fs4/work-sh2/sungw331/suitesparse/SuiteSparse/include -I./../include
+#CC=mpiicc 
+#LFLAGS=-lm -ftz -lstdc++ -lumfpack
+#CFLAGS=-O3 -xAVX -fno-fnalias -restrict
+#SFLAGS=-L$//sfs/fs4/work-sh2/sungw331/suitesparse/SuiteSparse/lib
+#IFLAGS=-I$//sfs/fs4/work-sh2/sungw331/suitesparse/SuiteSparse/include -I./../include
 
 # On Desktop computer with LinuxMint 17, OpenMPI and gcc 4.8.2
-#CC=mpicc
-#LFLAGS=-lm -lfftw3 -lstdc++ -lumfpack
-#CFLAGS=-O3 -w -fno-stack-protector -D_FORTIFY_SOURCE=0
-# SFLAGS=-L$//home/daniel-koehn/libs/SuiteSparse/lib
-# IFLAGS=-I$//home/daniel-koehn/libs/SuiteSparse/include -I./../include
-#IFLAGS=-I./../include 
+CC=mpicc
+LFLAGS=-lm -lfftw3 -lstdc++ -lumfpack
+CFLAGS=-O3 -w -fno-stack-protector -D_FORTIFY_SOURCE=0
+SFLAGS=-L$//home/daniel-koehn/libs/SuiteSparse/lib
+IFLAGS=-I$//home/daniel-koehn/libs/SuiteSparse/include -I./../include
 
 # On HLRN system
 #CC=mpcc
@@ -49,7 +48,7 @@ IFLAGS=-I$//sfs/fs4/work-sh2/sungw331/suitesparse/SuiteSparse/include -I./../inc
 .c.o:
 	$(CC) $(CFLAGS) -c $< $(IFLAGS)
 
-VPATH = AC:SH:models
+VPATH = AC:SH:TE:models
 
 FDVEPS_UTIL = \
 	absorb.c \
@@ -114,6 +113,14 @@ GERMAINE+= \
 	init_A_SH_9p_pml.c \
 	pml_pro_SH.c \
 	readmod_SH.c
+
+# add TE source files
+GERMAINE+= \
+	alloc_matTE.c \
+	forward_TE.c \
+	forward_shot_TE.c \
+	init_A_TE_9p_pml.c \
+	readmod_TE.c
 
 GERMAINE_OBJ = $(GERMAINE:%.c=%.o)
 

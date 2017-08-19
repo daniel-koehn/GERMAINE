@@ -119,6 +119,19 @@ if(PHYSICS==2){
 
 }
 
+/* ------------------------ */
+/* PHYSICS = 4 (EM TE-mode) */
+/* ------------------------ */
+
+if(PHYSICS==4){
+
+    /* solve TE-model problem by FDFD */
+    /* -------------------------------------- */
+    if(INVMAT==0){
+        forward_TE(fileinp1);
+    }    
+
+}
 
 MPI_Barrier(MPI_COMM_WORLD);
 

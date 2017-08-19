@@ -30,6 +30,9 @@
 
 /* declaration of data-structures */
 
+/* acoustic variables */
+/* ------------------ */
+
 /* acoustic wavefield variables */
 struct waveAC{
    float freq, dfreq, omega2;
@@ -69,7 +72,8 @@ struct PML_AC{
    float * dampyr, * dampyi, * dampyhr, * dampyhi;
 } PML_AC;
 
-/* elastic SH-wavefield variables */
+/* elastic SH variables */
+/* -------------------- */
 
 /* elastic SH-FWI variables */
 struct fwiSH{
@@ -82,7 +86,15 @@ struct fwiSH{
 /* elastic SH material parameters */
 struct matSH{
    float  **rho, ** vs, ** ivs2, **k2;	
-} matSH; 
+} matSH;
+
+/* TE-mode variables */
+/* ----------------- */
+
+/* TE-mode material parameters */
+struct matTE{
+   float ** sigma, ** epsilon;	
+} matTE; 
 
 
 /* declaration of acoustic functions */
@@ -158,6 +170,18 @@ void init_A_SH_9p_pml(struct PML_AC *PML_AC, struct matSH *matSH, struct waveAC 
 void pml_pro_SH(struct PML_AC *PML_AC, struct waveAC *waveAC, struct matSH *matSH);
 
 void readmod_SH(struct matSH *matSH);
+
+/* declaration of TE-mode functions */
+
+void alloc_matTE(struct matTE *matTE);
+
+void forward_shot_TE(struct waveAC *waveAC, struct PML_AC *PML_AC, struct matTE *matTE, float ** srcpos, int nshots, int ** recpos, int ntr, int nstage, int nfreq);
+
+void forward_TE(char *fileinp1);
+
+void init_A_TE_9p_pml(struct PML_AC *PML_AC, struct matTE *matTE, struct waveAC *waveAC);
+
+void readmod_TE(struct matTE *matTE);
 
 /* declaration of general functions */
 

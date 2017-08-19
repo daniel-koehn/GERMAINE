@@ -459,13 +459,13 @@ void fwi_FD_AC(char *fileinp1){
 	free_matrix(matAC.vp,1,NY,1,NX);
 	free_matrix(matAC.rho,1,NY,1,NX);
 	free_matrix(matAC.ivp2,1,NY,1,NX);
-	/*free_matrix(matAC.k2,1,NY,1,NX);*/
+	free_matrix(matAC.b,1,NY,1,NX);
 
 	/* free memory for source positions */
 	free_matrix(acq.srcpos,1,8,1,nshots);
 
 	/* free memory for receiver positions */
-	free_seis_AC(&waveAC,ntr); 
+	/* free_seis_AC(&waveAC,ntr); */
 
 	if(READ_REC==0){
 

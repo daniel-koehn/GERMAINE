@@ -2,7 +2,7 @@
 
 2D acoustic FDFD modelling, FWI and RTM code, which I developed together with Denise De Nil.
 
-The Frequency Domain Finite-Difference (FDFD) Code GERMAINE solves the 2D isotropic acoustic wave equation using a 9-point mixed-grid FD stencil with PML absorbing boundary conditions according to 
+The Frequency Domain Finite-Difference (FDFD) Code GERMAINE solves the 2D isotropic acoustic/TE-mode wave equation using a 9-point mixed-grid FD stencil with PML absorbing boundary conditions according to 
 
 - Hustedt, B., Operto, S., and Virieux, J. (2004) Mixed-grid and staggered-grid finite difference methods for frequency domain acoustic wave modelling. Geophysical Journal International, 157:1269–1296.
 - Operto, S., Virieux, J., Ribodetti, A. and Anderson, J.A. (2009) Finite-difference frequency-domain modeling of viscoacoustic wave propagation in 2D tilted transversely isotropic (TTI) media. Geophysics 74(5):T75-T95.
