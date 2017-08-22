@@ -19,4 +19,7 @@ void alloc_matTE(struct matTE *matTE){
 	(*matTE).sigma = matrix(1,NY,1,NX);
 	(*matTE).epsilon = matrix(1,NY,1,NX);
 
+	(*matTE).sigmar = matrix(1,NY,1,NX);
+	(*matTE).epsilonr = matrix(1,NY,1,NX);
+
 }

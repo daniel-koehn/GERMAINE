@@ -116,11 +116,23 @@ GERMAINE+= \
 
 # add TE source files
 GERMAINE+= \
+	alloc_fwiTE.c \
 	alloc_matTE.c \
+	ass_grad_TE.c \
+	extract_PCG_TE.c \
 	forward_TE.c \
 	forward_shot_TE.c \
+	fwi_FD_TE.c \
+	grad_obj_TE.c \
+	hessian_shin_TE.c \
+	hessian_TE.c \
 	init_A_TE_9p_pml.c \
-	readmod_TE.c
+	model_out_TE.c \
+	obj_TE.c \
+	parabolicls_TE.c \
+	readmod_TE.c \
+	store_PCG_TE.c \
+	store_PCG_TE_old.c
 
 GERMAINE_OBJ = $(GERMAINE:%.c=%.o)
 

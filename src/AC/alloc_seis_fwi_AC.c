@@ -7,7 +7,7 @@
 
 #include "fd.h"
 
-void alloc_seis_fwi_AC(struct fwiAC *fwiAC, int ntr, int nshots){
+void alloc_seis_fwi_AC(struct waveAC *waveAC, int ntr, int nshots){
 
         /* global variables */
 	extern int NX, NY, NONZERO, NXNY, NF;
@@ -16,8 +16,8 @@ void alloc_seis_fwi_AC(struct fwiAC *fwiAC, int ntr, int nshots){
         int i;
 
         /* allocate memory for receiver vector */
-	(*fwiAC).pobsr = vector(1,ntr*NF*nshots);
-	(*fwiAC).pobsi = vector(1,ntr*NF*nshots);
+	(*waveAC).pobsr = vector(1,ntr*NF*nshots);
+	(*waveAC).pobsi = vector(1,ntr*NF*nshots);
 
 }
 

@@ -7,7 +7,7 @@
 
 #include "fd.h"
 
-void read_seis_AC(struct fwiAC *fwiAC, int nshots, int ntr, int nstage){
+void read_seis_AC(struct waveAC *waveAC, int nshots, int ntr, int nstage){
 
 	/* global variables */
         extern char DATA_DIR[STRING_SIZE];        
@@ -36,8 +36,8 @@ void read_seis_AC(struct fwiAC *fwiAC, int nshots, int ntr, int nstage){
 	            fread(&tmp, sizeof(float), 1, fp);
 	            fread(&tmp1, sizeof(float), 1, fp);
 
-		    (*fwiAC).pobsr[index] = tmp;
-		    (*fwiAC).pobsi[index] = tmp1; 
+		    (*waveAC).pobsr[index] = tmp;
+		    (*waveAC).pobsi[index] = tmp1; 
 
 		}
 	    }

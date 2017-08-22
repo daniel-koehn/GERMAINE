@@ -7,7 +7,7 @@
 
 #include "fd.h"
 
-void RHS_source_AC_hess(struct waveAC *waveAC, struct fwiAC *fwiAC, int ** recpos, int trace){
+void RHS_source_AC_hess(struct waveAC *waveAC, int ** recpos, int trace){
 
 	extern int NX, NY, NXNY, NPML, FSSHIFT;
         extern float DH;

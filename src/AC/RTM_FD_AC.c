@@ -92,8 +92,8 @@ void RTM_FD_AC(char *fileinp1){
 
 	    acq.recpos=receiver(FP, &ntr, 1);
 
-	    fwiAC.presr = vector(1,ntr);
- 	    fwiAC.presi = vector(1,ntr);		                         
+	    waveAC.presr = vector(1,ntr);
+ 	    waveAC.presi = vector(1,ntr);		                         
 
 	}
 
@@ -198,8 +198,8 @@ void RTM_FD_AC(char *fileinp1){
                    free_vector(waveAC.precr,1,ntr*NF*nshots);
             	   free_vector(waveAC.preci,1,ntr*NF*nshots);
 
-            	   free_vector(fwiAC.pobsr,1,ntr*NF*nshots);
-                   free_vector(fwiAC.pobsi,1,ntr*NF*nshots);
+            	   free_vector(waveAC.pobsr,1,ntr*NF*nshots);
+                   free_vector(waveAC.pobsi,1,ntr*NF*nshots);
 
 		}
 

@@ -7,7 +7,7 @@
 
 #include "fd.h"
 
-void RHS_source_AC_adj(struct waveAC *waveAC, struct fwiAC *fwiAC, int ** recpos, int ntr){
+void RHS_source_AC_adj(struct waveAC *waveAC, int ** recpos, int ntr){
 
 	extern int NX, NY, NXNY, NPML, FSSHIFT;
         extern float DH;
@@ -30,8 +30,8 @@ void RHS_source_AC_adj(struct waveAC *waveAC, struct fwiAC *fwiAC, int ** recpos
 	    // printf("k_rec = %d \n",k_rec);
 
             /* Define adjoint source */
-	    (*waveAC).RHSr[k_rec] = (*fwiAC).presr[i]/(DH*DH);
-            (*waveAC).RHSi[k_rec] = -(*fwiAC).presi[i]/(DH*DH);
+	    (*waveAC).RHSr[k_rec] = (*waveAC).presr[i]/(DH*DH);
+            (*waveAC).RHSi[k_rec] = -(*waveAC).presi[i]/(DH*DH);
 
 	}
 

@@ -41,14 +41,14 @@ struct waveAC{
    float *stage_freq;
    double *RHSr, *RHSi, *Ar, *Ai;
    int *irow, *icol;
+   float * presr, * presi, * pobsr, * pobsi;
+   float stfr, stfi;
 } waveAC; 
 
 /* acoustic FWI variables */
 struct fwiAC{
    float  ** lam, ** vp_old, ** grad, ** Hgrad, ** gradm, **hess;
    float ** forwardr, ** forwardi;
-   float * presr, * presi, * pobsr, * pobsi;
-   float stfr, stfi;
 } fwiAC;
 
 /* acoustic material parameters */
@@ -93,9 +93,17 @@ struct matSH{
 
 /* TE-mode material parameters */
 struct matTE{
-   float ** sigma, ** epsilon;	
+   float ** sigma, ** epsilon;
+   float ** sigmar, ** epsilonr;
 } matTE; 
 
+/* TE-mode FWI variables */
+struct fwiTE{
+   float  ** sigma_old, ** epsilon_old; 
+   float  ** grad_sigma, ** grad_epsilon, ** gradm_sigma, ** gradm_epsilon;
+   float  ** Hgrad_sigma, ** Hgrad_epsilon,  ** hess_sigma, ** hess_epsilon;
+   float ** forwardr, ** forwardi;
+} fwiTE;
 
 /* declaration of acoustic functions */
 
@@ -105,7 +113,7 @@ void alloc_matAC(struct matAC *matAC);
 
 void alloc_seis_AC(struct waveAC *waveAC, int ntr, int nshots);
 
-void alloc_seis_fwi_AC(struct fwiAC *fwiAC, int ntr, int nshots);
+void alloc_seis_fwi_AC(struct waveAC *waveAC, int ntr, int nshots);
 
 void alloc_waveAC(struct waveAC *waveAC, struct PML_AC *PML_AC);
 
@@ -113,7 +121,7 @@ void apply_hess_AC(float ** grad, float ** hess);
 
 void ass_grad_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct matAC *matAC, float ** grad_shot, float **srcpos,  int nshots, int **recpos, int ntr, int ishot);
 
-float calc_res_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, int ntr, int ishot, int nstage, int nfreq);
+float calc_res_AC(struct waveAC *waveAC, int ntr, int ishot, int nstage, int nfreq);
 
 void calc_seis_AC(struct waveAC *waveAC, int ** recpos, int ntr, int ishot, int nshots, int nfreq);
 
@@ -141,11 +149,13 @@ float obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, 
 
 float parabolicls_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC *matAC, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage, float alpha, float L2);
 
-void read_seis_AC(struct fwiAC *fwiAC, int nshots, int ntr, int nstage);
+void read_seis_AC(struct waveAC *waveAC, int nshots, int ntr, int nstage);
 
 void RHS_source_AC(struct waveAC *waveAC, float ** srcpos, int ishot);
 
-void RHS_source_AC_adj(struct waveAC *waveAC, struct fwiAC *fwiAC, int ** recpos, int ntr);
+void RHS_source_AC_adj(struct waveAC *waveAC, int ** recpos, int ntr);
+
+void RHS_source_AC_hess(struct waveAC *waveAC, int ** recpos, int trace);
 
 void RTM_FD_AC(char *fileinp1);
 
@@ -173,15 +183,43 @@ void readmod_SH(struct matSH *matSH);
 
 /* declaration of TE-mode functions */
 
+void alloc_fwiTE(struct fwiTE *fwiTE, int ntr);
+
 void alloc_matTE(struct matTE *matTE);
+
+void alloc_seis_fwi_TE(struct fwiTE *fwiTE, int ntr, int nshots);
+
+void ass_grad_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct matTE *matTE, float ** grad_shot_sigma, float ** grad_shot_epsilon, float **srcpos,  int nshots, int **recpos, int ntr, int ishot);
+
+void extract_PCG_TE(float * PCG_old, struct fwiTE *fwiTE);
 
 void forward_shot_TE(struct waveAC *waveAC, struct PML_AC *PML_AC, struct matTE *matTE, float ** srcpos, int nshots, int ** recpos, int ntr, int nstage, int nfreq);
 
 void forward_TE(char *fileinp1);
 
+void fwi_FD_TE(char *fileinp1);
+
+float grad_obj_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matTE *matTE, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage);
+
+void hessian_shin_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matTE *matTE, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage);
+
+void hessian_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matTE *matTE, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage);
+
 void init_A_TE_9p_pml(struct PML_AC *PML_AC, struct matTE *matTE, struct waveAC *waveAC);
 
+void model_out_TE(struct matTE *matTE, int nstage, int stage_switch);
+
+float obj_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matTE *matTE, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage);
+
+float parabolicls_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matTE *matTE, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage, float alpha, float L2);
+
 void readmod_TE(struct matTE *matTE);
+
+void read_seis_TE(struct fwiTE *fwiTE, int nshots, int ntr, int nstage);
+
+void store_PCG_TE(float * PCG_new, struct fwiTE *fwiTE);
+
+void store_PCG_TE_old(float * PCG_old, struct fwiTE *fwiTE);
 
 /* declaration of general functions */
 
@@ -190,6 +228,8 @@ void av_rho(struct matAC *matAC, int i, int j);
 float calc_mat_change(float  **  waveconv, float **  pi, float **  pinp1, int iter, float eps_scale, int itest, int nfstart);
 
 void calc_mat_change_wolfe(float  **  Hgrad, float **  vp, float **  vp_old, float eps_scale, int itest);
+
+void calc_mat_change_wolfe_multi_para(float  **  Hgrad, float **  vp, float **  vp_old, float eps_scale, int para_index);
 
 void calc_nonzero();
 
@@ -266,6 +306,8 @@ void read_stf_dft(struct waveAC *waveAC, float *amp);
 int **receiver(FILE *fp, int *ntr, int ishot);
 
 void rot_LBFGS_vec(float * y_LBFGS, float * s_LBFGS, int NLBFGS, int NLBFGS_vec);
+
+void scale_grad(float ** A, float a, float ** B, int n, int m);
 
 float **sources(int *nsrc);
 

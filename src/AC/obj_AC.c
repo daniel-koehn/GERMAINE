@@ -84,8 +84,8 @@ float obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, 
 
 			acq.recpos=receiver(FP, &ntr, 1);
 
-		        (*fwiAC).presr = vector(1,ntr);
-		        (*fwiAC).presi = vector(1,ntr);			                         
+		        (*waveAC).presr = vector(1,ntr);
+		        (*waveAC).presi = vector(1,ntr);			                         
 
 	      	     }	
 
@@ -110,13 +110,13 @@ float obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, 
 
 		     /* calculate FD residuals at receiver positions */
 		     /* -------------------------------------------- */
-		     L2 += calc_res_AC(fwiAC,waveAC,ntr,ishot,nstage,nfreq);		     
+		     L2 += calc_res_AC(waveAC,ntr,ishot,nstage,nfreq);		     
 
 		     /* de-allocate memory */
 		     if(READ_REC==1){
 		        free_imatrix(acq.recpos,1,3,1,ntr);
-		        free_vector((*fwiAC).presr,1,ntr);
-		        free_vector((*fwiAC).presi,1,ntr);
+		        free_vector((*waveAC).presr,1,ntr);
+		        free_vector((*waveAC).presi,1,ntr);
 		        ntr=0;
 		     }
 

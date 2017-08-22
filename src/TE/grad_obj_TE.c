@@ -1,26 +1,26 @@
 /*------------------------------------------------------------------------
- *  Calculate gradient and objective function value
+ *  Calculate gradient and objective function value for TE-mode problem
  *
  *  D. Koehn
- *  Kiel, 29.06.2016
+ *  Kiel, 20.08.2017
  *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
 
-float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matAC *matAC, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage){
+float grad_obj_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matTE *matTE, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage){
 
 	/* declaration of global variables */
         extern int SEISMO, NX, NY, NSHOT1, NSHOT2, NF, INFO, NONZERO, NXNY;
         extern int SEISMO, MYID, INFO, NF, N_STREAMER, READ_REC;
 	extern int SPATFILTER, SWS_TAPER_GRAD_HOR, SWS_TAPER_FILE;
 	extern int NFREQ1, NFREQ2;
-        extern float DH, FC_low, FC_high;
+        extern float DH, FC_low, FC_high, MAT1_NORM, MAT2_NORM;
 	extern char SNAP_FILE[STRING_SIZE];
 	extern FILE *FP;
     
         /* declaration of local variables */
         int ishot, i, nfreq; 
-        float L2sum, L2, ** grad_shot;
+        float L2sum, L2, ** grad_shot_sigma, ** grad_shot_epsilon;
         int status, nxsrc, nysrc;
     	double *null = (double *) NULL ;
 	int     *Ap, *Ai;
@@ -37,13 +37,15 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 	xr = malloc(sizeof(double)*NONZERO);
 	xi = malloc(sizeof(double)*NONZERO);	
 
-        grad_shot =  matrix(1,NY,1,NX);
+        grad_shot_sigma =  matrix(1,NY,1,NX);
+        grad_shot_epsilon =  matrix(1,NY,1,NX);
 
         /* suppress modelled seismogram output during FWI */
         SEISMO = 0;
 
 	/* set gradient matrix and objective function to zero before next iteration */
-	init_grad((*fwiAC).grad);
+	init_grad((*fwiTE).grad_sigma);
+	init_grad((*fwiTE).grad_epsilon);
         L2 = 0.0;
 
 	/* loop over frequencies at each stage */
@@ -55,10 +57,8 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 		/* define PML damping profiles */
 		pml_pro(PML_AC,waveAC);
 
-		init_mat_AC(waveAC,matAC);
-
 		/* assemble acoustic impedance matrix */
-		init_A_AC_9p_pml(PML_AC,matAC,waveAC);	
+		init_A_TE_9p_pml(PML_AC,matTE,waveAC);	
 
 		/* convert triplet to compressed sparse column format */
 		status = umfpack_zi_triplet_to_col(NXNY,NXNY,NONZERO,(*waveAC).irow,(*waveAC).icol,(*waveAC).Ar,(*waveAC).Ai,Ap,Ai,Ax,Az,NULL);
@@ -99,7 +99,8 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 		for (ishot=NSHOT1;ishot<NSHOT2;ishot++){
 
 		     /* set gradient for each shot to zero before next iteration */
-		     init_grad(grad_shot);  
+		     init_grad(grad_shot_sigma);
+  		     init_grad(grad_shot_epsilon);
 
 		     /* solve forward problem by FDFD */
                      /* ----------------------------- */
@@ -124,14 +125,14 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 		     vec2mat((*waveAC).pr,(*waveAC).pi,xr,xi);
 
 		     /*sprintf(filename,"%s_for_shot_%d.bin",SNAP_FILE,ishot);
-		     writemod(filename,(*waveAC).pr,3);*/
+		     writemod(filename,(*waveTE).pr,3);*/
 
 		     /* calculate seismograms at receiver positions */
 		     calc_seis_AC(waveAC,acq.recpos,ntr,ishot,nshots,nfreq);
 
 		     /* store forward wavefield */
-		     store_mat((*waveAC).pr, (*fwiAC).forwardr, NX, NY);
-		     store_mat((*waveAC).pi, (*fwiAC).forwardi, NX, NY);
+		     store_mat((*waveAC).pr, (*fwiTE).forwardr, NX, NY);
+		     store_mat((*waveAC).pi, (*fwiTE).forwardi, NX, NY);
 
 		     /* calculate FD residuals at receiver positions */
 		     /* -------------------------------------------- */
@@ -153,7 +154,7 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
 		     writemod(filename,(*waveAC).pr,3);*/
 
 		     /* assemble gradient for each shot */
-		     ass_grad_AC(fwiAC, waveAC, matAC, grad_shot, srcpos, nshots, acq.recpos, ntr, ishot);
+		     ass_grad_TE(fwiTE, waveAC, matTE, grad_shot_sigma, grad_shot_epsilon, srcpos, nshots, acq.recpos, ntr, ishot);
 
 		     /* de-allocate memory */
 		     if(READ_REC==1){
@@ -172,19 +173,27 @@ float grad_obj_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, struct PML_AC *PML
         /* assemble objective function from all MPI processes */
 	/* printf("L2 before MPI_Allreduce = %e  on MYID = %d \n", L2, MYID); */
 
-	/* Assemble gradient from all MPI processes  */
-	sum_grad_MPI((*fwiAC).grad);
-	cp_grad_frame((*fwiAC).grad);
+	/* Assemble gradients from all MPI processes  */
+	sum_grad_MPI((*fwiTE).grad_sigma);
+	cp_grad_frame((*fwiTE).grad_sigma);
+
+	sum_grad_MPI((*fwiTE).grad_epsilon);
+	cp_grad_frame((*fwiTE).grad_epsilon);
 
 	L2sum = 0.0;
         MPI_Barrier(MPI_COMM_WORLD);
 	MPI_Allreduce(&L2,&L2sum,1,MPI_FLOAT,MPI_SUM,MPI_COMM_WORLD);
-        L2 = 0.5 * L2sum;	
+        L2 = 0.5 * L2sum;
+
+	/* calculate gradients for normalized material parameters */	
+	scale_grad((*fwiTE).grad_sigma,MAT1_NORM,(*fwiTE).grad_sigma,NX,NY);
+	scale_grad((*fwiTE).grad_epsilon,MAT2_NORM,(*fwiTE).grad_epsilon,NX,NY);
 
 	/* printf("L2 after MPI_Allreduce = %e  on MYID = %d \n", L2, MYID); */
 
         /* deallocate memory */
-        free_matrix(grad_shot,1,NY,1,NX);
+        free_matrix(grad_shot_sigma,1,NY,1,NX);
+        free_matrix(grad_shot_epsilon,1,NY,1,NX);
 
 	/* free memory */
     	free(Ap); free(Ai); free(Ax); free(Az); free(xr); free(xi);

@@ -1,13 +1,13 @@
 /*------------------------------------------------------------------------
- *  Acoustic FDFD Full Waveform Inversion
+ *  TE-mode FDFD Full Waveform Inversion
  *
  *  D. Koehn
- *  Kiel, 17.05.2017
+ *  Kiel, 20.08.2017
  *  ----------------------------------------------------------------------*/
 
 #include "fd.h"
 
-void fwi_FD_AC(char *fileinp1){
+void fwi_FD_TE(char *fileinp1){
 
 	/* declaration of global variables */
         extern int NX, NY, NSHOT1, NSHOT2, GRAD_METHOD, NLBFGS, MYID, ITERMAX, LINESEARCH;
@@ -15,7 +15,7 @@ void fwi_FD_AC(char *fileinp1){
 	extern int NX0, NY0, NPML, READ_REC, HESSIAN, FSSHIFT, NSHOTS;
         extern int NPROCFREQ, NPROCSHOT, NP, MYID_SHOT, NSHOT1, NSHOT2, COLOR, NF;
         extern char MISFIT_LOG_FILE[STRING_SIZE], LOG_FILE[STRING_SIZE];
-        extern float PRO, A0_PML, FC_high, FC_low;
+        extern float PRO, A0_PML, FC_high, FC_low, MAT1_NORM, MAT2_NORM;
 
 	extern FILE *FP;
     
@@ -73,15 +73,15 @@ void fwi_FD_AC(char *fileinp1){
 	/* Calculate number of non-zero elements in impedance matrix */
 	calc_nonzero();
 
-	/* define data structures for acoustic problem */
+	/* define data structures for TE-mode problem */
 	struct waveAC;
-	struct matAC;
+	struct matTE;
 	struct PML_AC;
 	struct acq;
 
-	/* allocate memory for acoustic forward problem */
+	/* allocate memory for TE-mode forward problem */
 	alloc_waveAC(&waveAC,&PML_AC);
-	alloc_matAC(&matAC);
+	alloc_matTE(&matTE);
 
 	/* If INVMAT!=0 deactivate unnecessary output */
 	INFO=0;
@@ -106,11 +106,11 @@ void fwi_FD_AC(char *fileinp1){
 
 	}
 
-	/* read/create P-wave velocity */
+	/* read/create sigma and epsilon models */
 	if (READMOD){
-	    readmod(&matAC); 
+	    readmod_TE(&matTE); 
 	}else{
-	    model(matAC.vp);
+	    /*model(matAC.vp);*/
 	}
 
 	/* read parameters from workflow-file (stdin) */
@@ -140,7 +140,7 @@ void fwi_FD_AC(char *fileinp1){
 	/* Variables for PCG method */
 	if(GRAD_METHOD==1){
 
-	  PCG_class = 1;                 /* number of parameter classes */ 
+	  PCG_class = 2;                 /* number of parameter classes */ 
 	  PCG_vec = PCG_class*NX*NY;  	 /* length of one PCG-parameter class */
 	  
 	  PCG_old  =  vector(1,PCG_vec);
@@ -152,7 +152,7 @@ void fwi_FD_AC(char *fileinp1){
 	/* Variables for the l-BFGS method */
 	if(GRAD_METHOD==2){
 
-	  NLBFGS_class = 1;                 /* number of parameter classes */ 
+	  NLBFGS_class = 2;                 /* number of parameter classes */ 
 	  NLBFGS_vec = NLBFGS_class*NX*NY;  /* length of one LBFGS-parameter class */
 	  LBFGS_pointer = 1;                /* initiate pointer in the cyclic LBFGS-vectors */
 	  
@@ -168,15 +168,12 @@ void fwi_FD_AC(char *fileinp1){
 	  
 	}
 
-	/* define data structures and allocate memory for acoustic FWI problem */
-	struct fwiAC;
-	alloc_fwiAC(&fwiAC,ntr);
+	/* define data structures and allocate memory for TE-mode FWI problem */
+	struct fwiTE;
+	alloc_fwiTE(&fwiTE,ntr);
 
 	/* memory of L2 norm */
 	L2t = vector(1,4);
-
-	/* initiate vp, ivp2, k2 */
-	init_mat_AC(&waveAC,&matAC);
 
 	iter_true=1;
 	/* Begin of FWI inversion workflow */
@@ -186,8 +183,9 @@ void fwi_FD_AC(char *fileinp1){
 		FP_stage=fopen(fileinp1,"r");
 		read_par_inv(FP_stage,nstage,stagemax);
 
-		/* estimate frequency sample interval */
-		waveAC.dfreq = (FC_high-FC_low) / (NF-1);
+		/* estimate frequency sample interval */		
+		if(NF>1){waveAC.dfreq = (FC_high-FC_low) / (NF-1);}
+		else{waveAC.dfreq = (FC_high-FC_low) / NF;}
 
 		/* estimate frequencies for current FWI stage */
 		waveAC.stage_freq = vector(1,NF);
@@ -258,8 +256,8 @@ void fwi_FD_AC(char *fileinp1){
 			   /* FD Full Waveform Inversion (FWI) */
 			   /* -------------------------------- */
 
-			   /* calculate Vp gradient and objective function */
- 			   L2 = grad_obj_AC(&fwiAC,&waveAC,&PML_AC,&matAC,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage);
+			   /* calculate sigma and epsilon gradient and objective function */
+ 			   L2 = grad_obj_TE(&fwiTE,&waveAC,&PML_AC,&matTE,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage);
 			   L2t[1] = L2;
 
 			   /* calculate and apply approximate Hessian at first iteration of each frequency group */
@@ -267,27 +265,32 @@ void fwi_FD_AC(char *fileinp1){
 
 			       /* calculate approximate Hessian */
 			       if((HESSIAN==1)&&(iter==1)){
-			           hessian_AC(&fwiAC,&waveAC,&PML_AC,&matAC,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage);
+			           hessian_TE(&fwiTE,&waveAC,&PML_AC,&matTE,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage);
 			       }
 			       
 			       /* calculate Pseudo-Hessian */
 			       if((HESSIAN==2)&&(iter==1)){
-			           hessian_shin_AC(&fwiAC,&waveAC,&PML_AC,&matAC,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage);
+			           hessian_shin_TE(&fwiTE,&waveAC,&PML_AC,&matTE,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage);
 			       }
 
-   			       /* apply approximate Hessian to gradient */			    
-			       apply_hess_AC(fwiAC.grad,fwiAC.hess);
+   			       /* apply approximate Hessians to gradients */			    
+			       apply_hess_AC(fwiTE.grad_sigma,fwiTE.hess_sigma);
+			       apply_hess_AC(fwiTE.grad_epsilon,fwiTE.hess_epsilon);
 
 			   }
 
-			   /* apply smoothing and taper functions to gradient */
-			   precond(fwiAC.grad);
+			   /* apply smoothing and taper functions to gradients */
+			   precond(fwiTE.grad_sigma);
+			   precond(fwiTE.grad_epsilon);
 
-			   /* calculate descent directon gradm from gradient grad */
-			   cp_grad_frame(fwiAC.grad);
-			   descent(fwiAC.grad,fwiAC.gradm);
+			   /* calculate descent directon gradm from gradients */
+			   cp_grad_frame(fwiTE.grad_sigma);
+			   cp_grad_frame(fwiTE.grad_epsilon);
 
-			   /* estimate search direction waveconv with ... */
+			   descent(fwiTE.grad_sigma,fwiTE.gradm_sigma);
+			   descent(fwiTE.grad_epsilon,fwiTE.gradm_epsilon);
+
+			   /* estimate search direction Hgrad with ... */
 
 			   /* ... non-linear preconditioned conjugate gradient method */
 			   if(GRAD_METHOD==1){
@@ -295,46 +298,47 @@ void fwi_FD_AC(char *fileinp1){
 			       MPI_Barrier(MPI_COMM_WORLD);	
 	    
 			       /* store current steepest decent direction in PCG_new vector */
-			       store_PCG_AC(PCG_new,fwiAC.gradm);
+			       store_PCG_TE(PCG_new,&fwiTE);
 
 			       /* apply PCG method */
 			       PCG(PCG_new,PCG_old,PCG_dir,PCG_class);
 
 			       /* extract CG-search directions */
-			       extract_PCG_AC(PCG_dir,fwiAC.Hgrad);
+			       extract_PCG_TE(PCG_dir,&fwiTE);
 
 			       /* store old steepest descent direction in PCG_old vector */
-			       store_PCG_AC(PCG_old,fwiAC.gradm);
+			       store_PCG_TE_old(PCG_old,&fwiTE);
 
 			   }
 
 			   /* ... quasi-Newton l-BFGS method */
-			   if(GRAD_METHOD==2){                              
+			   /*if(GRAD_METHOD==2){                              
   			      MPI_Barrier(MPI_COMM_WORLD);
 			      LBFGS(fwiAC.Hgrad,fwiAC.grad,fwiAC.gradm,iter,y_LBFGS,s_LBFGS,rho_LBFGS,alpha_LBFGS,matAC.vp,q_LBFGS,r_LBFGS,beta_LBFGS,LBFGS_pointer,NLBFGS,NLBFGS_vec);
-			   }
+			   }*/
 
                            /* ... Descent method */
                            if(GRAD_METHOD==3){
                               MPI_Barrier(MPI_COMM_WORLD);
-                              descent(fwiAC.grad,fwiAC.Hgrad);
+                              descent(fwiTE.grad_sigma,fwiTE.Hgrad_sigma);
+                              descent(fwiTE.grad_epsilon,fwiTE.Hgrad_epsilon);
                            }
 
 			   /* check if search direction is a descent direction, otherwise reset l-BFGS history */
-			   check_descent(fwiAC.Hgrad,fwiAC.grad,NLBFGS_vec,y_LBFGS,s_LBFGS,iter);
+			   /* check_descent(fwiAC.Hgrad,fwiAC.grad,NLBFGS_vec,y_LBFGS,s_LBFGS,iter);*/
 
 			   /* Estimate optimum step length ... */
 			   MPI_Barrier(MPI_COMM_WORLD);
 
 			   /* ... by line search which satisfies the Wolfe conditions */
-                           if(LINESEARCH==1){
+                           /*if(LINESEARCH==1){
                               eps_scale=wolfels_AC(&fwiAC,&waveAC,&PML_AC,&matAC,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage,eps_scale,L2);
-			   }
+			   }*/
 			   
 			   
 			   /* ... by inexact parabolic line search */
                            if(LINESEARCH==2){
-			      eps_scale = parabolicls_AC(&fwiAC,&waveAC,&PML_AC,&matAC,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage,eps_scale,L2);
+			      eps_scale = parabolicls_TE(&fwiTE,&waveAC,&PML_AC,&matTE,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage,eps_scale,L2);
 			   }
 			   
 
@@ -347,10 +351,23 @@ void fwi_FD_AC(char *fileinp1){
 
 			   /* calculate optimal change of the material parameters */
                            MPI_Barrier(MPI_COMM_WORLD);
-          
-			   /* copy vp -> vp_old */
-	  		   store_mat(matAC.vp,fwiAC.vp_old,NX,NY);
-			   calc_mat_change_wolfe(fwiAC.Hgrad,matAC.vp,fwiAC.vp_old,eps_scale,0);
+
+			   /* apply optimum material parameter update */          
+
+			   /* normalize material parameters */
+			   scale_grad(matTE.sigma,1.0/MAT1_NORM,matTE.sigmar,NX,NY);
+			   scale_grad(matTE.epsilon,1.0/MAT2_NORM,matTE.epsilonr,NX,NY);
+
+          		   /* update sigmar and epsilonr */
+	  		   calc_mat_change_wolfe_multi_para(fwiTE.Hgrad_sigma,matTE.sigmar,matTE.sigmar,eps_scale,1);
+	  		   calc_mat_change_wolfe_multi_para(fwiTE.Hgrad_epsilon,matTE.epsilonr,matTE.epsilonr,eps_scale,2);
+
+          		   /* convert sigmar -> sigma and epsilonr -> epsilon */
+	  		   scale_grad(matTE.sigmar,MAT1_NORM,matTE.sigma,NX,NY);
+	  		   scale_grad(matTE.epsilonr,MAT2_NORM,matTE.epsilon,NX,NY);
+
+			   /* model output */
+			   model_out_TE(&matTE,nstage,0);			   
 
 			    if(MYID==0){
 			       fclose(FPL2);
@@ -375,7 +392,7 @@ void fwi_FD_AC(char *fileinp1){
 			    if((diff<=PRO)||(eps_scale<1e-20)||(iter==ITERMAX)){
 	
 			       /* model output at the end of given workflow stage */
-			       model_out(matAC.vp,nstage);
+			       model_out_TE(&matTE,nstage,1);
 			       iter=0;
 
 			       if(GRAD_METHOD==2){
@@ -432,13 +449,20 @@ void fwi_FD_AC(char *fileinp1){
         free_vector(L2t,1,4);
 
         /* free memory for gradient */
-        free_matrix(fwiAC.lam,1,NY,1,NX);
-        free_matrix(fwiAC.grad,1,NY,1,NX);
-        free_matrix(fwiAC.gradm,1,NY,1,NX);
-   	free_matrix(fwiAC.Hgrad,1,NY,1,NX);
-	free_matrix(fwiAC.vp_old,1,NY,1,NX);
-	free_matrix(fwiAC.forwardr,1,NY,1,NX);
-	free_matrix(fwiAC.forwardi,1,NY,1,NX);
+        free_matrix(fwiTE.grad_sigma,1,NY,1,NX);
+        free_matrix(fwiTE.grad_epsilon,1,NY,1,NX);
+
+        free_matrix(fwiTE.gradm_sigma,1,NY,1,NX);
+        free_matrix(fwiTE.gradm_epsilon,1,NY,1,NX);
+
+   	free_matrix(fwiTE.Hgrad_sigma,1,NY,1,NX);
+   	free_matrix(fwiTE.Hgrad_epsilon,1,NY,1,NX);
+
+	free_matrix(fwiTE.sigma_old,1,NY,1,NX);
+	free_matrix(fwiTE.epsilon_old,1,NY,1,NX);
+
+	free_matrix(fwiTE.forwardr,1,NY,1,NX);
+	free_matrix(fwiTE.forwardi,1,NY,1,NX);
 
 	/* free memory for l-BFGS */
 	if(GRAD_METHOD==2){
@@ -456,10 +480,11 @@ void fwi_FD_AC(char *fileinp1){
 	}
 
 	/* deallocation of memory */
-	free_matrix(matAC.vp,1,NY,1,NX);
-	free_matrix(matAC.rho,1,NY,1,NX);
-	free_matrix(matAC.ivp2,1,NY,1,NX);
-	free_matrix(matAC.b,1,NY,1,NX);
+	free_matrix(matTE.sigma,1,NY,1,NX);
+	free_matrix(matTE.epsilon,1,NY,1,NX);
+
+	free_matrix(matTE.sigmar,1,NY,1,NX);
+	free_matrix(matTE.epsilonr,1,NY,1,NX);
 
 	/* free memory for source positions */
 	free_matrix(acq.srcpos,1,8,1,nshots);

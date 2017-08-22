@@ -7,7 +7,7 @@
 
 #include "fd.h"
 
-float calc_res_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, int ntr, int ishot, int nstage, int nfreq){
+float calc_res_AC(struct waveAC *waveAC, int ntr, int ishot, int nstage, int nfreq){
 
         /* global variables */
 	extern int STF_INV, INVMAT, MISFIT, NSHOTS;
@@ -32,8 +32,8 @@ float calc_res_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, int ntr, int ishot
 		
 	       /* estimate nominator and denominator of Wiener deconvolution */
 	    
-	       wiennom += conj((*waveAC).precr[index] + (*waveAC).preci[index] * I) * ((*fwiAC).pobsr[index] + (*fwiAC).pobsi[index] * I);
-	       wiendenom += conj((*fwiAC).pobsr[index] + (*fwiAC).pobsi[index] * I) * ((*fwiAC).pobsr[index] + (*fwiAC).pobsi[index] * I);
+	       wiennom += conj((*waveAC).precr[index] + (*waveAC).preci[index] * I) * ((*waveAC).pobsr[index] + (*waveAC).pobsi[index] * I);
+	       wiendenom += conj((*waveAC).pobsr[index] + (*waveAC).pobsi[index] * I) * ((*waveAC).pobsr[index] + (*waveAC).pobsi[index] * I);
 	          	    
 	   }
 
@@ -46,10 +46,10 @@ float calc_res_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, int ntr, int ishot
 	    wien = 1.0 + 0.0 * I;
         }
 
-        (*fwiAC).stfr = creal(wien);
-        (*fwiAC).stfi = cimag(wien);
+        (*waveAC).stfr = creal(wien);
+        (*waveAC).stfi = cimag(wien);
 
-	/* printf("stfr = %e \t stfi = %e \n",(*fwiAC).stfr,(*fwiAC).stfi); */
+	/* printf("stfr = %e \t stfi = %e \n",(*waveAC).stfr,(*waveAC).stfi); */
 
 	for(i=1;i<=ntr;i++){
 
@@ -60,28 +60,28 @@ float calc_res_AC(struct fwiAC *fwiAC, struct waveAC *waveAC, int ntr, int ishot
 	    if(INVMAT==1){
 		
 		if(MISFIT==1){ /* L2-norm */
-	            res = (((*fwiAC).pobsr[index] + (*fwiAC).pobsi[index] * I) - (wien*((*waveAC).precr[index] + (*waveAC).preci[index] * I)))/cabsf(wien);
+	            res = (((*waveAC).pobsr[index] + (*waveAC).pobsi[index] * I) - (wien*((*waveAC).precr[index] + (*waveAC).preci[index] * I)))/cabsf(wien);
 		}
 
 		if(MISFIT==2){ /* logarithmic L2-norm (Shin and Min 2006) */
-	            res = clogf((*fwiAC).pobsr[index] + (*fwiAC).pobsi[index] * I) - clogf((*waveAC).precr[index] + (*waveAC).preci[index] * I);
+	            res = clogf((*waveAC).pobsr[index] + (*waveAC).pobsi[index] * I) - clogf((*waveAC).precr[index] + (*waveAC).preci[index] * I);
 		}
 
 		if(MISFIT==3){ /* phase-only residuals (Bednar et al. 2007) */
-	            res = cargf((*waveAC).precr[index] + (*waveAC).preci[index] * I) - cargf((*fwiAC).pobsr[index] + (*fwiAC).pobsi[index] * I);
+	            res = cargf((*waveAC).precr[index] + (*waveAC).preci[index] * I) - cargf((*waveAC).pobsr[index] + (*waveAC).pobsi[index] * I);
 		}
 
 	    }
 
     	    /* ... for FDFD-RTM */
-	    if(INVMAT==2){res = (*fwiAC).pobsr[index] + (*fwiAC).pobsi[index] * I;}
+	    if(INVMAT==2){res = (*waveAC).pobsr[index] + (*waveAC).pobsi[index] * I;}
 
-	        (*fwiAC).presr[i] = creal(res);
-	        (*fwiAC).presi[i] = cimag(res);
+	        (*waveAC).presr[i] = creal(res);
+	        (*waveAC).presi[i] = cimag(res);
 
-	    if(((*fwiAC).pobsr[index]<1e-20)&&((*fwiAC).pobsi[index]<1e-20)){
-                (*fwiAC).presr[i] = 0.0;
-	    	(*fwiAC).presi[i] = 0.0;
+	    if(((*waveAC).pobsr[index]<1e-20)&&((*waveAC).pobsi[index]<1e-20)){
+                (*waveAC).presr[i] = 0.0;
+	    	(*waveAC).presi[i] = 0.0;
 	    }
 
             /* calculate objective function */

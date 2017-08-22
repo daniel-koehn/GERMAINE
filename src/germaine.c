@@ -125,10 +125,16 @@ if(PHYSICS==2){
 
 if(PHYSICS==4){
 
-    /* solve TE-model problem by FDFD */
+    /* solve TE-mode problem by FDFD */
     /* -------------------------------------- */
     if(INVMAT==0){
         forward_TE(fileinp1);
+    }
+
+    /* 2D TE-mode FDFD Full Waveform Inversion */
+    /* --------------------------------------- */
+    if(INVMAT==1){
+        fwi_FD_TE(fileinp1);
     }    
 
 }
