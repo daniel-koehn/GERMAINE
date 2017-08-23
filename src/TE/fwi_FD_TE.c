@@ -12,10 +12,11 @@ void fwi_FD_TE(char *fileinp1){
 	/* declaration of global variables */
         extern int NX, NY, NSHOT1, NSHOT2, GRAD_METHOD, NLBFGS, MYID, ITERMAX, LINESEARCH;
 	extern int NXG, NYG, NXNY, LOG, N_STREAMER, INFO, INVMAT, READMOD;
-	extern int NX0, NY0, NPML, READ_REC, HESSIAN, FSSHIFT, NSHOTS;
+	extern int NX0, NY0, NPML, READ_REC, HESSIAN, FSSHIFT, NSHOTS, LBFGS_RESET;
         extern int NPROCFREQ, NPROCSHOT, NP, MYID_SHOT, NSHOT1, NSHOT2, COLOR, NF;
         extern char MISFIT_LOG_FILE[STRING_SIZE], LOG_FILE[STRING_SIZE];
         extern float PRO, A0_PML, FC_high, FC_low, MAT1_NORM, MAT2_NORM;
+	extern float SCALE_GRAD1, SCALE_GRAD2, SCALE_GRAD1_PRECOND, SCALE_GRAD2_PRECOND;
 
 	extern FILE *FP;
     
@@ -165,6 +166,8 @@ void fwi_FD_TE(char *fileinp1){
 	  rho_LBFGS = vector(1,NLBFGS);
 	  alpha_LBFGS = vector(1,NLBFGS);
 	  beta_LBFGS = vector(1,NLBFGS);
+
+	  LBFGS_RESET = 1;
 	  
 	}
 
@@ -283,10 +286,17 @@ void fwi_FD_TE(char *fileinp1){
 			   precond(fwiTE.grad_sigma);
 			   precond(fwiTE.grad_epsilon);
 
-			   /* calculate descent directon gradm from gradients */
 			   cp_grad_frame(fwiTE.grad_sigma);
 			   cp_grad_frame(fwiTE.grad_epsilon);
 
+			   /* scale preconditioned gradients to gradient amplitudes */
+			   /*SCALE_GRAD1_PRECOND = norm_matrix(fwiTE.grad_sigma,NX,NY); 
+			   SCALE_GRAD2_PRECOND = norm_matrix(fwiTE.grad_epsilon,NX,NY);
+
+			   scale_grad(fwiTE.grad_sigma,SCALE_GRAD1/SCALE_GRAD1_PRECOND,fwiTE.grad_sigma,NX,NY);
+			   scale_grad(fwiTE.grad_epsilon,SCALE_GRAD2/SCALE_GRAD2_PRECOND,fwiTE.grad_epsilon,NX,NY);*/
+
+			   /* calculate descent directon gradm from gradients */
 			   descent(fwiTE.grad_sigma,fwiTE.gradm_sigma);
 			   descent(fwiTE.grad_epsilon,fwiTE.gradm_epsilon);
 
@@ -312,10 +322,10 @@ void fwi_FD_TE(char *fileinp1){
 			   }
 
 			   /* ... quasi-Newton l-BFGS method */
-			   /*if(GRAD_METHOD==2){                              
+			   if(GRAD_METHOD==2){                              
   			      MPI_Barrier(MPI_COMM_WORLD);
-			      LBFGS(fwiAC.Hgrad,fwiAC.grad,fwiAC.gradm,iter,y_LBFGS,s_LBFGS,rho_LBFGS,alpha_LBFGS,matAC.vp,q_LBFGS,r_LBFGS,beta_LBFGS,LBFGS_pointer,NLBFGS,NLBFGS_vec);
-			   }*/
+			      LBFGS_TE(&fwiTE,&matTE,iter,y_LBFGS,s_LBFGS,rho_LBFGS,alpha_LBFGS,q_LBFGS,r_LBFGS,beta_LBFGS,LBFGS_pointer,NLBFGS,NLBFGS_vec);
+			   }
 
                            /* ... Descent method */
                            if(GRAD_METHOD==3){
@@ -324,16 +334,16 @@ void fwi_FD_TE(char *fileinp1){
                               descent(fwiTE.grad_epsilon,fwiTE.Hgrad_epsilon);
                            }
 
-			   /* check if search direction is a descent direction, otherwise reset l-BFGS history */
-			   /* check_descent(fwiAC.Hgrad,fwiAC.grad,NLBFGS_vec,y_LBFGS,s_LBFGS,iter);*/
+			   /* check if search direction is a descent direction, otherwise reset l-BFGS history */			   
+			   check_descent_multi_para_TE(&fwiTE,NLBFGS_vec,y_LBFGS,s_LBFGS,q_LBFGS,r_LBFGS,alpha_LBFGS,beta_LBFGS,rho_LBFGS);
 
 			   /* Estimate optimum step length ... */
 			   MPI_Barrier(MPI_COMM_WORLD);
 
 			   /* ... by line search which satisfies the Wolfe conditions */
-                           /*if(LINESEARCH==1){
-                              eps_scale=wolfels_AC(&fwiAC,&waveAC,&PML_AC,&matAC,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage,eps_scale,L2);
-			   }*/
+                           if(LINESEARCH==1){
+                              eps_scale = wolfels_TE(&fwiTE,&waveAC,&PML_AC,&matTE,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage,eps_scale,L2);
+			   }
 			   
 			   
 			   /* ... by inexact parabolic line search */
@@ -398,6 +408,7 @@ void fwi_FD_TE(char *fileinp1){
 			       if(GRAD_METHOD==2){
 
 				  zero_LBFGS(NLBFGS, NLBFGS_vec, y_LBFGS, s_LBFGS, q_LBFGS, r_LBFGS, alpha_LBFGS, beta_LBFGS, rho_LBFGS);
+				  LBFGS_RESET = 1;
 				  LBFGS_pointer = 1;  
 
 			       }

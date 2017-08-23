@@ -15,6 +15,7 @@ float grad_obj_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML
 	extern int SPATFILTER, SWS_TAPER_GRAD_HOR, SWS_TAPER_FILE;
 	extern int NFREQ1, NFREQ2;
         extern float DH, FC_low, FC_high, MAT1_NORM, MAT2_NORM;
+	extern float SCALE_GRAD1, SCALE_GRAD2;
 	extern char SNAP_FILE[STRING_SIZE];
 	extern FILE *FP;
     
@@ -188,6 +189,10 @@ float grad_obj_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML
 	/* calculate gradients for normalized material parameters */	
 	scale_grad((*fwiTE).grad_sigma,MAT1_NORM,(*fwiTE).grad_sigma,NX,NY);
 	scale_grad((*fwiTE).grad_epsilon,MAT2_NORM,(*fwiTE).grad_epsilon,NX,NY);
+
+	/* calculate L2norm of gradients */
+	SCALE_GRAD1 = norm_matrix((*fwiTE).grad_sigma,NX,NY); 
+	SCALE_GRAD2 = norm_matrix((*fwiTE).grad_epsilon,NX,NY);
 
 	/* printf("L2 after MPI_Allreduce = %e  on MYID = %d \n", L2, MYID); */
 

@@ -56,7 +56,7 @@ int nfstart, nf;
 int nfstart_jac, nf_jac;
 
 float MAT1_LOW, MAT1_UP, MAT2_LOW, MAT2_UP;
-float MAT1_NORM, MAT2_NORM;
+float MAT1_NORM, MAT2_NORM, MAT1_NORM0, MAT2_NORM0;
 
 int INV_STF, N_STF, N_STF_START;
 float EPS_STF, OFFSETC_STF;
@@ -69,6 +69,7 @@ int LNORM;
 
 int LINESEARCH, STEPMAX;
 float EPS_SCALE, SCALEFAC, C1, C2;
+float SCALE_GRAD1, SCALE_GRAD2, SCALE_GRAD1_PRECOND, SCALE_GRAD2_PRECOND;
 
 float PRO;
 
@@ -134,4 +135,10 @@ int MISFIT;
 
 /* parameters for Laplace damping */
 float S;
+
+/* parameter scaling and Tikhonov regularization */
+float BETA_MAT1, BETA_MAT2;
+
+/* l-BFGS parameters */
+int LBFGS_RESET;
 

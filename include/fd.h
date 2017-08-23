@@ -191,6 +191,8 @@ void alloc_seis_fwi_TE(struct fwiTE *fwiTE, int ntr, int nshots);
 
 void ass_grad_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct matTE *matTE, float ** grad_shot_sigma, float ** grad_shot_epsilon, float **srcpos,  int nshots, int **recpos, int ntr, int ishot);
 
+void check_descent_multi_para_TE(struct fwiTE *fwiTE, int NLBFGS_vec, float * y_LBFGS, float * s_LBFGS, float * q_LBFGS, float * r_LBFGS, float * alpha_LBFGS, float * beta_LBFGS, float * rho_LBFGS);
+
 void extract_PCG_TE(float * PCG_old, struct fwiTE *fwiTE);
 
 void forward_shot_TE(struct waveAC *waveAC, struct PML_AC *PML_AC, struct matTE *matTE, float ** srcpos, int nshots, int ** recpos, int ntr, int nstage, int nfreq);
@@ -207,6 +209,9 @@ void hessian_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_A
 
 void init_A_TE_9p_pml(struct PML_AC *PML_AC, struct matTE *matTE, struct waveAC *waveAC);
 
+void LBFGS_TE(struct fwiTE *fwiTE, struct matTE *matTE, int iter, float * y_LBFGS, float * s_LBFGS, float * rho_LBFGS, float * alpha_LBFGS, float * q_LBFGS, float * r_LBFGS, 
+float * beta_LBFGS, int LBFGS_pointer, int NLBFGS, int NLBFGS_vec);
+
 void model_out_TE(struct matTE *matTE, int nstage, int stage_switch);
 
 float obj_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matTE *matTE, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage);
@@ -220,6 +225,8 @@ void read_seis_TE(struct fwiTE *fwiTE, int nshots, int ntr, int nstage);
 void store_PCG_TE(float * PCG_new, struct fwiTE *fwiTE);
 
 void store_PCG_TE_old(float * PCG_old, struct fwiTE *fwiTE);
+
+float wolfels_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matTE *matTE, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage, float alpha, float L2);
 
 /* declaration of general functions */
 

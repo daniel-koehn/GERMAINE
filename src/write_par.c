@@ -240,6 +240,9 @@ void write_par(FILE *fp){
 				fprintf(fp," GRAD_METHOD=%d: LBFGS\n",GRAD_METHOD);
 		                fprintf(fp," NLBFGS=%d \n",NLBFGS);
 				break;
+			case 3:
+				fprintf(fp," GRAD_METHOD=%d: Descent method\n",GRAD_METHOD);
+				break;
 			default:
 				err(" Sorry, incorrect value for GRAD_METHOD ! \n");
 		}

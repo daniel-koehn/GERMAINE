@@ -37,7 +37,7 @@ extern char INV_MODELFILE[STRING_SIZE];
 extern int nfstart, nf;
 extern int nfstart_jac, nf_jac;
 extern float MAT1_LOW, MAT1_UP, MAT2_LOW, MAT2_UP;
-extern float MAT1_NORM, MAT2_NORM;
+extern float MAT1_NORM, MAT2_NORM, MAT1_NORM0, MAT2_NORM0;
 extern char PARA[STRING_SIZE];
 
 extern float FC_START, FC_END, FC_INCR, EPS_HESS;
@@ -297,5 +297,8 @@ int  c=0, lineno=0, l;
       }
 
 fclose(fp_in);
+
+MAT1_NORM0 = MAT1_NORM;
+MAT2_NORM0 = MAT2_NORM;
 
 }
