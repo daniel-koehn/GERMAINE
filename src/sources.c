@@ -2,8 +2,8 @@
    Reading (distributed) source positions, timeshift, centre frequency 
    and amplitude from SOURCE_FILE.
    
-   written by T. Bohlen 
-   last update: 12.02.2002
+   D.Koehn 
+   Kiel, 27.08.2017
 */
 
 #include "fd.h"
@@ -70,15 +70,6 @@ float **sources(int *nsrc){
 				srcpos[4][l]=tshift;
 				fc=srcpos[5][l];
 			}
-
-/*	fscanf(fpsrc,"%f%f%f%f%f%f",&xsrc, &zsrc, &ysrc, &tshift, &fc, &amp);*/ 	/* old implementation */
-			/*	srcpos[1][l]=xsrc;
-				srcpos[2][l]=ysrc;
-				srcpos[3][l]=zsrc;
-				srcpos[4][l]=tshift;
-				srcpos[5][l]=fc;
-				srcpos[6][l]=amp;
-			} */
 
 			fclose(fpsrc);
 

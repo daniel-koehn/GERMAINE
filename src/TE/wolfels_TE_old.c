@@ -14,12 +14,10 @@ float wolfels_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_
 	/* declaration of global variables */
         extern int NX, NY, GRAD_METHOD, STEPMAX, MYID;
         extern float EPS_SCALE, C1, C2, SCALEFAC;
-	extern float MAT1_NORM, MAT2_NORM;
-	extern float SCALE_GRAD1, SCALE_GRAD1_PRECOND;
-	extern float SCALE_GRAD2, SCALE_GRAD2_PRECOND;
+	extern float MAT1_NORM, MAT2_NORM; 
 
         /* declaration of local variables */
-        float normg, alpha_L, alpha_R, ft;
+        float normg, mu, nu, ft, ** Snp1;
         float ** gt_sigma, ** gt_epsilon, g0s0, gts0, maxgrad, maxsigma, tmp;     
 	int lsiter, done;
 
@@ -37,16 +35,16 @@ float wolfels_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_
         /* calculate initial step length */
         if(iter==1){
 
-           normg = norm_matrix((*fwiTE).grad_sigma,NX,NY);
+           /*normg = norm_matrix((*fwiTE).grad_sigma,NX,NY);
            normg += norm_matrix((*fwiTE).grad_epsilon,NX,NY);
-           alpha = 1.0/normg;
+           alpha = 1.0/normg;*/
 
            /*maxgrad = maximum_m((*fwiTE).Hgrad_sigma,NX,NY);
            maxsigma = maximum_m((*matTE).sigmar,NX,NY);
 
            alpha = EPS_SCALE * maxsigma/maxgrad;*/
 
-	   /*alpha = 1.0;*/
+	   alpha = 1.0;
 
         }else{
 
@@ -56,9 +54,8 @@ float wolfels_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_
 
         lsiter = 0;
 	done = 0;
-
-	alpha_L = 0.0;
-        alpha_R = 0.0;        
+	mu = 0.0;
+        nu = 1e30;        
 
         if(MYID==0){
            printf(" Estimate step length by Wolfe line search \n");
@@ -88,13 +85,7 @@ float wolfels_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_
 	  	 scale_grad((*matTE).epsilonr,MAT2_NORM,(*matTE).epsilon,NX,NY);
 
 		 ft = grad_obj_TE(fwiTE,waveAC,PML_AC,matTE,srcpos,nshots,recpos,ntr,iter,nstage);
-
-	  	 /* Tikhonov regularization (cost function) */
-	         ft = Tikhonov_cost_TE(fwiTE,matTE,ft,iter);
-
-	         /* Tikhonov regularization (gradient) */
-	         Tikhonov_grad_TE(fwiTE,matTE,iter);		 
-
+		 
 		 /*descent((*fwiTE).grad_sigma,gt_sigma);
  		 descent((*fwiTE).grad_epsilon,gt_epsilon);*/
 	  	 store_mat((*fwiTE).grad_sigma,gt_sigma,NX,NY);
@@ -113,53 +104,33 @@ float wolfels_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_
                  break;
 
               }
-
-	      scale_grad((*fwiTE).grad_sigma,SCALE_GRAD1/SCALE_GRAD1_PRECOND,(*fwiTE).grad_sigma,NX,NY);
-	      scale_grad((*fwiTE).grad_epsilon,SCALE_GRAD2/SCALE_GRAD2_PRECOND,(*fwiTE).grad_epsilon,NX,NY);
-
-	      gts0 = 0.0;
+           
               gts0 = dotp_matrix(gt_sigma,(*fwiTE).Hgrad_sigma,NX,NY);
-              gts0+= dotp_matrix(gt_epsilon,(*fwiTE).Hgrad_epsilon,NX,NY); 
+              gts0+= dotp_matrix(gt_epsilon,(*fwiTE).Hgrad_epsilon,NX,NY);
 
-	      g0s0 = 0.0;
               g0s0 = dotp_matrix((*fwiTE).grad_sigma,(*fwiTE).Hgrad_sigma,NX,NY);
               g0s0+= dotp_matrix((*fwiTE).grad_epsilon,(*fwiTE).Hgrad_epsilon,NX,NY);
-
-	      /* check if Wolfe conditions are satisfied with current step length 
-		 and end linesearch if this is the case */
-	      if( (ft <= (L2 + C1 * alpha * g0s0)) && (gts0 < (C2*g0s0)) ){
-
-	          done = 1;
-
-	      /* if first condition is not satisfied then shrink search interval */
-	      }else if(ft > (L2 + C1*alpha*g0s0)){  
-            
-                  alpha_R = alpha;
-	          alpha = (alpha_L + alpha_R)/SCALEFAC;
-
-	      /* if second condition is not satisfied shrink search interval until 
-		 alpha_R = 0, else increase alpha by SCALEFAC */
-	      }else if((ft <= (L2 + C1*alpha*g0s0)) && (gts0 < (C2*g0s0))){
-
-		  alpha_L = alpha;
-
-		  if(alpha_R != 0){
-
-		     alpha = (alpha_L + alpha_R) / SCALEFAC; 
-  	
-		  }else{
-
-		     alpha = SCALEFAC*alpha;
-
-		  }
-	      }
 
               if(MYID==0){
                  printf("Wolfe Conditions \n");
                  printf("---------------- \n");
                  printf("ft = %e \t <= L2  = %e \n",ft,L2);
                  printf("ft = %e \t <= L2 + C1*alpha*g0s0 = %e \n",ft,L2 + C1*alpha*g0s0);
-                 printf("gts0 = %e \t < C2*g0s0 = %e \n",gts0,C2*g0s0);
+                 printf("gts0 = %e \t >= C2*g0s0 = %e \n",gts0,C2*g0s0);
+              }
+ 
+              if (ft > (L2 + C1*alpha*g0s0)){
+                  nu = alpha;
+	          alpha = (nu + mu)/SCALEFAC;
+              }else if(gts0 < (C2*g0s0)){
+                  mu = alpha;
+		  if(nu==1e30){
+                     alpha = SCALEFAC*alpha;
+                  }else{
+		     alpha = (nu + mu)/SCALEFAC;
+		  }
+              }else{
+                  done = 1;
               }
 
         }

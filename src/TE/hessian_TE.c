@@ -146,12 +146,12 @@ void hessian_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_A
 			 for (i=1;i<=NX;i++){
 			     for (j=1;j<=NY;j++){
 
-			       J = - (Omega * I) * ((*fwiTE).forwardr[j][i] + (*fwiTE).forwardi[j][i] * I)  
+			       J = (Omega * I) * ((*fwiTE).forwardr[j][i] + (*fwiTE).forwardi[j][i] * I)  
 				            * ((*waveAC).pr[j][i] + (*waveAC).pi[j][i] * I);
 
 			       (*fwiTE).hess_sigma[j][i] += creal( J * conjf(J));
 
-			       J = - Omega2 * ((*fwiTE).forwardr[j][i] + (*fwiTE).forwardi[j][i] * I)  
+			       J = Omega2 * ((*fwiTE).forwardr[j][i] + (*fwiTE).forwardi[j][i] * I)  
 				            * ((*waveAC).pr[j][i] + (*waveAC).pi[j][i] * I);
 
 			       (*fwiTE).hess_epsilon[j][i] += creal( J * conjf(J));

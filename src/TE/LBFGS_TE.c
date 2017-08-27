@@ -38,7 +38,6 @@ scale_grad((*matTE).epsilon,1.0/MAT2_NORM,(*matTE).epsilonr,NX,NY);
 /* calculate H^-1 * gradm, using the L-BFGS method, if iter > 1          */
 /* --------------------------------------------------------------------- */
 
-/* if(iter>1){ */
 if(LBFGS_RESET==0){
 
    /* load old models and gradients - Vp and store them in the LBFGS vectors */
@@ -128,7 +127,7 @@ if(LBFGS_RESET==0){
      
      /* save q_LBFGS for all material parameters */    
         
-      h=1;                                                                                                                                                     
+    h=1;                                                                                                                                                     
 
      for (i=1;i<=NX;i=i+IDX){
          for (j=1;j<=NY;j=j+IDY){
@@ -212,7 +211,6 @@ if(LBFGS_RESET==0){
 
 }
 
-/* if(iter==1){*/
 if(LBFGS_RESET==1){
 
      for (i=1;i<=NX;i=i+IDX){
@@ -321,5 +319,7 @@ fclose(FP3);
 MPI_Barrier(MPI_COMM_WORLD);
 exchange_grad_MPI((*fwiTE).Hgrad_sigma);
 exchange_grad_MPI((*fwiTE).Hgrad_epsilon);
+
+LBFGS_RESET=0;
 	
 }

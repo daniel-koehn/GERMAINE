@@ -13,7 +13,7 @@ extern int MIN_ITER,STEPMAX, NX, NY, MYID;
 extern char JACOBIAN[STRING_SIZE];
 extern float EPS_SCALE, SCALEFAC, MAT1_NORM, MAT2_NORM;
 
-float opteps_vp;
+float opteps_vp, L2_tmp;
 int h, i, j, n, ishot;
 
 /* Variables for step length calculation */
@@ -69,8 +69,11 @@ while((step2!=1)||(step1!=1)){
 	  scale_grad((*matTE).sigmar,MAT1_NORM,(*matTE).sigma,NX,NY);
 	  scale_grad((*matTE).epsilonr,MAT2_NORM,(*matTE).epsilon,NX,NY);
 
-          L2t[itest] = obj_TE(fwiTE,waveAC,PML_AC,matTE,srcpos,nshots,recpos,ntr,iter,nstage);
- 
+          L2_tmp = obj_TE(fwiTE,waveAC,PML_AC,matTE,srcpos,nshots,recpos,ntr,iter,nstage);
+
+	  /* Tikhonov regularization (cost function) */
+	  L2t[itest] = Tikhonov_cost_TE(fwiTE,matTE,L2_tmp,iter);
+
 	  /* copy sigma_old -> sigmar */
 	  /* copy epsilon_old -> epsilonr */
 	  store_mat((*fwiTE).sigma_old,(*matTE).sigmar,NX,NY);

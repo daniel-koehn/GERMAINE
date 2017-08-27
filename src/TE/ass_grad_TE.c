@@ -28,7 +28,7 @@ void ass_grad_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct matTE *matTE
 	for (i=1;i<=NX;i++){
 	    for (j=1;j<=NY;j++){
 
-               grad_shot_sigma[j][i] =  creal( (wien/cabsf(wien)) * ((*fwiTE).forwardr[j][i] + (*fwiTE).forwardi[j][i] * I)  
+               grad_shot_sigma[j][i] = creal( (wien/cabsf(wien)) * ((*fwiTE).forwardr[j][i] + (*fwiTE).forwardi[j][i] * I)  
 				       * (Omega * I) * ((*waveAC).pr[j][i] + (*waveAC).pi[j][i] * I) );
 
 	       grad_shot_epsilon[j][i] =  creal(Omega2 * (wien/cabsf(wien)) * ((*fwiTE).forwardr[j][i] + (*fwiTE).forwardi[j][i] * I)  

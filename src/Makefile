@@ -135,6 +135,8 @@ GERMAINE+= \
 	readmod_TE.c \
 	store_PCG_TE.c \
 	store_PCG_TE_old.c \
+	Tikhonov_cost_TE.c \
+	Tikhonov_grad_TE.c \
 	wolfels_TE.c
 
 GERMAINE_OBJ = $(GERMAINE:%.c=%.o)

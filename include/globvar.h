@@ -138,6 +138,7 @@ float S;
 
 /* parameter scaling and Tikhonov regularization */
 float BETA_MAT1, BETA_MAT2;
+int EST_HYPER;
 
 /* l-BFGS parameters */
 int LBFGS_RESET;

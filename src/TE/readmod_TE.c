@@ -93,11 +93,14 @@ void readmod_TE(struct matTE *matTE){
 	}	
 
 	/* each PE writes his model to disk */
-	sprintf(filename,"%s.germaine.sig",MFILE);
-	writemod(filename,(*matTE).sigma,3);
+	if(MYID==0){
 
-	sprintf(filename,"%s.germaine.eps",MFILE);
-	writemod(filename,(*matTE).epsilon,3);
+	   sprintf(filename,"%s.germaine.sig",MFILE);
+	   writemod(filename,(*matTE).sigma,3);
+
+	   sprintf(filename,"%s.germaine.eps",MFILE);
+	   writemod(filename,(*matTE).epsilon,3);
+	}
 
 
 }

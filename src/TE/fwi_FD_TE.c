@@ -11,7 +11,7 @@ void fwi_FD_TE(char *fileinp1){
 
 	/* declaration of global variables */
         extern int NX, NY, NSHOT1, NSHOT2, GRAD_METHOD, NLBFGS, MYID, ITERMAX, LINESEARCH;
-	extern int NXG, NYG, NXNY, LOG, N_STREAMER, INFO, INVMAT, READMOD;
+	extern int NXG, NYG, NXNY, LOG, N_STREAMER, INFO, INVMAT, READMOD, EST_HYPER;
 	extern int NX0, NY0, NPML, READ_REC, HESSIAN, FSSHIFT, NSHOTS, LBFGS_RESET;
         extern int NPROCFREQ, NPROCSHOT, NP, MYID_SHOT, NSHOT1, NSHOT2, COLOR, NF;
         extern char MISFIT_LOG_FILE[STRING_SIZE], LOG_FILE[STRING_SIZE];
@@ -41,7 +41,7 @@ void fwi_FD_TE(char *fileinp1){
 	int nstage, stagemax, iter, iter_true;
         
         /* variables for step-length estimation */
-        float eps_scale, L2, *L2t, diff;
+        float eps_scale, L2, *L2t, L2_tmp, diff;
 
         FILE *FP_stage, *FPL2;
 
@@ -222,6 +222,7 @@ void fwi_FD_TE(char *fileinp1){
 	        }
 
 		NSHOTS = nshots;
+		EST_HYPER = 1;
 
 		iter=1;
 		/* --------------------------------------
@@ -260,8 +261,14 @@ void fwi_FD_TE(char *fileinp1){
 			   /* -------------------------------- */
 
 			   /* calculate sigma and epsilon gradient and objective function */
- 			   L2 = grad_obj_TE(&fwiTE,&waveAC,&PML_AC,&matTE,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage);
+ 			   L2_tmp = grad_obj_TE(&fwiTE,&waveAC,&PML_AC,&matTE,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage);
+
+			   /* Tikhonov regularization (cost function) */
+			   L2 = Tikhonov_cost_TE(&fwiTE,&matTE,L2_tmp,iter);
 			   L2t[1] = L2;
+
+			   /* Tikhonov regularization (gradient) */
+			   Tikhonov_grad_TE(&fwiTE,&matTE,iter);
 
 			   /* calculate and apply approximate Hessian at first iteration of each frequency group */
 			   if(HESSIAN){
@@ -280,6 +287,7 @@ void fwi_FD_TE(char *fileinp1){
 			       apply_hess_AC(fwiTE.grad_sigma,fwiTE.hess_sigma);
 			       apply_hess_AC(fwiTE.grad_epsilon,fwiTE.hess_epsilon);
 
+
 			   }
 
 			   /* apply smoothing and taper functions to gradients */
@@ -290,11 +298,8 @@ void fwi_FD_TE(char *fileinp1){
 			   cp_grad_frame(fwiTE.grad_epsilon);
 
 			   /* scale preconditioned gradients to gradient amplitudes */
-			   /*SCALE_GRAD1_PRECOND = norm_matrix(fwiTE.grad_sigma,NX,NY); 
+			   SCALE_GRAD1_PRECOND = norm_matrix(fwiTE.grad_sigma,NX,NY); 
 			   SCALE_GRAD2_PRECOND = norm_matrix(fwiTE.grad_epsilon,NX,NY);
-
-			   scale_grad(fwiTE.grad_sigma,SCALE_GRAD1/SCALE_GRAD1_PRECOND,fwiTE.grad_sigma,NX,NY);
-			   scale_grad(fwiTE.grad_epsilon,SCALE_GRAD2/SCALE_GRAD2_PRECOND,fwiTE.grad_epsilon,NX,NY);*/
 
 			   /* calculate descent directon gradm from gradients */
 			   descent(fwiTE.grad_sigma,fwiTE.gradm_sigma);
@@ -345,12 +350,10 @@ void fwi_FD_TE(char *fileinp1){
                               eps_scale = wolfels_TE(&fwiTE,&waveAC,&PML_AC,&matTE,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage,eps_scale,L2);
 			   }
 			   
-			   
 			   /* ... by inexact parabolic line search */
                            if(LINESEARCH==2){
 			      eps_scale = parabolicls_TE(&fwiTE,&waveAC,&PML_AC,&matTE,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage,eps_scale,L2);
 			   }
-			   
 
 			   if(MYID==0){
 			      fprintf(FPL2,"%e \t %e \t %d \n",eps_scale,L2t[1],nstage);

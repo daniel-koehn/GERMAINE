@@ -48,7 +48,7 @@ struct waveAC{
 /* acoustic FWI variables */
 struct fwiAC{
    float  ** lam, ** vp_old, ** grad, ** Hgrad, ** gradm, **hess;
-   float ** forwardr, ** forwardi;
+   float ** forwardr, ** forwardi, lambda_1, lambda_2;
 } fwiAC;
 
 /* acoustic material parameters */
@@ -102,7 +102,7 @@ struct fwiTE{
    float  ** sigma_old, ** epsilon_old; 
    float  ** grad_sigma, ** grad_epsilon, ** gradm_sigma, ** gradm_epsilon;
    float  ** Hgrad_sigma, ** Hgrad_epsilon,  ** hess_sigma, ** hess_epsilon;
-   float ** forwardr, ** forwardi;
+   float ** forwardr, ** forwardi, lambda_1, lambda_2;
 } fwiTE;
 
 /* declaration of acoustic functions */
@@ -225,6 +225,10 @@ void read_seis_TE(struct fwiTE *fwiTE, int nshots, int ntr, int nstage);
 void store_PCG_TE(float * PCG_new, struct fwiTE *fwiTE);
 
 void store_PCG_TE_old(float * PCG_old, struct fwiTE *fwiTE);
+
+float Tikhonov_cost_TE(struct fwiTE *fwiTE, struct matTE *matTE, float L2, int iter);
+
+void Tikhonov_grad_TE(struct fwiTE *fwiTE, struct matTE *matTE, int iter);
 
 float wolfels_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_AC, struct matTE *matTE, float ** srcpos, int nshots, int ** recpos, int ntr, int iter, int nstage, float alpha, float L2);
 

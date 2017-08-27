@@ -29,7 +29,12 @@ for (i=1;i<=nstage;i++){
 
 fclose(fp);
 
+/* calculate scaling factors on all MPI processes*/
+if(BETA_MAT1>0.0){MAT1_NORM = MAT1_NORM0 * BETA_MAT1;}
+if(BETA_MAT2>0.0){MAT2_NORM = MAT2_NORM0 * BETA_MAT2;}
+
 if((MYID==0)&&(INVMAT==1)){
+
    printf("=========================================== \n");
    printf("       GERMAINE-stage %d of %d \n",nstage,stagemax);
    printf("=========================================== \n");
@@ -58,9 +63,8 @@ if((MYID==0)&&(INVMAT==1)){
       printf(" \t phase only logarithmic L2-norm MISFIT = %d\n",MISFIT); 
    }
    printf("\n\n");
+
    printf(" Tikhonov regularization: \n ");
-   if(BETA_MAT1>0.0){MAT1_NORM = MAT1_NORM0 * BETA_MAT1;}
-   if(BETA_MAT2>0.0){MAT2_NORM = MAT2_NORM0 * BETA_MAT2;}
    if(PHYSICS==1){   
        printf(" BETA_VP = %e \t BETA_RHO = %e \n", BETA_MAT1, BETA_MAT2);
        printf(" VP_NORM = %e \t RHO_NORM = %e \n", MAT1_NORM, MAT2_NORM);
