@@ -11,7 +11,7 @@ void fwi_FD_TE(char *fileinp1){
 
 	/* declaration of global variables */
         extern int NX, NY, NSHOT1, NSHOT2, GRAD_METHOD, NLBFGS, MYID, ITERMAX, LINESEARCH;
-	extern int NXG, NYG, NXNY, LOG, N_STREAMER, INFO, INVMAT, READMOD, EST_HYPER;
+	extern int NXG, NYG, NXNY, LOG, N_STREAMER, INFO, INVMAT, READMOD;
 	extern int NX0, NY0, NPML, READ_REC, HESSIAN, FSSHIFT, NSHOTS, LBFGS_RESET;
         extern int NPROCFREQ, NPROCSHOT, NP, MYID_SHOT, NSHOT1, NSHOT2, COLOR, NF;
         extern char MISFIT_LOG_FILE[STRING_SIZE], LOG_FILE[STRING_SIZE];
@@ -222,7 +222,6 @@ void fwi_FD_TE(char *fileinp1){
 	        }
 
 		NSHOTS = nshots;
-		EST_HYPER = 1;
 
 		iter=1;
 		/* --------------------------------------

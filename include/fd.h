@@ -102,7 +102,7 @@ struct fwiTE{
    float  ** sigma_old, ** epsilon_old; 
    float  ** grad_sigma, ** grad_epsilon, ** gradm_sigma, ** gradm_epsilon;
    float  ** Hgrad_sigma, ** Hgrad_epsilon,  ** hess_sigma, ** hess_epsilon;
-   float ** forwardr, ** forwardi, lambda_1, lambda_2;
+   float ** forwardr, ** forwardi;
 } fwiTE;
 
 /* declaration of acoustic functions */

@@ -10,7 +10,8 @@
 void Tikhonov_grad_TE(struct fwiTE *fwiTE, struct matTE *matTE, int iter){
 
 	extern int NX, NY, IDX, IDY;
-	extern float MAT1_NORM, MAT2_NORM, BETA_MAT1, BETA_MAT2;
+	extern float MAT1_NORM, MAT2_NORM, BETA_MAT1, BETA_MAT2, DH;
+	extern float LAMBDA_1, LAMBDA_2;
 
 	int i, j, h;
 	float laplace_sigma, laplace_epsilon;
@@ -23,11 +24,11 @@ void Tikhonov_grad_TE(struct fwiTE *fwiTE, struct matTE *matTE, int iter){
 	for (i=2;i<=NX-1;i=i+IDX){
 	   for (j=2;j<=NY-1;j=j+IDY){
 
-	       laplace_sigma = (*matTE).sigmar[j][i-1] + (*matTE).sigmar[j][i+1] + (*matTE).sigmar[j-1][i] + (*matTE).sigmar[j+1][i] + 4.0 * (*matTE).sigmar[j][i];
-	       laplace_epsilon = (*matTE).epsilonr[j][i-1] + (*matTE).epsilonr[j][i+1] + (*matTE).epsilonr[j-1][i] + (*matTE).epsilonr[j+1][i] + 4.0 * (*matTE).epsilonr[j][i];
+	       laplace_sigma = ((*matTE).sigmar[j][i-1] + (*matTE).sigmar[j][i+1] + (*matTE).sigmar[j-1][i] + (*matTE).sigmar[j+1][i] - 4.0 * (*matTE).sigmar[j][i]) / (DH*DH);
+	       laplace_epsilon = ((*matTE).epsilonr[j][i-1] + (*matTE).epsilonr[j][i+1] + (*matTE).epsilonr[j-1][i] + (*matTE).epsilonr[j+1][i] - 4.0 * (*matTE).epsilonr[j][i]) / (DH*DH);
 
-	       (*fwiTE).grad_sigma[j][i] += (*fwiTE).lambda_1 * BETA_MAT1 * laplace_sigma;
-	       (*fwiTE).grad_epsilon[j][i] += (*fwiTE).lambda_2 * BETA_MAT2 * laplace_epsilon;
+	       (*fwiTE).grad_sigma[j][i] += LAMBDA_1 * BETA_MAT1 * laplace_sigma;
+	       (*fwiTE).grad_epsilon[j][i] += LAMBDA_2 * BETA_MAT2 * laplace_epsilon;
 
 	   }
 	}
