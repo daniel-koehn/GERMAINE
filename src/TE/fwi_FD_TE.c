@@ -15,7 +15,7 @@ void fwi_FD_TE(char *fileinp1){
 	extern int NX0, NY0, NPML, READ_REC, HESSIAN, FSSHIFT, NSHOTS, LBFGS_RESET;
         extern int NPROCFREQ, NPROCSHOT, NP, MYID_SHOT, NSHOT1, NSHOT2, COLOR, NF;
         extern char MISFIT_LOG_FILE[STRING_SIZE], LOG_FILE[STRING_SIZE];
-        extern float PRO, A0_PML, FC_high, FC_low, MAT1_NORM, MAT2_NORM;
+        extern float PRO, A0_PML, FC_high, FC_low, MAT1_NORM, MAT2_NORM, LAMBDA_1, LAMBDA_2;
 	extern float SCALE_GRAD1, SCALE_GRAD2, SCALE_GRAD1_PRECOND, SCALE_GRAD2_PRECOND;
 
 	extern FILE *FP;
@@ -290,8 +290,13 @@ void fwi_FD_TE(char *fileinp1){
 			   }
 
 			   /* apply smoothing and taper functions to gradients */
-			   precond(fwiTE.grad_sigma);
-			   precond(fwiTE.grad_epsilon);
+			   if(LAMBDA_1<0.0){
+			      precond(fwiTE.grad_sigma);
+			   }
+
+			   if(LAMBDA_2<0.0){
+			      precond(fwiTE.grad_epsilon);
+			   }
 
 			   cp_grad_frame(fwiTE.grad_sigma);
 			   cp_grad_frame(fwiTE.grad_epsilon);

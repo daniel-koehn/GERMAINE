@@ -14,21 +14,21 @@ float wolfels_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_
 	/* declaration of global variables */
         extern int NX, NY, GRAD_METHOD, STEPMAX, MYID;
         extern float EPS_SCALE, C1, C2, SCALEFAC;
-	extern float MAT1_NORM, MAT2_NORM;
+	extern float MAT1_NORM, MAT2_NORM, ALPHA_OLD;
 	extern float SCALE_GRAD1, SCALE_GRAD1_PRECOND;
 	extern float SCALE_GRAD2, SCALE_GRAD2_PRECOND;
 
         /* declaration of local variables */
         float normg, alpha_L, alpha_R, ft;
-        float ** gt_sigma, ** gt_epsilon, g0s0, gts0, maxgrad, maxsigma, tmp;     
+        float ** grad0_sigma, ** grad0_epsilon, g0s0, gts0, maxgrad, maxsigma, tmp;     
 	int lsiter, done;
 
-        gt_sigma =  matrix(1,NY,1,NX);
-        gt_epsilon =  matrix(1,NY,1,NX);
+        grad0_sigma =  matrix(1,NY,1,NX);
+        grad0_epsilon =  matrix(1,NY,1,NX);
 
         /* copy -> gt */
-	store_mat((*fwiTE).grad_sigma,gt_sigma,NX,NY);
-	store_mat((*fwiTE).grad_epsilon,gt_epsilon,NX,NY);
+	store_mat((*fwiTE).grad_sigma,grad0_sigma,NX,NY);
+	store_mat((*fwiTE).grad_epsilon,grad0_epsilon,NX,NY);
 
 	/* normalize material parameters */
 	scale_grad((*matTE).sigma,1.0/MAT1_NORM,(*matTE).sigmar,NX,NY);
@@ -37,20 +37,21 @@ float wolfels_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_
         /* calculate initial step length */
         if(iter==1){
 
-           normg = norm_matrix((*fwiTE).grad_sigma,NX,NY);
+           /*normg = norm_matrix((*fwiTE).grad_sigma,NX,NY);
            normg += norm_matrix((*fwiTE).grad_epsilon,NX,NY);
-           alpha = 1.0/normg;
+           alpha = 1.0/normg;*/
 
            /*maxgrad = maximum_m((*fwiTE).Hgrad_sigma,NX,NY);
            maxsigma = maximum_m((*matTE).sigmar,NX,NY);
 
            alpha = EPS_SCALE * maxsigma/maxgrad;*/
 
-	   /*alpha = 1.0;*/
+	   alpha = 1.0;
 
         }else{
 
-           alpha = 1.0;
+	   if(GRAD_METHOD==3){alpha = ALPHA_OLD;}
+	   if(GRAD_METHOD==2){alpha = 1.0;}
 
         }
 
@@ -97,8 +98,8 @@ float wolfels_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_
 
 		 /*descent((*fwiTE).grad_sigma,gt_sigma);
  		 descent((*fwiTE).grad_epsilon,gt_epsilon);*/
-	  	 store_mat((*fwiTE).grad_sigma,gt_sigma,NX,NY);
-	  	 store_mat((*fwiTE).grad_epsilon,gt_epsilon,NX,NY);
+	  	 /*store_mat((*fwiTE).grad_sigma,gt_sigma,NX,NY);
+	  	 store_mat((*fwiTE).grad_epsilon,gt_epsilon,NX,NY);*/
 
 	  	 /* copy sigma_old -> sigmar */
 	  	 /* copy epsilon_old -> epsilonr */
@@ -114,20 +115,20 @@ float wolfels_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_
 
               }
 
-	      scale_grad((*fwiTE).grad_sigma,SCALE_GRAD1/SCALE_GRAD1_PRECOND,(*fwiTE).grad_sigma,NX,NY);
-	      scale_grad((*fwiTE).grad_epsilon,SCALE_GRAD2/SCALE_GRAD2_PRECOND,(*fwiTE).grad_epsilon,NX,NY);
+	      /*scale_grad((*fwiTE).grad_sigma,SCALE_GRAD1/SCALE_GRAD1_PRECOND,(*fwiTE).grad_sigma,NX,NY);
+	      scale_grad((*fwiTE).grad_epsilon,SCALE_GRAD2/SCALE_GRAD2_PRECOND,(*fwiTE).grad_epsilon,NX,NY);*/
 
 	      gts0 = 0.0;
-              gts0 = dotp_matrix(gt_sigma,(*fwiTE).Hgrad_sigma,NX,NY);
-              gts0+= dotp_matrix(gt_epsilon,(*fwiTE).Hgrad_epsilon,NX,NY); 
+              gts0 = dotp_matrix((*fwiTE).grad_sigma,(*fwiTE).Hgrad_sigma,NX,NY);
+              gts0+= dotp_matrix((*fwiTE).grad_epsilon,(*fwiTE).Hgrad_epsilon,NX,NY); 
 
 	      g0s0 = 0.0;
-              g0s0 = dotp_matrix((*fwiTE).grad_sigma,(*fwiTE).Hgrad_sigma,NX,NY);
-              g0s0+= dotp_matrix((*fwiTE).grad_epsilon,(*fwiTE).Hgrad_epsilon,NX,NY);
+              g0s0 = dotp_matrix(grad0_sigma,(*fwiTE).Hgrad_sigma,NX,NY);
+              g0s0+= dotp_matrix(grad0_epsilon,(*fwiTE).Hgrad_epsilon,NX,NY);
 
 	      /* check if Wolfe conditions are satisfied with current step length 
 		 and end linesearch if this is the case */
-	      if( (ft <= (L2 + C1 * alpha * g0s0)) && (gts0 < (C2*g0s0)) ){
+	      if( (ft <= (L2 + C1 * alpha * g0s0)) && (gts0 >= (C2*g0s0)) ){
 
 	          done = 1;
 
@@ -135,7 +136,7 @@ float wolfels_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_
 	      }else if(ft > (L2 + C1*alpha*g0s0)){  
             
                   alpha_R = alpha;
-	          alpha = (alpha_L + alpha_R)/SCALEFAC;
+	          alpha = 0.5 * (alpha_L + alpha_R);
 
 	      /* if second condition is not satisfied shrink search interval until 
 		 alpha_R = 0, else increase alpha by SCALEFAC */
@@ -145,11 +146,11 @@ float wolfels_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_
 
 		  if(alpha_R != 0){
 
-		     alpha = (alpha_L + alpha_R) / SCALEFAC; 
+		     alpha = 0.5 * (alpha_L + alpha_R); 
   	
 		  }else{
 
-		     alpha = SCALEFAC*alpha;
+		     alpha = 10.0 * alpha;
 
 		  }
 	      }
@@ -168,12 +169,15 @@ float wolfels_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_
            printf("final alpha = %e \n",alpha);
         }
 
+	/* store final alpha */
+	ALPHA_OLD = alpha;
+
 	/* convert sigmar -> sigma and epsilonr -> epsilon to perform forward modelling */
 	scale_grad((*matTE).sigmar,MAT1_NORM,(*matTE).sigma,NX,NY);
 	scale_grad((*matTE).epsilonr,MAT2_NORM,(*matTE).epsilon,NX,NY);
 
-        free_matrix(gt_sigma,1,NY,1,NX);
-        free_matrix(gt_epsilon,1,NY,1,NX);
+        free_matrix(grad0_sigma,1,NY,1,NX);
+        free_matrix(grad0_epsilon,1,NY,1,NX);
 
 return alpha;
                 	    

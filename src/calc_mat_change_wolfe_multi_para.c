@@ -43,13 +43,13 @@ void calc_mat_change_wolfe_multi_para(float  **  Hgrad, float **  vp, float **  
 		    vp[j][i] = vp_old[j][i] + eps_scale * Hgrad[j][i]; 	
 		  
 		    /* apply hard constraints */
-	      	    if(vp[j][i] < vp_low){
+	      	    /*if(vp[j][i] < vp_low){
 	               vp[j][i] = vp_old[j][i];
 	            }
 		      
 		    if(vp[j][i] > vp_up){
 		       vp[j][i] = vp_old[j][i];
-		    }
+		    }*/
 		      		      
 		    /* P-wave velocity should not be smaller than zero */
 		    if(vp[j][i]<0.0){

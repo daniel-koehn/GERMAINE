@@ -38,7 +38,11 @@ float Tikhonov_cost_TE(struct fwiTE *fwiTE, struct matTE *matTE, float L2, int i
 	}
 
 	/* update objective function */
-	l2_tikhonov = L2 + LAMBDA_1 * tikh_sigma + LAMBDA_2 * tikh_epsilon;
+	if((LAMBDA_1>0.0)||(LAMBDA_2>0.0)){
+	   l2_tikhonov = L2 + LAMBDA_1 * tikh_sigma + LAMBDA_2 * tikh_epsilon;
+	}else{
+           l2_tikhonov = L2;
+	}
 
 	return l2_tikhonov;
 }
