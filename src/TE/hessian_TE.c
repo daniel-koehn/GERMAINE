@@ -110,7 +110,7 @@ void hessian_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_A
 	      	     }
 
 		     /* define source vector RHS */
-                     RHS_source_AC(waveAC,srcpos,ishot);
+                     RHS_source_TE(waveAC,srcpos,ishot);
 
 		     /* solve forward problem by forward and back substitution */
 	    	     status = umfpack_zi_solve(UMFPACK_A, Ap, Ai, Ax, Az, xr, xi, (*waveAC).RHSr, (*waveAC).RHSi, Numeric, null, null);
@@ -134,7 +134,7 @@ void hessian_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_A
 		     for (tr=1;tr<=ntr;tr++){
 		
 		         /* define source vector RHS for adjoint wavefield */
-			 RHS_source_AC_hess(waveAC,acq.recpos,tr);
+			 RHS_source_TE_hess(waveAC,acq.recpos,tr);
 
  		         /* solve adjoint problem by forward and back substitution */
 	    	         status = umfpack_zi_solve(UMFPACK_A, Ap, Ai, Ax, Az, xr, xi, (*waveAC).RHSr, (*waveAC).RHSi, Numeric, null, null);

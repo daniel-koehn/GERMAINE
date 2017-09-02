@@ -222,6 +222,10 @@ void readmod_TE(struct matTE *matTE);
 
 void read_seis_TE(struct fwiTE *fwiTE, int nshots, int ntr, int nstage);
 
+void RHS_source_TE(struct waveAC *waveAC, float ** srcpos, int ishot);
+
+void RHS_source_TE_hess(struct waveAC *waveAC, int ** recpos, int trace);
+
 void store_PCG_TE(float * PCG_new, struct fwiTE *fwiTE);
 
 void store_PCG_TE_old(float * PCG_old, struct fwiTE *fwiTE);

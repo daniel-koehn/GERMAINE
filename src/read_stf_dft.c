@@ -14,6 +14,7 @@ void read_stf_dft(struct waveAC *waveAC, float *amp){
 
 	/* declaration of global variables */
         extern char WAVELET_NAME[STRING_SIZE];
+	extern int PHYSICS;
 
 	/* declaration of local variables */
 	int i, j, h, ns, ndt;
@@ -34,7 +35,9 @@ void read_stf_dft(struct waveAC *waveAC, float *amp){
 	ns = tr.ns;
 
 	ndt = tr.dt;
-	dt = ndt / 1e6;  /* convert units [mus] to [s] */
+
+	if(PHYSICS<=3){dt = ndt / 1e6;  /* convert units [mus] to [s] */}
+	if(PHYSICS==4){dt = ndt / 1e9;  /* convert units [ns] to [s] */}
 
 	/* read source wavelet */
 	fread(&tr.data,4,ns,fpdata);

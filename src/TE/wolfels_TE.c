@@ -35,13 +35,13 @@ float wolfels_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_
 	scale_grad((*matTE).epsilon,1.0/MAT2_NORM,(*matTE).epsilonr,NX,NY);
 
         /* calculate initial step length */
-        if(iter==1){
+        if(iter<=2){
 
            /*normg = norm_matrix((*fwiTE).grad_sigma,NX,NY);
            normg += norm_matrix((*fwiTE).grad_epsilon,NX,NY);
            alpha = 1.0/normg;*/
 
-           /*maxgrad = maximum_m((*fwiTE).Hgrad_sigma,NX,NY);
+           /* maxgrad = maximum_m((*fwiTE).Hgrad_sigma,NX,NY);
            maxsigma = maximum_m((*matTE).sigmar,NX,NY);
 
            alpha = EPS_SCALE * maxsigma/maxgrad;*/
@@ -51,7 +51,7 @@ float wolfels_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_
         }else{
 
 	   if(GRAD_METHOD==3){alpha = ALPHA_OLD;}
-	   if(GRAD_METHOD==2){alpha = 1.0;}
+	   if(GRAD_METHOD==2){alpha = ALPHA_OLD;}
 
         }
 
@@ -150,7 +150,7 @@ float wolfels_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_
   	
 		  }else{
 
-		     alpha = 10.0 * alpha;
+		     alpha = 10.0 * alpha;		     
 
 		  }
 	      }

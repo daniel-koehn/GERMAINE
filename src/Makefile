@@ -133,6 +133,8 @@ GERMAINE+= \
 	obj_TE.c \
 	parabolicls_TE.c \
 	readmod_TE.c \
+	RHS_source_TE.c \
+	RHS_source_TE_hess.c \
 	store_PCG_TE.c \
 	store_PCG_TE_old.c \
 	Tikhonov_cost_TE.c \

@@ -117,7 +117,7 @@ float grad_obj_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML
 	      	     }
 
 		     /* define source vector RHS */
-                     RHS_source_AC(waveAC,srcpos,ishot);
+                     RHS_source_TE(waveAC,srcpos,ishot);
 
 		     /* solve forward problem by forward and back substitution */
 	    	     status = umfpack_zi_solve(UMFPACK_A, Ap, Ai, Ax, Az, xr, xi, (*waveAC).RHSr, (*waveAC).RHSi, Numeric, null, null);
