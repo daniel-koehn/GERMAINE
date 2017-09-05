@@ -41,7 +41,7 @@ float wolfels_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML_
            normg += norm_matrix((*fwiTE).grad_epsilon,NX,NY);
            alpha = 1.0/normg;*/
 
-           /* maxgrad = maximum_m((*fwiTE).Hgrad_sigma,NX,NY);
+           /*maxgrad = maximum_m((*fwiTE).Hgrad_sigma,NX,NY);
            maxsigma = maximum_m((*matTE).sigmar,NX,NY);
 
            alpha = EPS_SCALE * maxsigma/maxgrad;*/

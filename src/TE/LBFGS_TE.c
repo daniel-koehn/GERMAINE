@@ -13,8 +13,8 @@ void LBFGS_TE(struct fwiTE *fwiTE, struct matTE *matTE, int iter, float * y_LBFG
 float * q_LBFGS, float * r_LBFGS, float * beta_LBFGS, int LBFGS_pointer, int NLBFGS, int NLBFGS_vec){
 
         /* global variables */
-	extern int NX, NY, IDX, IDY, MYID, LBFGS_RESET;
-	extern float MAT1_NORM, MAT2_NORM;
+	extern int NX, NY, IDX, IDY, MYID, LBFGS_RESET, HESSIAN;
+	extern float MAT1_NORM, MAT2_NORM, EPS_HESS;
 	extern char JACOBIAN[STRING_SIZE];
 	
         /* local variables */
@@ -23,7 +23,7 @@ float * q_LBFGS, float * r_LBFGS, float * beta_LBFGS, int LBFGS_pointer, int NLB
 	float gradplastiter, beta;
 	float gamma_LBFGS, sum_nom, sum_denom;
         float LBFGSTMP, LBFGSTMP1, LBFGSTMP2, LBFGSTMP3, modellastiter, norm_fac, norm_fac_u, norm_fac_rho;
-        float beta_LBFGS_1, tmp;
+        float beta_LBFGS_1, tmp, MAX_HESS_sigma, MAX_HESS_epsilon;
         int ki, itershift, iter1;
 	FILE *FP3, *FP4, *FP6, *FP5, *FP7;
 	
@@ -34,6 +34,26 @@ if(MYID==0){ /* Apply l-BFGS only on MPI process 0 */
 /* normalize material parameters */
 scale_grad((*matTE).sigma,1.0/MAT1_NORM,(*matTE).sigmar,NX,NY);
 scale_grad((*matTE).epsilon,1.0/MAT2_NORM,(*matTE).epsilonr,NX,NY);
+
+/* Estimate maximum Hessian sigma value */
+MAX_HESS_sigma = 0.0;
+for (i=1;i<=NX;i++){
+    for (j=1;j<=NY;j++){   
+
+       if(fabs((*fwiTE).hess_sigma[j][i]) > MAX_HESS_sigma){MAX_HESS_sigma = fabs((*fwiTE).hess_sigma[j][i]);}
+
+    }
+}
+
+/* Estimate maximum Hessian sigma value */
+MAX_HESS_epsilon = 0.0;
+for (i=1;i<=NX;i++){
+    for (j=1;j<=NY;j++){   
+
+       if(fabs((*fwiTE).hess_epsilon[j][i]) > MAX_HESS_epsilon){MAX_HESS_epsilon = fabs((*fwiTE).hess_epsilon[j][i]);}
+
+    }
+}
 
 /* calculate H^-1 * gradm, using the L-BFGS method, if iter > 1          */
 /* --------------------------------------------------------------------- */
@@ -163,9 +183,36 @@ if(LBFGS_RESET==0){
        }
      }
 	 
-       /* Multiply gradient with approximated Hessian */
-       for (i=1;i<=NLBFGS_vec;i++){
-           r_LBFGS[i] = gamma_LBFGS * q_LBFGS[i];
+       /* Multiply gradient with Hessian approximation gamma_LBFGS */
+       if(HESSIAN==0){
+
+          for (i=1;i<=NLBFGS_vec;i++){
+             r_LBFGS[i] = gamma_LBFGS * q_LBFGS[i];
+          }
+
+       /* Multiply gradient with approximate or Pseudo-Hessian */
+       }else{
+
+          h=1;                                                                                                                                                     
+
+          for (i=1;i<=NX;i=i+IDX){
+             for (j=1;j<=NY;j=j+IDY){
+          
+	        r_LBFGS[h] = q_LBFGS[h] / ((*fwiTE).hess_sigma[j][i] + EPS_HESS * MAX_HESS_sigma);
+	        h++;	   
+	      
+             }
+          }
+
+          for (i=1;i<=NX;i=i+IDX){
+             for (j=1;j<=NY;j=j+IDY){
+          
+	        r_LBFGS[h] = q_LBFGS[h] / ((*fwiTE).hess_epsilon[j][i] + EPS_HESS * MAX_HESS_epsilon);
+	        h++;	   
+	      
+              }
+          }
+
        }
 
      /* calculate H^-1 * gradm[j][i] */

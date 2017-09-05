@@ -278,14 +278,15 @@ void fwi_FD_TE(char *fileinp1){
 			       }
 			       
 			       /* calculate Pseudo-Hessian */
-			       if((HESSIAN==2)&&(iter==1)){
+			       if(HESSIAN==2){
 			           hessian_shin_TE(&fwiTE,&waveAC,&PML_AC,&matTE,acq.srcpos,nshots,acq.recpos,ntr,iter,nstage);
 			       }
 
-   			       /* apply approximate Hessians to gradients */			    
-			       apply_hess_AC(fwiTE.grad_sigma,fwiTE.hess_sigma);
-			       apply_hess_AC(fwiTE.grad_epsilon,fwiTE.hess_epsilon);
-
+   			       /* apply approximate Hessians to gradients if PCG */
+			       if(GRAD_METHOD==1||GRAD_METHOD==3){
+			          apply_hess_AC(fwiTE.grad_sigma,fwiTE.hess_sigma);
+			          apply_hess_AC(fwiTE.grad_epsilon,fwiTE.hess_epsilon);
+			       }
 
 			   }
 
