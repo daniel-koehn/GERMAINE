@@ -33,6 +33,13 @@ CFLAGS=-O3 -w -fno-stack-protector -D_FORTIFY_SOURCE=0
 SFLAGS=-L$//home/daniel-koehn/libs/SuiteSparse/lib
 IFLAGS=-I$//home/daniel-koehn/libs/SuiteSparse/include -I./../include
 
+# On Desktop computer @ Geophysics (CAU Kiel) with Debian, OpenMPI and gcc 4.8.2
+#CC=mpicc
+#LFLAGS=-lm -lstdc++ -lumfpack
+#CFLAGS=-O3 -w -fno-stack-protector -D_FORTIFY_SOURCE=0
+#SFLAGS=-L$//home/dkoehn/libs/SuiteSparse/lib
+#IFLAGS=-I$//home/dkoehn/libs/SuiteSparse/include -I./../include
+
 # On HLRN system
 #CC=mpcc
 #LFLAGS=-lm  
