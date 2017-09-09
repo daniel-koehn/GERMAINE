@@ -12,7 +12,7 @@ void calc_mat_change_wolfe_multi_para(float  **  Hgrad, float **  vp, float **  
 	/* global variables */
 	extern int NX, NY, MYID;
 	extern char INV_MODELFILE[STRING_SIZE];
-	extern float MAT1_LOW, MAT1_UP, MAT2_LOW, MAT2_UP;
+	extern float MAT1_LOW, MAT1_UP, MAT2_LOW, MAT2_UP, MAT1_NORM, MAT2_NORM;
 
 	/* local variables */
 	int i, j;
@@ -20,13 +20,13 @@ void calc_mat_change_wolfe_multi_para(float  **  Hgrad, float **  vp, float **  
         float maxgrad, maxvp, vp_low, vp_up;
 
 	if(para_index==1){
-	    vp_low = MAT1_LOW;
-	    vp_up = MAT1_UP;
+	    vp_low = MAT1_LOW / MAT1_NORM;
+	    vp_up = MAT1_UP / MAT1_NORM;
 	}
 
 	if(para_index==2){
-	    vp_low = MAT2_LOW;
-	    vp_up = MAT2_UP;
+	    vp_low = MAT2_LOW / MAT2_NORM;
+	    vp_up = MAT2_UP / MAT2_NORM; 
 	}
 
 
@@ -43,17 +43,12 @@ void calc_mat_change_wolfe_multi_para(float  **  Hgrad, float **  vp, float **  
 		    vp[j][i] = vp_old[j][i] + eps_scale * Hgrad[j][i]; 	
 		  
 		    /* apply hard constraints */
-	      	    /*if(vp[j][i] < vp_low){
-	               vp[j][i] = vp_old[j][i];
+	      	    if(vp[j][i] < vp_low){
+	               vp[j][i] = vp_low;
 	            }
 		      
 		    if(vp[j][i] > vp_up){
-		       vp[j][i] = vp_old[j][i];
-		    }*/
-		      		      
-		    /* P-wave velocity should not be smaller than zero */
-		    if(vp[j][i]<0.0){
-		       vp[j][i] = vp_old[j][i];
+		       vp[j][i] = vp_up;
 		    }
 		                
 		}

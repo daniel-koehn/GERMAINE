@@ -30,8 +30,8 @@ for (i=1;i<=nstage;i++){
 fclose(fp);
 
 /* calculate scaling factors on all MPI processes*/
-if(BETA_MAT1>0.0){MAT1_NORM = MAT1_NORM0 * BETA_MAT1;}
-if(BETA_MAT2>0.0){MAT2_NORM = MAT2_NORM0 * BETA_MAT2;}
+MAT1_NORM = MAT1_NORM0 * BETA_MAT1;
+MAT2_NORM = MAT2_NORM0 * BETA_MAT2;
 
 if((MYID==0)&&(INVMAT==1)){
 
