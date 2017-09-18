@@ -19,8 +19,8 @@ float Tikhonov_cost_TE(struct fwiTE *fwiTE, struct matTE *matTE, float L2, int i
 
 
 	/* calculate normalized material parameters */
-	scale_grad((*matTE).sigma,1.0/MAT1_NORM,(*matTE).sigmar,NX,NY);
-	scale_grad((*matTE).epsilon,1.0/MAT2_NORM,(*matTE).epsilonr,NX,NY);
+	scale_grad((*matTE).sigma,BETA_MAT1/MAT1_NORM,(*matTE).sigmar,NX,NY);
+	scale_grad((*matTE).epsilon,BETA_MAT2/MAT2_NORM,(*matTE).epsilonr,NX,NY);
 
 	tikh_sigma = 0.0;
 	tikh_epsilon = 0.0;

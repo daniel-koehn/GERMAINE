@@ -20,8 +20,8 @@ void Tikhonov_grad_TE(struct fwiTE *fwiTE, struct matTE *matTE, int iter){
 	if((LAMBDA_1>0.0)||(LAMBDA_2>0.0)){
 
 	   /* calculate normalized material parameters */
-	   scale_grad((*matTE).sigma,1.0/MAT1_NORM,(*matTE).sigmar,NX,NY);
-	   scale_grad((*matTE).epsilon,1.0/MAT2_NORM,(*matTE).epsilonr,NX,NY);
+	   scale_grad((*matTE).sigma,BETA_MAT1/MAT1_NORM,(*matTE).sigmar,NX,NY);
+	   scale_grad((*matTE).epsilon,BETA_MAT2/MAT2_NORM,(*matTE).epsilonr,NX,NY);
 
 	   /* calculate Laplacian of sigma and epsilon and update gradient */
 	   for (i=2;i<=NX-1;i=i+IDX){

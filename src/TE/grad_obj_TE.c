@@ -146,7 +146,7 @@ float grad_obj_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *PML
 		     RHS_source_AC_adj(waveAC,acq.recpos,ntr);
 
  		     /* solve adjoint problem by forward and back substitution */
-	    	     status = umfpack_zi_solve(UMFPACK_A, Ap, Ai, Ax, Az, xr, xi, (*waveAC).RHSr, (*waveAC).RHSi, Numeric, null, null);
+	    	     status = umfpack_zi_solve(UMFPACK_Aat, Ap, Ai, Ax, Az, xr, xi, (*waveAC).RHSr, (*waveAC).RHSi, Numeric, null, null);
 
 		     /* convert vector xr/xi to pr/pi */
 		     vec2mat((*waveAC).pr,(*waveAC).pi,xr,xi);
