@@ -37,7 +37,7 @@ void read_stf_dft(struct waveAC *waveAC, float *amp){
 	ndt = tr.dt;
 
 	if(PHYSICS<=3){dt = ndt / 1e6;  /* convert units [mus] to [s] */}
-	if(PHYSICS==4){dt = ndt / 1e9;  /* convert units [ns] to [s] */}
+	if(PHYSICS==4){dt = ndt / 1e12;  /* convert units [ns] to [s] */}
 
 	/* read source wavelet */
 	fread(&tr.data,4,ns,fpdata);
@@ -49,7 +49,7 @@ void read_stf_dft(struct waveAC *waveAC, float *amp){
 	h=ns;
 	for(j=1;j<=ns;j++){
 	    dump=tr.data[j];
-	    wavelet[h]=dump;
+	    wavelet[j]=dump;
 	    h--;
 	}
 
@@ -63,7 +63,7 @@ void read_stf_dft(struct waveAC *waveAC, float *amp){
 
 	for(j=1;j<=ns;j++){
    
-                t = j * dt;
+                t = (j-1) * dt;
             
                 amp[1] += wavelet[j] * cos(2.0 * t * (*waveAC).freq * M_PI) * dt;
                 amp[2] += wavelet[j] * sin(2.0 * t * (*waveAC).freq * M_PI) * dt;
