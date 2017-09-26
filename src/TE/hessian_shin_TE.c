@@ -54,8 +54,8 @@ void hessian_shin_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct PML_AC *
 		(*waveAC).freq = (*waveAC).stage_freq[nfreq];
 
 		/* set squared complex angular frequency*/
-		Omega = 2.0 * M_PI * (*waveAC).freq - (I * S);
-		Omega2 = cpowf(((2.0*M_PI*(*waveAC).freq) - (I * S)),2.0);
+		Omega = 2.0 * M_PI * ((*waveAC).freq + (I * S));
+		Omega2 = cpowf((2.0*M_PI*((*waveAC).freq + (I * S))),2.0);
 
 		/* define PML damping profiles */
 		pml_pro(PML_AC,waveAC);

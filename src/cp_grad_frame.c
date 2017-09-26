@@ -207,8 +207,8 @@ void cp_grad_frame(float ** A){
 		    }
 	     }
 
-	    sprintf(modfile,"grad_damp_PML.bin");
-	    writemod(modfile,absorb_coeff,3); 
+	    /*sprintf(modfile,"grad_damp_PML.bin");
+	    writemod(modfile,absorb_coeff,3); */
 
 	    free_vector(coeff,1,NPML);	
 	    free_matrix(absorb_coeff,1,NY,1,NX);

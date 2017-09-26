@@ -17,7 +17,7 @@ void RHS_source_TE_hess(struct waveAC *waveAC, int ** recpos, int trace){
         float ampr, ampi, mu0;
 	complex float omega;
 
-	omega = 2.0 * M_PI * ((*waveAC).freq - S * I);
+	omega = 2.0 * M_PI * ((*waveAC).freq + S * I);
 
         /* initialize source vector */
         for (i=0;i<NXNY;i++){

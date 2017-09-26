@@ -51,8 +51,8 @@ void init_A_TE_9p_pml(struct PML_AC *PML_AC, struct matTE *matTE, struct waveAC 
         count=0;    /* count non-zero elements */
 
 	/* set squared complex angular frequency*/
-	Omega = 2.0 * M_PI * ((*waveAC).freq - S * I);
-	Omega2 = cpowf(2.0 * M_PI * ((*waveAC).freq - S * I),2.0);
+	Omega = 2.0 * M_PI * ((*waveAC).freq + S * I);
+	Omega2 = cpowf(2.0 * M_PI * ((*waveAC).freq + S * I),2.0);
 
 	/* define magnetic permeability mu0 */
 	mu0 = 4.0 * M_PI * 1e-7;

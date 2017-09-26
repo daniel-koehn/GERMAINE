@@ -19,8 +19,8 @@ void ass_grad_TE(struct fwiTE *fwiTE, struct waveAC *waveAC, struct matTE *matTE
 	complex float wien, Omega, Omega2;
 
 	wien = 	(*waveAC).stfr + (*waveAC).stfi * I;	
-	Omega = 2.0 * M_PI * (*waveAC).freq - (I * S);
-	Omega2 = cpowf(((2.0*M_PI*(*waveAC).freq) - (I * S)),2.0);
+	Omega = 2.0 * M_PI * ((*waveAC).freq + (I * S));
+	Omega2 = cpowf(2.0*M_PI*((*waveAC).freq + (I * S)),2.0);
 
 	/* printf("abs(wien) = %e + i %e \n",creal(cabsf(wien)),cimag(cabsf(wien))); */
 	

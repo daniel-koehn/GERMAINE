@@ -19,7 +19,7 @@ void RHS_source_TE(struct waveAC *waveAC, float ** srcpos, int ishot){
 	complex float omega;
 
 	amp = vector(1,2);
-	omega = 2.0 * M_PI * ((*waveAC).freq - S * I);
+	omega = 2.0 * M_PI * ((*waveAC).freq + S * I);
 	mu0 = 4.0 * M_PI * 1e-7;
 
 	/* calculate discrete source position */
