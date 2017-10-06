@@ -10,7 +10,7 @@
 void forward_shot_SH(struct waveAC *waveAC, struct PML_AC *PML_AC, struct matSH *matSH, float ** srcpos, int nshots, int ** recpos, int ntr, int nstage, int nfreq){
 
 	/* declaration of global variables */
-        extern int NSHOT1, NSHOT2, NONZERO, NX, NY, NXNY;
+        extern int NSHOT1, NSHOT2, NONZERO, NX, NY, NXNY, NF;
         extern int SNAP, SEISMO, MYID, INFO, N_STREAMER, READ_REC;
         extern float DH;
         extern char SNAP_FILE[STRING_SIZE];

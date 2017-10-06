@@ -17,9 +17,7 @@ void alloc_matSH(struct matSH *matSH){
 
         /* vs, ivs2, rho and k2 */
 	(*matSH).vs = matrix(1,NY,1,NX);
-	(*matSH).ivs2 = matrix(1,NY,1,NX);
 	(*matSH).rho = matrix(1,NY,1,NX);
-	(*matSH).ivs2 = matrix(1,NY,1,NX);
-	(*matSH).k2 = matrix(1,NY,1,NX);
+	(*matSH).mu = matrix(0,NY+1,0,NX+1);
 
 }

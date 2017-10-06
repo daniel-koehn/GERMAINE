@@ -85,7 +85,8 @@ struct fwiSH{
 
 /* elastic SH material parameters */
 struct matSH{
-   float  **rho, ** vs, ** ivs2, **k2;	
+   float  **rho, ** vs, ** mu;
+   float bpm, bmp, bpp, bmm, b00, bp0, bm0, b0p, b0m;	
 } matSH;
 
 /* TE-mode variables */
@@ -171,13 +172,17 @@ void write_seis_AC(struct waveAC *waveAC, int nshots, int ntr, int nstage);
 
 void alloc_matSH(struct matSH *matSH);
 
+void av_mu(struct matSH *matSH, int i, int j);
+
 void forward_SH(char *fileinp1);
 
 void forward_shot_SH(struct waveAC *waveAC, struct PML_AC *PML_AC, struct matSH *matSH, float ** srcpos, int nshots, int ** recpos, int ntr, int nstage, int nfreq);
 
 void init_A_SH_9p_pml(struct PML_AC *PML_AC, struct matSH *matSH, struct waveAC *waveAC);
 
-void pml_pro_SH(struct PML_AC *PML_AC, struct waveAC *waveAC, struct matSH *matSH);
+void init_mat_SH(struct waveAC *waveAC, struct matSH *matSH);
+
+void model_SH(struct matSH *matSH);
 
 void readmod_SH(struct matSH *matSH);
 

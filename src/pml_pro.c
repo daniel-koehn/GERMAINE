@@ -65,24 +65,44 @@ void pml_pro(struct PML_AC *PML_AC, struct waveAC *waveAC){
 
 	    x = i * DH;
 	    xh = x + 0.5 * DH;
+     	    
+	    /* define PML damping profiles in x- and y-direction */
 
-	    betad = x * betam / lPML;
-	    betadh = xh * betam / lPML;
+	    /* "classical" PML profiles (Berenger 1994, Chew & Weedon 1994) */
+	    /* ------------------------------------------------------------ */
 
 	    /* compute eps and alpha */
             eps = A0_PML * (1.0 - cos((lPML-x) * pih / lPML));
-	    alpha = 1.0;
-	
+	    	
 	    /* compute epsh and alphah */
             epsh = A0_PML * (1.0 - cos((lPML-xh) * pih / lPML));
+	    
+            /*(*PML_AC).dampxr[i] = creal( 1.0 / (1.0  + ci * eps  / OMEGA_PML));            
+            (*PML_AC).dampxi[i] = cimag( 1.0 / (1.0  + ci * eps  / OMEGA_PML));            
+
+            (*PML_AC).dampxhr[i] = creal( 1.0 / (1.0 + ci * epsh / OMEGA_PML));
+            (*PML_AC).dampxhi[i] = cimag( 1.0 / (1.0 + ci * epsh / OMEGA_PML));*/
+
+            (*PML_AC).dampxr[i] = creal( 1.0 / (1.0  + eps  / (ci * OMEGA_PML)));            
+            (*PML_AC).dampxi[i] = cimag( 1.0 / (1.0  + eps  / (ci * OMEGA_PML)));            
+
+            (*PML_AC).dampxhr[i] = creal( 1.0 / (1.0 + epsh / (ci * OMEGA_PML)));
+            (*PML_AC).dampxhi[i] = cimag( 1.0 / (1.0 + epsh / (ci * OMEGA_PML)));
+
+	    /* C-PML profiles (Kuzuoglu & Mittra; 1996; Roden & Gedney; 2000; Komatitsch & Martin; 2007) */
+	    /* ----------------------------------------------------------------------------------------- */
+
+	    /*betad = x * betam / lPML;
+	    betadh = xh * betam / lPML;
+
+	    alpha = 1.0;
 	    alphah = 1.0;
-     	    
-	    /* define PML damping profiles in x- and y-direction */
+
             (*PML_AC).dampxr[i] = creal( 1.0 / (alpha  + ci * eps  / (OMEGA_PML + ci * betad)));            
             (*PML_AC).dampxi[i] = cimag( 1.0 / (alpha  + ci * eps  / (OMEGA_PML + ci * betad)));            
 
             (*PML_AC).dampxhr[i] = creal( 1.0 / (alphah + ci * epsh / (OMEGA_PML + ci * betadh)));
-            (*PML_AC).dampxhi[i] = cimag( 1.0 / (alphah + ci * epsh / (OMEGA_PML + ci * betadh)));
+            (*PML_AC).dampxhi[i] = cimag( 1.0 / (alphah + ci * epsh / (OMEGA_PML + ci * betadh)));*/
 
 	    (*PML_AC).dampyr[i] = (*PML_AC).dampxr[i];
 	    (*PML_AC).dampyi[i] = (*PML_AC).dampxi[i];

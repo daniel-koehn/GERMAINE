@@ -6,6 +6,7 @@
 # source code for model generation
 
 MODEL = 1D_start_BP2004.c
+MODEL_SH = mod_hom_SH.c
 MODEL_GRID_SEARCH = 1D_start_gridsearch.c
 EXEC= ../bin
 
@@ -114,11 +115,13 @@ GERMAINE+= \
 
 # add SH source files
 GERMAINE+= \
+	av_mu.c \
 	alloc_matSH.c \
 	forward_SH.c \
 	forward_shot_SH.c \
 	init_A_SH_9p_pml.c \
-	pml_pro_SH.c \
+	init_mat_SH.c \
+	$(MODEL_SH) \
 	readmod_SH.c
 
 # add TE source files

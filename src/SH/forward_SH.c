@@ -85,7 +85,7 @@ void forward_SH(char *fileinp1){
 	if (READMOD){
 	    readmod_SH(&matSH); 
 	}else{
-	    /* model(matAC.vp); */ /* currently not implemented for SH*/
+	    model_SH(&matSH);
 	}
 
 	/* read parameters from workflow-file (stdin) */
@@ -106,7 +106,7 @@ void forward_SH(char *fileinp1){
 	if (i=='\n') ++stagemax;
 	rewind(FP);
 	stagemax--;
-	fclose(FP);     
+	fclose(FP);  
 
 	/* loop over GERMAINE workflow stages */
 	for(nstage=1;nstage<=stagemax;nstage++){
@@ -116,7 +116,8 @@ void forward_SH(char *fileinp1){
 		read_par_inv(FP_stage,nstage,stagemax);
 
 		/* estimate frequency sample interval and set first frequency */
-		waveAC.dfreq = (FC_high-FC_low) / (NF-1);
+		if(NF>1){waveAC.dfreq = (FC_high-FC_low) / (NF-1);}
+		else{waveAC.dfreq = (FC_high-FC_low) / NF;}
                 
 		/* estimate frequencies for current FWI stage */
 		waveAC.stage_freq = vector(1,NF);
@@ -124,7 +125,7 @@ void forward_SH(char *fileinp1){
 
 		for(i=2;i<=NF;i++){
 		    waveAC.stage_freq[i] = waveAC.stage_freq[i-1] + waveAC.dfreq; 
-		} 		
+		}   		
 
 		/* split MPI communicator for shot parallelization */
 		COLOR = MYID / NPROCFREQ;
@@ -154,7 +155,7 @@ void forward_SH(char *fileinp1){
 			waveAC.freq = waveAC.stage_freq[nfreq]; 
 
 			/* define PML damping profiles */
-			pml_pro_SH(&PML_AC,&waveAC,&matSH);
+			pml_pro(&PML_AC,&waveAC);			
 	
 			/* solve forward problem for all shots*/
 			forward_shot_SH(&waveAC,&PML_AC,&matSH,acq.srcpos,nshots,acq.recpos,ntr,nstage,nfreq);
