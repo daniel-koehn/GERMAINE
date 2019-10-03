@@ -11,10 +11,10 @@
 #PBS -q clmedium               # Batch-Klasse
 
 # Initialisierung der Intel-Umgebung
-module load intel16.0.3 intelmpi16.0.3
+module load intel17.0.4 intelmpi17.0.4
 
 cd $WORK/GERMAINE/par
 mpirun $NQSII_MPIOPTS -np 16 ../bin/germaine GERMAINE_overthrust.inp GERMAINE_workflow_overthrust.inp > GERMAINE.out
 
 # Ausgabe der verbrauchten Ressourcen (Rechenzeit, Hauptspeicher) nach Jobende
-/usr/bin/nqsII/qstat -f ${PBS_JOBID/0:}
+/opt/nec/nqsv/bin/qstat -f ${PBS_JOBID/0:/}
