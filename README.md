@@ -19,7 +19,7 @@ GERMAINE is distributed in the hope that it will be useful, but WITHOUT ANY WARR
 
 If you show modelling/inversion results in a paper or presentation please refer to:
 
-Köhn, D., De Nil, D. and Rabbel, W. (2017) Introduction to frequency domain modelling and FWI of georadar data with GERMAINE, DOI:10.13140/RG.2.2.29354.03523
+Köhn, D., De Nil, D. and Rabbel, W. (2017) Tutorial: Introduction to frequency domain modelling and FWI of georadar data with GERMAINE, DOI:10.13140/RG.2.2.29354.03523
 
 https://danielkoehnsite.wordpress.com/blog/tutorials/fdfd-modelling-and-fwi-of-georadar-data/
 
