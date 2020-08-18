@@ -15,10 +15,12 @@ The code is parallelized with MPI using a very simple shot-frequency paralleliza
 
 GERMAINE is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.0 of the License only.
 
-GERMAINE is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General 
-Public License in LICENSE.md for more details.
+GERMAINE is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License in LICENSE.md for more details.
 
-If you show modelling/inversion results in a paper or presentation please give a reference to the following papers:
+If you show modelling/inversion results in a paper or presentation please refer to:
 
+Köhn, D., De Nil, D. and Rabbel, W. (2017) Introduction to frequency domain modelling and FWI of georadar data with GERMAINE, DOI:10.13140/RG.2.2.29354.03523
+
+https://danielkoehnsite.wordpress.com/blog/tutorials/fdfd-modelling-and-fwi-of-georadar-data/
 
 Daniel Koehn and Denise De Nil
